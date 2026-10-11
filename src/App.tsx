@@ -1,4 +1,5 @@
 import { LanguageProvider } from './context/LanguageContext'
+import { AuthProvider } from './context/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { LightningAtmosphere } from './components/ui/LightningAtmosphere'
@@ -7,7 +8,10 @@ import { AboutSection } from './features/about/AboutSection'
 import { ExperienceSection } from './features/experience/ExperienceSection'
 import { SkillsSection } from './features/skills/SkillsSection'
 import { PrinciplesSection } from './features/principles/PrinciplesSection'
+import { GuestbookSection } from './features/guestbook/GuestbookSection'
 import { ContactSection } from './features/contact/ContactSection'
+import { AuthModal } from './components/auth/AuthModal'
+import { AdminDashboardModal } from './components/admin/AdminDashboardModal'
 
 export function AppContent() {
   return (
@@ -23,7 +27,7 @@ export function AppContent() {
         Skip to main content
       </a>
 
-      {/* Header & Navigation */}
+      {/* Header & Navigation with Google Auth Status */}
       <Navbar />
 
       {/* Main Experience Stream */}
@@ -33,11 +37,18 @@ export function AppContent() {
         <ExperienceSection />
         <SkillsSection />
         <PrinciplesSection />
+        <GuestbookSection />
         <ContactSection />
       </main>
 
       {/* Footer */}
       <Footer />
+
+      {/* Google Authentication Gateway Modal */}
+      <AuthModal />
+
+      {/* Exclusive Admin Command Center Modal for Mai Anh Kiệt */}
+      <AdminDashboardModal />
     </div>
   )
 }
@@ -45,7 +56,9 @@ export function AppContent() {
 export default function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </LanguageProvider>
   )
 }

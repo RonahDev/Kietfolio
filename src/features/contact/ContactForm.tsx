@@ -1,21 +1,45 @@
 import React, { useState } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
+import { useAuth } from '../../hooks/useAuth'
 import { profileData } from '../../data/profile'
 import { validateContactForm } from '../../utils/validation'
 import type { ContactFormData, FormValidationErrors } from '../../types'
+import type { ContactMessage } from '../../types/auth'
 import { Button } from '../../components/ui/Button'
-import { Send, CheckCircle2, AlertCircle, Mail, Copy, Check } from 'lucide-react'
+import { GoogleIcon } from '../../components/ui/GoogleIcon'
+import {
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Mail,
+  Copy,
+  Check,
+  ShieldCheck,
+} from 'lucide-react'
+
+const MESSAGES_STORAGE_KEY = 'kietfolio_inbox_messages'
 
 export const ContactForm: React.FC = () => {
   const { t, language } = useLanguage()
+  const { user, openAuthModal } = useAuth()
 
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
-    email: '',
+  const [formData, setFormData] = useState<ContactFormData>(() => ({
+    name: user?.displayName || '',
+    email: user?.email || '',
     subject: '',
     message: '',
     honeypot: '',
-  })
+  }))
+
+  const handleApplyGoogleProfile = () => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.displayName || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }
 
   const [errors, setErrors] = useState<FormValidationErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -57,6 +81,25 @@ export const ContactForm: React.FC = () => {
 
     setErrors({})
     setIsSubmitting(true)
+
+    // Save message into Admin inbox storage for Kiệt
+    try {
+      const existingStr = localStorage.getItem(MESSAGES_STORAGE_KEY)
+      const existing: ContactMessage[] = existingStr ? JSON.parse(existingStr) : []
+      const newMessage: ContactMessage = {
+        id: `msg-${Date.now()}`,
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        timestamp: new Date().toISOString(),
+        isVerifiedUser: Boolean(user),
+        read: false,
+      }
+      localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify([newMessage, ...existing]))
+    } catch (err) {
+      console.warn('Could not save to local inbox storage:', err)
+    }
 
     // Simulate validation and open client email dispatch honestly
     setTimeout(() => {
@@ -109,6 +152,53 @@ export const ContactForm: React.FC = () => {
           )}
         </button>
       </div>
+
+      {/* Google Auth Status Banner */}
+      {user ? (
+        <div className="p-3 rounded-sm bg-[#0c1a30] border border-[#00d2ff]/40 flex items-center justify-between gap-3 text-xs font-mono">
+          <div className="flex items-center gap-2.5 truncate">
+            <img
+              src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
+              alt={user.displayName || 'User'}
+              className="w-6 h-6 rounded-full border border-[#00d2ff] shrink-0"
+            />
+            <span className="text-[#f1f5f9] truncate">
+              {language === 'vi' ? 'Đang gửi dưới danh nghĩa:' : 'Transmitting as:'}{' '}
+              <strong className="text-[#00d2ff]">{user.displayName}</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleApplyGoogleProfile}
+              className="text-[10px] text-[#00d2ff] hover:underline cursor-pointer"
+            >
+              [{language === 'vi' ? 'Điền Tự Động' : 'Auto-fill'}]
+            </button>
+            <div className="flex items-center gap-1.5 text-[#34a853] font-bold text-[10px]">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>GOOGLE_VERIFIED</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-3 rounded-sm bg-[#0a1224] border border-[#172847] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs font-mono">
+          <span className="text-[#94a3b8]">
+            {language === 'vi'
+              ? 'Xác thực với Gmail để tự động điền & gắn huy hiệu đối tác?'
+              : 'Sign in with Google to auto-fill & verify partner badge?'}
+          </span>
+          <button
+            type="button"
+            onClick={openAuthModal}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-[#0f1b33] hover:bg-[#142444] border border-[#172847] hover:border-[#00d2ff] text-[#00d2ff] text-[11px] font-bold cursor-pointer transition-colors self-start sm:self-auto"
+          >
+            <GoogleIcon className="w-3.5 h-3.5" />
+            <span>{language === 'vi' ? 'Đăng Nhập Gmail' : 'Sign In Google'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Structured Transmission Form */}
       <form onSubmit={handleSubmit} noValidate className="space-y-4 font-['Be_Vietnam_Pro',sans-serif]">

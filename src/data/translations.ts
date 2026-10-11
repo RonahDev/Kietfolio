@@ -12,6 +12,9 @@ export interface TranslationDictionary {
     menu: string
     close: string
     statusAvailable: string
+    loginGoogle: string
+    adminDashboard: string
+    logout: string
   }
   hero: {
     greeting: string
@@ -126,6 +129,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       menu: 'Menu',
       close: 'Close',
       statusAvailable: 'Undergraduate · Open for Collaborations',
+      loginGoogle: 'Sign In (Gmail)',
+      adminDashboard: 'Admin Control',
+      logout: 'Sign Out',
     },
     hero: {
       greeting: 'SYS // PORTFOLIO INITIALIZED',
@@ -238,6 +244,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       menu: 'Menu',
       close: 'Đóng',
       statusAvailable: 'Sinh viên ĐH · Sẵn sàng hợp tác & Thực tập',
+      loginGoogle: 'Đăng Nhập Gmail',
+      adminDashboard: 'Quản Trị Admin',
+      logout: 'Đăng Xuất',
     },
     hero: {
       greeting: 'SYS // KHỞI TẠO HỆ THỐNG',

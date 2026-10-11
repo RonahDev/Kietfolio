@@ -1,13 +1,28 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
+import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../ui/Button'
-import { Menu, X, Globe, Terminal, ArrowUpRight } from 'lucide-react'
+import { GoogleIcon } from '../ui/GoogleIcon'
+import {
+  Menu,
+  X,
+  Globe,
+  Terminal,
+  ArrowUpRight,
+  Shield,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react'
 
 export const Navbar: React.FC = () => {
   const { t, language, toggleLanguage } = useLanguage()
+  const { user, isAdmin, openAuthModal, openAdminModal, signOutUser } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const navLinks = [
     { id: 'hero', label: t.nav.home },
@@ -15,6 +30,7 @@ export const Navbar: React.FC = () => {
     { id: 'experience', label: t.nav.experience },
     { id: 'skills', label: t.nav.skills },
     { id: 'principles', label: t.nav.principles },
+    { id: 'guestbook', label: language === 'vi' ? 'Sổ lưu bút' : 'Guestbook' },
     { id: 'contact', label: t.nav.contact },
   ]
 
@@ -23,7 +39,7 @@ export const Navbar: React.FC = () => {
       setIsScrolled(window.scrollY > 30)
 
       // Active section spy
-      const sections = ['hero', 'about', 'experience', 'skills', 'principles', 'contact']
+      const sections = ['hero', 'about', 'experience', 'skills', 'principles', 'guestbook', 'contact']
       const scrollPosition = window.scrollY + 200
 
       for (const sectionId of sections) {
@@ -43,16 +59,28 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Close mobile menu on Escape key
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Close menus on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false)
+      if (e.key === 'Escape') {
+        if (mobileMenuOpen) setMobileMenuOpen(false)
+        if (userDropdownOpen) setUserDropdownOpen(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, userDropdownOpen])
 
   return (
     <header
@@ -108,8 +136,93 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Actions: Language Switch & CTA */}
+          {/* Right Actions: Google Auth, Language Switch & Contact CTA */}
           <div className="hidden sm:flex items-center gap-3">
+            {/* Google Authentication Button / User Profile Menu */}
+            {!user ? (
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm transition-all shadow-[0_0_12px_rgba(0,210,255,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+                title="Đăng nhập Gmail / Google OAuth"
+              >
+                <GoogleIcon className="w-3.5 h-3.5 shrink-0" />
+                <span className="font-bold">{t.nav.loginGoogle}</span>
+              </button>
+            ) : (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-mono border rounded-sm transition-all cursor-pointer ${
+                    isAdmin
+                      ? 'border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.25)]'
+                      : 'border-[#172847] bg-[#0a1224] text-[#f1f5f9] hover:border-[#00d2ff]/40'
+                  }`}
+                >
+                  <img
+                    src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
+                    alt={user.displayName || 'User'}
+                    className="w-5 h-5 rounded-full border border-[#00d2ff]/40 shrink-0 object-cover"
+                  />
+                  <span className="font-bold max-w-[90px] truncate">
+                    {user.displayName?.split(' ')[0] || 'User'}
+                  </span>
+                  <span
+                    className={`text-[9px] px-1 rounded-xs font-bold ${
+                      isAdmin ? 'bg-[#00d2ff] text-[#050a14]' : 'bg-[#172847] text-[#94a3b8]'
+                    }`}
+                  >
+                    {isAdmin ? 'ADMIN' : 'USER'}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-[#94a3b8]" />
+                </button>
+
+                {/* Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-sm bg-[#0a1224] border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs">
+                    <div className="p-2 border-b border-[#172847] mb-1">
+                      <div className="font-bold text-[#f1f5f9] truncate">
+                        {user.displayName}
+                      </div>
+                      <div className="text-[11px] text-[#00d2ff] truncate">
+                        {user.email}
+                      </div>
+                      <div className="mt-1 text-[9px] text-[#64748b]">
+                        {isAdmin ? 'CLEARANCE: ADMIN (63BDG02)' : 'ROLE: VERIFIED VISITOR'}
+                      </div>
+                    </div>
+
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false)
+                          openAdminModal()
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-[#00d2ff] hover:bg-[#0f1b33] transition-colors cursor-pointer"
+                      >
+                        <Shield className="w-3.5 h-3.5 shrink-0" />
+                        <span>{t.nav.adminDashboard}</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false)
+                        signOutUser()
+                      }}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-red-400 hover:bg-red-950/30 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5 shrink-0" />
+                      <span>{t.nav.logout}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Language Switch Button */}
             <button
               onClick={toggleLanguage}
@@ -136,6 +249,29 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex sm:hidden items-center gap-2">
+            {!user ? (
+              <button
+                type="button"
+                onClick={openAuthModal}
+                className="p-1.5 border border-[#172847] bg-[#0a1224] text-xs font-mono rounded-sm cursor-pointer"
+                title="Đăng nhập Gmail"
+              >
+                <GoogleIcon className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={isAdmin ? openAdminModal : openAuthModal}
+                className="p-1 border border-[#00d2ff]/40 bg-[#0a1224] rounded-sm cursor-pointer"
+              >
+                <img
+                  src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
+                  alt="User"
+                  className="w-5 h-5 rounded-full"
+                />
+              </button>
+            )}
+
             <button
               onClick={toggleLanguage}
               type="button"
@@ -144,6 +280,7 @@ export const Navbar: React.FC = () => {
             >
               {language.toUpperCase()}
             </button>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
@@ -166,6 +303,61 @@ export const Navbar: React.FC = () => {
           aria-label="Mobile Navigation Drawer"
         >
           <div className="flex flex-col space-y-3 font-mono">
+            {/* User status card in mobile drawer */}
+            {user ? (
+              <div className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#172847] flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
+                    alt="User"
+                    className="w-7 h-7 rounded-full border border-[#00d2ff]"
+                  />
+                  <div>
+                    <div className="text-xs font-bold text-[#f1f5f9]">{user.displayName}</div>
+                    <div className="text-[10px] text-[#00d2ff]">{user.email}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        openAdminModal()
+                      }}
+                      className="px-2 py-1 rounded-xs bg-[#00d2ff] text-[#050a14] text-[10px] font-bold"
+                    >
+                      ADMIN
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      signOutUser()
+                    }}
+                    className="p-1 rounded-xs text-red-400 hover:bg-red-950/40"
+                    title="Đăng xuất"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  openAuthModal()
+                }}
+                className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#00d2ff]/40 flex items-center justify-center gap-2 text-xs font-bold text-[#f1f5f9]"
+              >
+                <GoogleIcon className="w-4 h-4" />
+                <span>{t.nav.loginGoogle}</span>
+              </button>
+            )}
+
             {navLinks.map((link) => {
               const isActive = activeSection === link.id
               return (

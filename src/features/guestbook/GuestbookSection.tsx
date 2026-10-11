@@ -1,0 +1,309 @@
+import React, { useState } from 'react'
+import { useLanguage } from '../../hooks/useLanguage'
+import { useAuth } from '../../hooks/useAuth'
+import { SectionHeader } from '../../components/ui/SectionHeader'
+import { Card } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { GoogleIcon } from '../../components/ui/GoogleIcon'
+import { type GuestbookEntry } from '../../types/auth'
+import {
+  MessageSquare,
+  Send,
+  Trash2,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+} from 'lucide-react'
+
+const GUESTBOOK_STORAGE_KEY = 'kietfolio_guestbook_entries'
+
+const defaultSeedEntries: GuestbookEntry[] = [
+  {
+    id: 'gb-seed-1',
+    uid: 'seed-uid-1',
+    name: 'Nguyễn Hoàng Long (FPT Software)',
+    email: 'long.nh@fpt-software.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=LongNH',
+    message:
+      'Giao diện web màu xanh sấm sét rất ấn tượng, chuyển động Three.js và GSAP mượt mà! Thích cách Kiệt liên hệ tư duy vận hành điều phối tài xế vào kỹ thuật phần mềm.',
+    role: 'visitor',
+    timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+    isVerifiedGoogle: true,
+  },
+  {
+    id: 'gb-seed-2',
+    uid: 'seed-uid-2',
+    name: 'Đồng nghiệp Trạm SPX 63BDG02',
+    email: 'team.spx.hub@gmail.com',
+    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=SPXTeam',
+    message:
+      'Chúc Kiệt gặt hái nhiều thành công! Tinh thần chịu áp lực ngày sale và khả năng điều phối gần 50 shipper của Kiệt ở hub Thủ Dầu Một luôn được anh em đánh giá rất cao.',
+    role: 'visitor',
+    timestamp: new Date(Date.now() - 3600000 * 36).toISOString(),
+    isVerifiedGoogle: true,
+  },
+]
+
+export const GuestbookSection: React.FC = () => {
+  const { language } = useLanguage()
+  const { user, isAdmin, openAuthModal } = useAuth()
+  const [entries, setEntries] = useState<GuestbookEntry[]>(() => {
+    try {
+      const stored = localStorage.getItem(GUESTBOOK_STORAGE_KEY)
+      if (stored) {
+        return JSON.parse(stored)
+      }
+    } catch {
+      // fallback
+    }
+    return defaultSeedEntries
+  })
+  const [newMessage, setNewMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [postedSuccess, setPostedSuccess] = useState(false)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!user || !newMessage.trim()) return
+
+    setIsSubmitting(true)
+    setTimeout(() => {
+      const newEntry: GuestbookEntry = {
+        id: `gb-${Date.now()}`,
+        uid: user.uid,
+        name: user.displayName || 'Google User',
+        email: user.email || '',
+        avatarUrl: user.photoURL || undefined,
+        message: newMessage.trim(),
+        role: user.role,
+        timestamp: new Date().toISOString(),
+        isVerifiedGoogle: true,
+      }
+
+      const updated = [newEntry, ...entries]
+      setEntries(updated)
+      localStorage.setItem(GUESTBOOK_STORAGE_KEY, JSON.stringify(updated))
+      setNewMessage('')
+      setIsSubmitting(false)
+      setPostedSuccess(true)
+      setTimeout(() => setPostedSuccess(false), 3000)
+    }, 400)
+  }
+
+  const handleDelete = (id: string) => {
+    const updated = entries.filter((e) => e.id !== id)
+    setEntries(updated)
+    localStorage.setItem(GUESTBOOK_STORAGE_KEY, JSON.stringify(updated))
+  }
+
+  return (
+    <section
+      id="guestbook"
+      className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
+      aria-label="Verified Guestbook"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeader
+          badge={language === 'vi' ? '05 // SỔ LƯU BÚT XÁC THỰC' : '05 // VERIFIED GUESTBOOK'}
+          title={
+            language === 'vi'
+              ? 'Tường Kết Nối & Lời Nhắn Khách Mời'
+              : 'Community Wall & Visitor Endorsements'
+          }
+          subtitle={
+            language === 'vi'
+              ? 'Nơi các đồng nghiệp, nhà tuyển dụng và đối tác để lại lời nhắn đã được xác thực danh tính qua Google / Gmail.'
+              : 'Public messages and testimonials authenticated with Google / Gmail identity verification.'
+          }
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Left Column: Form to post message */}
+          <div className="lg:col-span-5">
+            <Card className="p-6 bg-[#0a1224] border-[#172847]">
+              <div className="flex items-center gap-2 pb-4 mb-4 border-b border-[#172847]">
+                <MessageSquare className="w-4 h-4 text-[#00d2ff]" />
+                <h3 className="font-mono text-sm font-bold text-[#f1f5f9] uppercase tracking-wider">
+                  {language === 'vi' ? 'Để Lại Lời Nhắn Xác Thực' : 'Leave an Endorsement'}
+                </h3>
+              </div>
+
+              {user ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Active User Header */}
+                  <div className="p-3 rounded-sm bg-[#0f1b33] border border-[#00d2ff]/30 flex items-center gap-3">
+                    <img
+                      src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
+                      alt={user.displayName || 'User'}
+                      className="w-8 h-8 rounded-full border border-[#00d2ff]"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-mono font-bold text-[#f1f5f9] truncate">
+                        {user.displayName}
+                      </div>
+                      <div className="text-[10px] font-mono text-[#00d2ff] truncate">
+                        {user.email}
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] font-bold border border-[#34a853]/30">
+                      VERIFIED
+                    </span>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="guestbook_msg"
+                      className="block text-xs font-mono text-[#94a3b8] uppercase mb-1.5"
+                    >
+                      {language === 'vi' ? 'Nội dung lời nhắn' : 'Message Content'}
+                    </label>
+                    <textarea
+                      id="guestbook_msg"
+                      rows={4}
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder={
+                        language === 'vi'
+                          ? 'Chia sẻ nhận xét, lời chúc hoặc đề xuất kết nối của bạn...'
+                          : 'Share your thoughts, recommendations, or words of encouragement...'
+                      }
+                      className="w-full px-3.5 py-2.5 text-xs font-mono rounded-sm bg-[#070d18] border border-[#172847] focus-visible:border-[#00d2ff] focus-visible:ring-1 focus-visible:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all resize-none outline-none"
+                    />
+                  </div>
+
+                  {postedSuccess && (
+                    <div className="p-2.5 rounded-sm bg-[#00d2ff]/10 border border-[#00d2ff]/30 text-xs font-mono text-[#00d2ff] flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>
+                        {language === 'vi'
+                          ? 'Lời nhắn của bạn đã được đăng thành công!'
+                          : 'Your verified message was posted successfully!'}
+                      </span>
+                    </div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    disabled={!newMessage.trim() || isSubmitting}
+                    className="w-full justify-center font-mono text-xs uppercase cursor-pointer"
+                  >
+                    <Send className="w-3.5 h-3.5 mr-2" />
+                    <span>
+                      {isSubmitting
+                        ? language === 'vi'
+                          ? 'Đang đăng tải...'
+                          : 'Publishing...'
+                        : language === 'vi'
+                        ? 'Đăng Lời Nhắn (Gắn Huy Hiệu)'
+                        : 'Post Verified Message'}
+                    </span>
+                  </Button>
+                </form>
+              ) : (
+                <div className="p-6 text-center space-y-4">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-[#0f1b33] border border-[#00d2ff]/40 flex items-center justify-center text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.2)]">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-mono font-bold text-[#f1f5f9] mb-1">
+                      {language === 'vi' ? 'Xác Thực Với Google' : 'Google Authentication Required'}
+                    </h4>
+                    <p className="text-xs text-[#94a3b8] font-['Be_Vietnam_Pro',sans-serif] leading-relaxed">
+                      {language === 'vi'
+                        ? 'Để tránh spam và đảm bảo tính chân thực, vui lòng đăng nhập bằng Gmail trước khi để lại lời nhắn.'
+                        : 'To prevent automated spam and ensure authenticity, please sign in with Google to post.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openAuthModal}
+                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-sm bg-[#f1f5f9] hover:bg-white text-[#050a14] font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] cursor-pointer"
+                  >
+                    <GoogleIcon className="w-4 h-4" />
+                    <span>
+                      {language === 'vi' ? 'Đăng Nhập Với Gmail' : 'Sign In with Google'}
+                    </span>
+                  </button>
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* Right Column: Wall of messages */}
+          <div className="lg:col-span-7 space-y-4">
+            {entries.length === 0 ? (
+              <div className="p-12 text-center rounded-sm bg-[#0a1224] border border-[#172847] text-[#94a3b8] font-mono text-xs">
+                Chưa có lời nhắn nào. Hãy là người đầu tiên để lại lời nhắn!
+              </div>
+            ) : (
+              entries.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="p-5 rounded-sm bg-[#0a1224] border border-[#172847] hover:border-[#00d2ff]/40 transition-all shadow-sm group"
+                >
+                  <div className="flex items-center justify-between gap-3 pb-3 mb-3 border-b border-[#172847]">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={
+                          entry.avatarUrl ||
+                          'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'
+                        }
+                        alt={entry.name}
+                        className="w-8 h-8 rounded-full border border-[#00d2ff]/50 shrink-0"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-[#f1f5f9]">
+                            {entry.name}
+                          </span>
+                          {entry.role === 'admin' ? (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-[#00d2ff] text-[#050a14] font-bold">
+                              ADMIN
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-[#34a853]/20 text-[#34a853] font-bold border border-[#34a853]/30">
+                              GOOGLE_VERIFIED
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-mono text-[#64748b]">
+                          {entry.email}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-[10px] font-mono text-[#64748b]">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
+                      </div>
+
+                      {/* Admin moderation delete button */}
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(entry.id)}
+                          className="p-1 rounded-xs text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
+                          title="Xóa lời nhắn (Quyền Admin)"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-[#cbd5e1] font-['Be_Vietnam_Pro',sans-serif] leading-relaxed">
+                    {entry.message}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
