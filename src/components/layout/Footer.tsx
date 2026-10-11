@@ -63,11 +63,6 @@ export const Footer: React.FC = () => {
                 </a>
               </li>
               <li>
-                <a href="#projects" className="hover:text-[#00d2ff] transition-colors">
-                  // {t.nav.projects}
-                </a>
-              </li>
-              <li>
                 <a href="#principles" className="hover:text-[#00d2ff] transition-colors">
                   // {t.nav.principles}
                 </a>

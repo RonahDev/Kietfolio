@@ -6,7 +6,6 @@ import { HeroSection } from './features/hero/HeroSection'
 import { AboutSection } from './features/about/AboutSection'
 import { ExperienceSection } from './features/experience/ExperienceSection'
 import { SkillsSection } from './features/skills/SkillsSection'
-import { ProjectsSection } from './features/projects/ProjectsSection'
 import { PrinciplesSection } from './features/principles/PrinciplesSection'
 import { ContactSection } from './features/contact/ContactSection'
 
@@ -33,7 +32,6 @@ export function AppContent() {
         <AboutSection />
         <ExperienceSection />
         <SkillsSection />
-        <ProjectsSection />
         <PrinciplesSection />
         <ContactSection />
       </main>

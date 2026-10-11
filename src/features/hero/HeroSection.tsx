@@ -131,7 +131,7 @@ export const HeroSection: React.FC = () => {
             {/* Action Buttons */}
             <div ref={ctaRef} className="hero-cta-elem flex flex-wrap items-center gap-4 pt-2">
               <Button
-                href="#projects"
+                href="#experience"
                 variant="primary"
                 size="lg"
                 className="font-mono uppercase tracking-wider shadow-[0_0_20px_rgba(0,210,255,0.25)]"

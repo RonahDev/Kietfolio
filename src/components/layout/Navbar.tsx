@@ -14,7 +14,6 @@ export const Navbar: React.FC = () => {
     { id: 'about', label: t.nav.about },
     { id: 'experience', label: t.nav.experience },
     { id: 'skills', label: t.nav.skills },
-    { id: 'projects', label: t.nav.projects },
     { id: 'principles', label: t.nav.principles },
     { id: 'contact', label: t.nav.contact },
   ]
@@ -24,7 +23,7 @@ export const Navbar: React.FC = () => {
       setIsScrolled(window.scrollY > 30)
 
       // Active section spy
-      const sections = ['hero', 'about', 'experience', 'skills', 'projects', 'principles', 'contact']
+      const sections = ['hero', 'about', 'experience', 'skills', 'principles', 'contact']
       const scrollPosition = window.scrollY + 200
 
       for (const sectionId of sections) {
