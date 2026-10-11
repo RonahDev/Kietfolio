@@ -4,6 +4,8 @@ import { skillCategories } from '../../data/skills'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { TechIcon } from '../../components/ui/TechIcons'
+import { cn } from '../../utils/cn'
 import {
   Code,
   Server,
@@ -91,7 +93,10 @@ export const SkillsSection: React.FC = () => {
             return (
               <Card
                 key={cat.id}
-                className="flex flex-col justify-between hover:border-[#00d2ff]/40 transition-colors"
+                className={cn(
+                  'flex flex-col justify-between hover:border-[#00d2ff]/40 transition-colors',
+                  cat.id === 'languages' && 'border-[#00d2ff]/45 bg-[#0b1528] shadow-[0_0_25px_rgba(0,210,255,0.08)]'
+                )}
               >
                 <div>
                   {/* Category Header */}
@@ -113,26 +118,31 @@ export const SkillsSection: React.FC = () => {
                     {cat.subtitle[language]}
                   </p>
 
-                  {/* Skills List */}
+                  {/* Skills List with Logos */}
                   <div className="space-y-2">
                     {cat.skills.map((skill, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-2.5 rounded-sm bg-[#0f1b33]/60 border border-[#172847] hover:border-[#00d2ff]/30 transition-colors"
+                        className="group/skill flex items-center justify-between p-2.5 rounded-sm bg-[#0f1b33]/60 border border-[#172847] hover:border-[#00d2ff]/40 hover:bg-[#101e38] transition-all"
                       >
-                        <span className="font-mono text-xs font-medium text-[#f1f5f9]">
-                          {skill.name}
-                        </span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-sm bg-[#0a1224] border border-[#172847] flex items-center justify-center shrink-0 shadow-sm group-hover/skill:border-[#00d2ff]/50 transition-colors">
+                            <TechIcon name={skill.name} className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="font-mono text-xs font-medium text-[#f1f5f9] group-hover/skill:text-[#00d2ff] transition-colors truncate">
+                            {skill.name}
+                          </span>
+                        </div>
                         {skill.badge && (
                           <Badge
                             variant={
-                              skill.badge === 'Primary' || skill.badge === 'Core'
+                              skill.badge === 'Primary' || skill.badge === 'Core' || skill.badge === 'Active'
                                 ? 'accent'
                                 : skill.badge === '3D Graphics' || skill.badge === 'Motion'
                                 ? 'cyan'
                                 : 'default'
                             }
-                            className="text-[10px] py-0.5 px-2"
+                            className="text-[10px] py-0.5 px-2 shrink-0 ml-2"
                           >
                             {skill.badge}
                           </Badge>
