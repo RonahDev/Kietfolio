@@ -122,6 +122,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthModalOpen(false)
   }, [])
 
+  const signInWithCustomGmail = useCallback((email: string, displayName?: string) => {
+    setError(null)
+    const trimmedEmail = email.trim().toLowerCase()
+    if (!trimmedEmail || !trimmedEmail.includes('@')) {
+      setError('Vui lòng nhập địa chỉ email hợp lệ (ví dụ: kietteve22102005@gmail.com)')
+      return
+    }
+
+    const isAdmin = trimmedEmail === ADMIN_EMAIL.toLowerCase()
+    const finalName = displayName?.trim() || (isAdmin ? 'Mai Anh Kiệt (Admin)' : trimmedEmail.split('@')[0])
+    const customUser: AuthUser = {
+      uid: `custom_${Date.now()}_${trimmedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      email: trimmedEmail,
+      displayName: finalName,
+      photoURL: isAdmin
+        ? 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve'
+        : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(trimmedEmail)}`,
+      role: isAdmin ? 'admin' : 'visitor',
+      provider: 'demo',
+      lastLoginAt: new Date().toISOString(),
+    }
+
+    setUser(customUser)
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(customUser))
+    setIsAuthModalOpen(false)
+  }, [])
+
   const signOutUser = useCallback(async () => {
     setError(null)
     setIsLoading(true)
@@ -166,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       openAdminModal,
       closeAdminModal,
       signInWithGoogle,
+      signInWithCustomGmail,
       signInDemo,
       signOutUser,
       clearError,
@@ -183,6 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       openAdminModal,
       closeAdminModal,
       signInWithGoogle,
+      signInWithCustomGmail,
       signInDemo,
       signOutUser,
       clearError,

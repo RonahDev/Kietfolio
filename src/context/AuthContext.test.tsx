@@ -87,5 +87,28 @@ describe('AuthContext & Google Authentication Flow', () => {
     })
     expect(result.current.isAdminModalOpen).toBe(false)
   })
+
+  it('authenticates custom Gmail address and grants admin if email is kietteve22102005@gmail.com', () => {
+    const { result } = renderHook(() => useAuth(), { wrapper })
+
+    act(() => {
+      result.current.signInWithCustomGmail(ADMIN_EMAIL, 'Mai Anh Kiệt')
+    })
+
+    expect(result.current.user).not.toBeNull()
+    expect(result.current.user?.email).toBe(ADMIN_EMAIL)
+    expect(result.current.user?.displayName).toBe('Mai Anh Kiệt')
+    expect(result.current.isAdmin).toBe(true)
+
+    // Test with regular visitor email
+    act(() => {
+      result.current.signInWithCustomGmail('recruiter.top@shopee.vn', 'Shopee HR')
+    })
+
+    expect(result.current.user?.email).toBe('recruiter.top@shopee.vn')
+    expect(result.current.user?.displayName).toBe('Shopee HR')
+    expect(result.current.user?.role).toBe('visitor')
+    expect(result.current.isAdmin).toBe(false)
+  })
 })
 

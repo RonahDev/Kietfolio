@@ -14,9 +14,11 @@ export interface AuthContextType {
   openAdminModal: () => void
   closeAdminModal: () => void
   signInWithGoogle: () => Promise<void>
+  signInWithCustomGmail: (email: string, displayName?: string) => void
   signInDemo: (asAdmin?: boolean) => void
   signOutUser: () => Promise<void>
   clearError: () => void
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
