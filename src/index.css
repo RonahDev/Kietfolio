@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Be Vietnam Pro', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  /* Ocean Storm Palette: Deep Sea Night & Electric Lightning Blue */
+  --color-canvas: #050a14;
+  --color-surface: #0a1224;
+  --color-surface-elevated: #0f1b33;
+  --color-surface-border: #172847;
+  --color-line: #16243d;
+  --color-line-bright: #233e6b;
+
+  /* Eye-Comfortable Text Hierarchy */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Electric Lightning Storm Blue Accents */
+  --color-accent: #00d2ff;
+  --color-accent-hover: #38bdf8;
+  --color-accent-muted: rgba(0, 210, 255, 0.12);
+  --color-accent-border: rgba(0, 210, 255, 0.35);
+
+  --color-cyan-tech: #38bdf8;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050a14;
+  color: #f1f5f9;
+  font-family: var(--font-sans);
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Eye-friendly paragraph styling */
+p {
+  letter-spacing: 0.005em;
+}
+
+/* Deep Ocean Lightning Technical Grid */
+.bg-tech-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 210, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 210, 255, 0.035) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+.bg-tech-dots {
+  background-image: radial-gradient(rgba(0, 210, 255, 0.08) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* Interactive Lightning Sheen Card */
+.lightning-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.25s ease, 
+              box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+.lightning-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 210, 255, 0.45);
+  box-shadow: 0 10px 30px -10px rgba(0, 210, 255, 0.15), 0 0 15px rgba(0, 210, 255, 0.08);
+}
+
+/* Custom Eye-Comfortable Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #050a14;
+}
+::-webkit-scrollbar-thumb {
+  background: #172847;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00d2ff;
+}
+
+/* High-Performance Hardware Acceleration Helpers */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
