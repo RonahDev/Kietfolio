@@ -49,8 +49,8 @@ export const profileData: PersonalProfile = {
     ],
   },
   contactLinks: {
-    email: 'kiet.maianh.dev@gmail.com', // Configurable contact email
-    github: 'https://github.com/maianhkiet',
+    email: 'kietteve22102005@gmail.com', // Verified contact email
+    github: 'https://github.com/RonahDev',
     linkedin: 'https://linkedin.com/in/maianhkiet',
     locationLabel: 'Ho Chi Minh City, VN',
   },

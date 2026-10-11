@@ -56,7 +56,7 @@ export const ContactSection: React.FC = () => {
                   <GithubIcon className="w-4 h-4 text-[#00d2ff] shrink-0" />
                   <div>
                     <span className="text-[#64748b] block text-[10px]">SOURCE REPOSITORIES</span>
-                    <span className="text-[#f1f5f9] font-semibold">github.com/maianhkiet</span>
+                    <span className="text-[#f1f5f9] font-semibold">github.com/RonahDev</span>
                   </div>
                 </a>
 

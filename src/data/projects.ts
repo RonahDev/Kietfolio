@@ -38,7 +38,7 @@ export const projectsData: ProjectItem[] = [
       ],
     },
     techStack: ['React', 'TypeScript', 'Node.js', 'Express.js', 'PostgreSQL', 'Docker', 'Tailwind CSS'],
-    githubUrl: 'https://github.com/maianhkiet/hubflow-logistics-engine',
+    githubUrl: 'https://github.com/RonahDev/hubflow-logistics-engine',
     liveUrl: '#',
   },
   {
@@ -76,7 +76,7 @@ export const projectsData: ProjectItem[] = [
       ],
     },
     techStack: ['Three.js', 'React', 'TypeScript', 'GSAP', 'WebGL', 'Tailwind CSS'],
-    githubUrl: 'https://github.com/maianhkiet/kinetics-3d-system',
+    githubUrl: 'https://github.com/RonahDev/kinetics-3d-system',
     liveUrl: '#',
   },
   {
@@ -114,7 +114,7 @@ export const projectsData: ProjectItem[] = [
       ],
     },
     techStack: ['React', 'TypeScript', 'Node.js', 'Express.js', 'Microsoft SQL Server', 'JWT Auth'],
-    githubUrl: 'https://github.com/maianhkiet/core-inventory-system',
+    githubUrl: 'https://github.com/RonahDev/core-inventory-system',
     liveUrl: '#',
   },
   {
@@ -152,7 +152,7 @@ export const projectsData: ProjectItem[] = [
       ],
     },
     techStack: ['C++', 'Java', 'TypeScript', 'Algorithms & Data Structures'],
-    githubUrl: 'https://github.com/maianhkiet/algorithmic-pathroute',
+    githubUrl: 'https://github.com/RonahDev/algorithmic-pathroute',
     liveUrl: '#',
   },
 ]

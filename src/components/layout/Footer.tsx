@@ -88,7 +88,7 @@ export const Footer: React.FC = () => {
                 className="inline-flex items-center gap-2 hover:text-[#00d2ff] transition-colors"
               >
                 <GithubIcon className="w-4 h-4 text-[#00d2ff]" />
-                <span>github.com/maianhkiet</span>
+                <span>github.com/RonahDev</span>
               </a>
               <a
                 href={profileData.contactLinks.linkedin}
