@@ -4,7 +4,7 @@ export const experienceData: ExperienceItem[] = [
   {
     id: 'spx-express-hub',
     company: 'SPX Express',
-    hub: 'Thủ Dầu Một 01 Hub',
+    hub: 'Hub Thủ Dầu Một (Mã trạm: 63BDG02)',
     location: 'Binh Duong, Vietnam',
     period: {
       en: '2 Years Operational Experience (Ongoing)',
@@ -19,21 +19,21 @@ export const experienceData: ExperienceItem[] = [
       vi: 'Nhân viên Vận hành (2 Năm kinh nghiệm)',
     },
     summary: {
-      en: 'Transitioned from ground-level warehouse operations staff across 2 years into a Senior Analyst position at Thủ Dầu Một 01 Hub. Leveraged analytical problem-solving to monitor hub sorting workflows, streamline intake-to-dispatch pipelines, and bridge practical logistics challenges with computational thinking.',
-      vi: 'Phát triển từ vị trí nhân viên vận hành kho mặt đất trong 2 năm lên vai trò Senior Analyst tại Hub Thủ Dầu Một 01. Ứng dụng tư duy phân tích để giám sát quy trình phân loại bưu kiện, tối ưu hóa chu trình từ tiếp nhận đến xuất kho, kết nối các bài toán thực tiễn của ngành logistics với tư duy công nghệ.',
+      en: 'Transitioned from ground-level warehouse operations staff across 2 years into a Senior Analyst position at Hub Thủ Dầu Một (Station Code: 63BDG02). Coordinated daily delivery routes for nearly 50 drivers, navigated high-pressure parcel surges during Mega Sale campaigns, and connected ground logistics realities with software systems thinking.',
+      vi: 'Phát triển từ vị trí nhân viên vận hành kho mặt đất trong 2 năm lên vai trò Senior Analyst tại Hub Thủ Dầu Một (Mã trạm: 63BDG02). Trực tiếp điều phối gần 50 tài xế giao nhận, xử lý tình huống linh hoạt trong các đợt bùng nổ hàng ngày sale và kết nối bài toán vận hành thực tế với tư duy kỹ thuật phần mềm.',
     },
     highlights: {
       en: [
-        'Analyzed warehouse package sorting volumes, routing bottlenecks, and dispatch timelines to improve hub turnaround efficiency.',
-        'Applied structured root-cause analysis to operational delays, inventory discrepancies, and transit handoffs.',
-        'Collaborated across shift leads and ground handlers to identify friction points in real-world logistics workflows.',
-        'Synthesized day-to-day logistics operational realities into systems thinking, directly informing software engineering decisions.',
+        'Fleet & Driver Dispatch: Coordinated daily delivery routes and managed parcel turnaround for ~50 delivery drivers per shift under strict SLA targets.',
+        'Peak Sale Crisis Resolution: Resolved physical bottleneck overflows, conveyor jams, and sorting exceptions during high-volume Mega Sale campaigns.',
+        'Root-Cause Analytics: Applied structured critical thinking under high pressure to diagnose dispatch delays and inventory discrepancies.',
+        'Systems Mindset: Transformed ground operational logistics experience into scalable software engineering intuition and resilient architecture design.',
       ],
       vi: [
-        'Phân tích lưu lượng phân loại hàng hóa, điểm nghẽn tuyến điều phối và thời gian xuất kho nhằm nâng cao hiệu suất xử lý tại trạm.',
-        'Áp dụng quy trình phân tích nguyên nhân gốc rễ đối với sự cố trễ tuyến, sai lệch luân chuyển bưu kiện và bàn giao vận hành.',
-        'Phối hợp cùng các ca trưởng và nhân sự vận hành hiện trường để phát hiện các nút thắt trong chu trình kho thực tế.',
-        'Đúc kết kinh nghiệm vận hành thực tế thành tư duy thiết kế hệ thống phần mềm, tạo nền tảng vững chắc cho kiến trúc công nghệ.',
+        'Điều phối đội ngũ ~50 tài xế giao nhận mỗi ca làm việc, giám sát lộ trình và đảm bảo tỷ lệ hoàn thành chỉ tiêu giao hàng (SLA).',
+        'Xử lý tình huống linh hoạt vào các đợt cao điểm quá tải bưu kiện và các chiến dịch Mega Sale bùng nổ sản lượng.',
+        'Tư duy phản biện và chịu áp lực cao: bình tĩnh phân tích nguyên nhân gốc rễ (root-cause) của sự cố trễ tuyến thay vì giải quyết tạm thời.',
+        'Tinh thần học hỏi và cống hiến: chuyển hóa kỷ luật vận hành kho vận thành tư duy thiết kế hệ thống phần mềm chịu tải cao.',
       ],
     },
     skillsApplied: [

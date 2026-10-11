@@ -11,8 +11,8 @@ export const profileData: PersonalProfile = {
     vi: 'Kiến tạo trải nghiệm số. Xây dựng giải pháp kỹ thuật thiết thực.',
   },
   bio: {
-    en: 'Software Engineering student at FPT University (HCMC Campus) with 2 years of operational ground experience at SPX Express (Thủ Dầu Một 01 Hub), currently serving as Senior Analyst at the warehouse. Driven by the convergence of robust full-stack architecture, creative WebGL/motion interactions, and practical workflow optimization.',
-    vi: 'Sinh viên chuyên ngành Kỹ thuật Phần mềm tại Đại học FPT (Cơ sở TP.HCM) với 2 năm kinh nghiệm thực tế tại SPX Express (Thủ Dầu Một 01 Hub), hiện là Senior Analyst tại kho vận. Đam mê sự kết hợp giữa kiến trúc full-stack vững chắc, tương tác WebGL/motion sáng tạo và tối ưu hóa quy trình vận hành thực tế.',
+    en: 'Software Engineering student at FPT University (HCMC Campus) with 2 years of operational ground experience at SPX Express (Hub Thủ Dầu Một, Station Code: 63BDG02), currently serving as Senior Analyst at the warehouse. Driven by the convergence of robust full-stack architecture, creative WebGL/motion interactions, and practical workflow optimization.',
+    vi: 'Sinh viên chuyên ngành Kỹ thuật Phần mềm tại Đại học FPT (Cơ sở TP.HCM) với 2 năm kinh nghiệm thực tế tại SPX Express (Hub Thủ Dầu Một, Mã trạm: 63BDG02), hiện là Senior Analyst tại kho vận. Đam mê sự kết hợp giữa kiến trúc full-stack vững chắc, tương tác WebGL/motion sáng tạo và tối ưu hóa quy trình vận hành thực tế.',
   },
   education: {
     institution: 'FPT University',

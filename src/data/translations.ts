@@ -60,6 +60,15 @@ export interface TranslationDictionary {
     title: string
     subtitle: string
     noArbitraryBarNotice: string
+    techTab: string
+    softTab: string
+    techTabDesc: string
+    softTabDesc: string
+    hubTelemetryBadge: string
+    hubTelemetryTitle: string
+    hubTelemetryDesc: string
+    softContextLabel: string
+    softImpactLabel: string
   }
   projects: {
     badge: string
@@ -129,7 +138,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       scrollDown: 'Scroll to explore',
       telemetryLocation: 'Ho Chi Minh City, VN',
       telemetryEducation: 'FPT University (HCMC Campus)',
-      telemetryHub: 'SPX Express · Thu Dau Mot Hub',
+      telemetryHub: 'SPX Express · Hub Thủ Dầu Một (63BDG02)',
       canvasNote: 'Interactive 3D Network (Drag / Pointer active)',
     },
     about: {
@@ -148,7 +157,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       personalInfoEduLabel: 'Academic Foundation',
       personalInfoEduValue: 'FPT University, HCMC Campus · Software Engineering',
       personalInfoHubLabel: 'Logistics Facility',
-      personalInfoHubValue: 'SPX Express — Thủ Dầu Một 01 Hub (Senior Analyst)',
+      personalInfoHubValue: 'SPX Express — Hub Thủ Dầu Một (Mã trạm: 63BDG02) · Senior Analyst',
       toggleProfileDetails: 'View Verified Telemetry Data',
       hideProfileDetails: 'Collapse Telemetry Data',
     },
@@ -161,10 +170,19 @@ export const translations: Record<Language, TranslationDictionary> = {
       appliedDisciplines: 'Core Disciplines Applied',
     },
     skills: {
-      badge: '03 // TECHNICAL CAPABILITIES',
+      badge: '03 // SKILL ARCHITECTURE',
       title: 'Engineered Skill Matrix',
-      subtitle: 'Curated technical competencies grounded in university curriculum, practical implementation, and continuous creative coding.',
+      subtitle: 'Structured separation of computer science technical proficiencies and ground logistics operational competencies.',
       noArbitraryBarNotice: 'Transparent capability breakdown without inflated progress bars or arbitrary percentages.',
+      techTab: 'Technical Engineering Stack',
+      softTab: 'Soft & Operational Competencies',
+      techTabDesc: 'Core programming languages, frameworks, databases, and creative graphics stacks.',
+      softTabDesc: 'Hands-on operational leadership, crisis management, and analytical resilience at Hub Thủ Dầu Một (63BDG02).',
+      hubTelemetryBadge: 'VERIFIED OPERATIONAL FACILITY',
+      hubTelemetryTitle: 'SPX Express — Hub Thủ Dầu Một (Station Code: 63BDG02)',
+      hubTelemetryDesc: 'Two years of ground-level hub operations managing logistics throughput, driver fleets, and peak parcel surges.',
+      softContextLabel: 'Operational Environment',
+      softImpactLabel: 'Engineering Translation',
     },
     projects: {
       badge: '04 // SELECTED WORK & CASE STUDIES',
@@ -232,7 +250,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       scrollDown: 'Cuộn để khám phá',
       telemetryLocation: 'TP. Hồ Chí Minh / Bình Dương, VN',
       telemetryEducation: 'Đại học FPT (Cơ sở TP.HCM)',
-      telemetryHub: 'SPX Express · Trạm Thủ Dầu Một 01',
+      telemetryHub: 'SPX Express · Hub Thủ Dầu Một (63BDG02)',
       canvasNote: 'Mạng lưới 3D tương tác (Kéo / Di chuyển chuột)',
     },
     about: {
@@ -251,7 +269,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       personalInfoEduLabel: 'Nền tảng Học vấn',
       personalInfoEduValue: 'Đại học FPT, Cơ sở TP.HCM · Kỹ thuật Phần mềm',
       personalInfoHubLabel: 'Cơ sở Kho vận',
-      personalInfoHubValue: 'SPX Express — Hub Thủ Dầu Một 01 (Senior Analyst)',
+      personalInfoHubValue: 'SPX Express — Hub Thủ Dầu Một (Mã trạm: 63BDG02) · Senior Analyst',
       toggleProfileDetails: 'Xem Chi Tiết Dữ Liệu Hồ Sơ',
       hideProfileDetails: 'Thu Gọn Dữ Liệu',
     },
@@ -264,10 +282,19 @@ export const translations: Record<Language, TranslationDictionary> = {
       appliedDisciplines: 'Các Năng Lực Ứng Dụng Chính',
     },
     skills: {
-      badge: '03 // NĂNG LỰC CÔNG NGHỆ',
-      title: 'Ma Trận Kỹ Năng Kỹ Thuật',
-      subtitle: 'Tập hợp các năng lực kỹ thuật vững chắc từ chương trình đào tạo đại học, dự án thực hành và đam mê creative coding.',
-      noArbitraryBarNotice: 'Trình bày trung thực năng lực kỹ thuật, không sử dụng thanh phần trăm ảo hay số liệu tự phong.',
+      badge: '03 // CẤU TRÚC NĂNG LỰC',
+      title: 'Ma Trận Năng Lực & Kỹ Năng',
+      subtitle: 'Phân định rõ ràng giữa kỹ năng chuyên ngành công nghệ và năng lực mềm - vận hành thực chiến.',
+      noArbitraryBarNotice: 'Trình bày trung thực năng lực thực tế, không sử dụng thanh phần trăm ảo hay số liệu tự phong.',
+      techTab: 'Kỹ Năng Chuyên Ngành',
+      softTab: 'Kỹ Năng Mềm & Vận Hành Thực Chiến',
+      techTabDesc: 'Ngôn ngữ lập trình, kiến trúc backend, cơ sở dữ liệu và công nghệ đồ họa sáng tạo.',
+      softTabDesc: 'Kinh nghiệm thực tế từ Staff tại Hub Thủ Dầu Một (63BDG02): điều phối gần 50 tài xế, xử lý ngày sale và tư duy phản biện.',
+      hubTelemetryBadge: 'TRẠM VẬN HÀNH ĐÃ XÁC THỰC',
+      hubTelemetryTitle: 'SPX Express — Hub Thủ Dầu Một (Mã trạm: 63BDG02)',
+      hubTelemetryDesc: '2 năm công tác thực tế: giải quyết bài toán lưu lượng kho bãi, điều phối tài xế và ứng biến trong các đợt cao điểm bùng nổ hàng.',
+      softContextLabel: 'Môi Trường Thực Chiến',
+      softImpactLabel: 'Giá Trị Đối Với Kỹ Thuật',
     },
     projects: {
       badge: '04 // DỰ ÁN & BÀI TOÁN KỸ THUẬT',

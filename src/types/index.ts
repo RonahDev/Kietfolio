@@ -95,6 +95,31 @@ export interface SkillCategoryGroup {
   skills: SkillItem[]
 }
 
+export interface SoftSkillItem {
+  id: string
+  title: {
+    en: string
+    vi: string
+  }
+  tag: {
+    en: string
+    vi: string
+  }
+  contextRole: {
+    en: string
+    vi: string
+  }
+  metric?: string
+  description: {
+    en: string
+    vi: string
+  }
+  practicalImpact: {
+    en: string
+    vi: string
+  }
+}
+
 export interface ProjectItem {
   id: string
   title: string

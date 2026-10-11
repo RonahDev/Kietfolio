@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { profileData } from './profile'
 import { translations } from './translations'
-import { skillCategories } from './skills'
+import { skillCategories, softSkillsData } from './skills'
 import { projectsData } from './projects'
 import { experienceData } from './experience'
 
@@ -18,7 +18,8 @@ describe('Verified Profile Integrity & Accuracy', () => {
     expect(experienceData.length).toBeGreaterThan(0)
     const spx = experienceData.find((e) => e.company === 'SPX Express')
     expect(spx).toBeDefined()
-    expect(spx?.hub).toBe('Thủ Dầu Một 01 Hub')
+    expect(spx?.hub).toContain('Thủ Dầu Một')
+    expect(spx?.hub).toContain('63BDG02')
     expect(spx?.role.en).toContain('Senior Analyst')
     expect(spx?.previousRole?.en).toContain('2 Years')
   })
@@ -69,6 +70,26 @@ describe('Verified Profile Integrity & Accuracy', () => {
       const viKeys = Object.keys(translations.vi[sectionKey]).sort()
       expect(enKeys).toEqual(viKeys)
     })
+  })
+
+  it('accurately verifies separated operational and soft skills with real Hub 63BDG02 facts', () => {
+    expect(softSkillsData.length).toBe(4)
+    const driverSkill = softSkillsData.find((s) => s.id === 'driver-coordination')
+    expect(driverSkill).toBeDefined()
+    expect(driverSkill?.metric).toBe('~50 Drivers')
+    expect(driverSkill?.contextRole.vi).toContain('63BDG02')
+
+    const peakSaleSkill = softSkillsData.find((s) => s.id === 'peak-sale-crisis')
+    expect(peakSaleSkill).toBeDefined()
+    expect(peakSaleSkill?.title.vi).toContain('Sale')
+
+    const criticalThinkingSkill = softSkillsData.find((s) => s.id === 'critical-thinking-pressure')
+    expect(criticalThinkingSkill).toBeDefined()
+    expect(criticalThinkingSkill?.title.vi).toContain('Áp Lực Cao')
+
+    const learningSkill = softSkillsData.find((s) => s.id === 'learning-dedication')
+    expect(learningSkill).toBeDefined()
+    expect(learningSkill?.title.vi).toContain('Cống Hiến')
   })
 })
 
