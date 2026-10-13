@@ -302,13 +302,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return
       } catch (err: unknown) {
         console.warn('Firebase popup error:', err)
+        const errCode = (err as { code?: string })?.code || ''
         const rawMsg = err instanceof Error ? err.message : ''
-        if (rawMsg.includes('popup-closed-by-user')) {
+
+        if (errCode === 'auth/popup-closed-by-user' || rawMsg.includes('popup-closed-by-user')) {
           setError(null)
-        } else if (rawMsg.includes('unauthorized-domain')) {
-          setError('Tên miền Vercel chưa được thêm vào mục Authorized Domains trong Firebase Console!')
+        } else if (errCode === 'auth/unauthorized-domain' || rawMsg.includes('unauthorized-domain')) {
+          const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'domain của bạn'
+          setError(`Tên miền "${currentHost}" chưa được cấp phép trong Firebase Console. Vui lòng vào Firebase Console -> Authentication -> Settings -> Authorized Domains và thêm tên miền này!`)
+        } else if (errCode === 'auth/operation-not-allowed' || rawMsg.includes('operation-not-allowed')) {
+          setError('Google Sign-in chưa được BẬT trong Firebase Console. Vui lòng vào Firebase -> Authentication -> Sign-in method -> Bật Google!')
+        } else if (errCode === 'auth/popup-blocked' || rawMsg.includes('popup-blocked')) {
+          setError('Trình duyệt đang chặn cửa sổ pop-up. Vui lòng cho phép pop-up để mở cửa sổ Google.')
         } else {
-          setError('Không thể mở cửa sổ Google Popup lúc này. Vui lòng kiểm tra quyền pop-up của trình duyệt!')
+          setError('Không thể mở cửa sổ Google lúc này. Vui lòng thử lại hoặc kiểm tra kết nối mạng.')
         }
         setIsLoading(false)
         return

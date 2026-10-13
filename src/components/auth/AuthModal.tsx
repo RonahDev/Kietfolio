@@ -453,18 +453,15 @@ export const AuthModal: React.FC = () => {
 
             {showFirebaseGuide && (
               <div className="mt-2.5 pt-2.5 border-t border-[#172847] space-y-2 text-[#94a3b8] text-[11px] leading-relaxed">
-                <p>
-                  Để cửa sổ Google Popup mở lên cho khách liên kết Gmail:
+                <p className="text-[#38bdf8] font-bold">
+                  ✓ Dự án Firebase đã được tích hợp trực tiếp ({`kietfolio-75531`})
                 </p>
                 <ol className="list-decimal pl-4 space-y-1.5 text-[#cbd5e1]">
                   <li>
-                    Vào <strong>Firebase Console</strong> $\rightarrow$ Project Settings $\rightarrow$ Your apps: copy đoạn <code>firebaseConfig</code>.
+                    Đảm bảo đã Bật <strong>Google</strong> trong <strong>Firebase Console</strong> $\rightarrow$ Authentication $\rightarrow$ Sign-in method.
                   </li>
                   <li>
-                    Gửi đoạn cấu hình đó hoặc thêm vào Vercel (chọn Type: <strong>Config</strong>, không chọn Secret).
-                  </li>
-                  <li>
-                    Bật <strong>Google Sign-In</strong> trong Firebase Authentication $\rightarrow$ Sign-in method.
+                    Nếu triển khai trên Vercel hoặc domain riêng, thêm tên miền vào <strong>Firebase Console</strong> $\rightarrow$ Authentication $\rightarrow$ Settings $\rightarrow$ <strong>Authorized domains</strong>.
                   </li>
                 </ol>
               </div>
