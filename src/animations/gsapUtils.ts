@@ -27,6 +27,73 @@ export const MOTION_CONFIG = {
     smooth: 'power2.out',
     snappy: 'power3.out',
     technical: 'expo.out',
+    bounce: 'back.out(1.7)',
   },
 }
 
+/**
+ * Helper to create a smooth fade-in reveal with ScrollTrigger
+ */
+export function createScrollReveal(
+  target: gsap.DOMTarget,
+  trigger?: gsap.DOMTarget,
+  vars: gsap.TweenVars = {}
+) {
+  if (isReducedMotion()) {
+    gsap.set(target, { opacity: 1, y: 0 })
+    return null
+  }
+
+  return gsap.fromTo(
+    target,
+    { opacity: 0, y: 35, ...vars.from },
+    {
+      opacity: 1,
+      y: 0,
+      duration: MOTION_CONFIG.duration.normal,
+      ease: MOTION_CONFIG.ease.smooth,
+      scrollTrigger: {
+        trigger: trigger || target,
+        start: 'top 85%',
+        toggleActions: 'play none none none',
+        once: true,
+      },
+      ...vars,
+    }
+  )
+}
+
+/**
+ * Helper for staggered reveals of lists/grids
+ */
+export function createStaggerReveal(
+  targets: gsap.DOMTarget,
+  trigger: gsap.DOMTarget,
+  stagger: number = 0.1
+) {
+  if (isReducedMotion()) {
+    gsap.set(targets, { opacity: 1, y: 0 })
+    return null
+  }
+
+  return gsap.fromTo(
+    targets,
+    { opacity: 0, y: 30, scale: 0.98 },
+    {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      stagger,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger,
+        start: 'top 85%',
+        toggleActions: 'play none none none',
+        once: true,
+      },
+    }
+  )
+}
+
+export { gsap, ScrollTrigger }

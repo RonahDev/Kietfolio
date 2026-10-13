@@ -1,5 +1,6 @@
 import React from 'react'
 import { cn } from '../../utils/cn'
+import { useTextScramble } from '../../animations/useTextScramble'
 
 interface SectionHeaderProps {
   badge: string
@@ -16,6 +17,8 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   className,
   align = 'left',
 }) => {
+  const { displayText: scrambledBadge } = useTextScramble(badge)
+
   return (
     <div
       className={cn(
@@ -24,15 +27,15 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         className
       )}
     >
-      {/* Technical annotation badge */}
+      {/* Technical annotation badge with cyber text scramble */}
       <div
         className={cn(
-          'inline-flex items-center gap-2 mb-3.5 px-3 py-1 text-xs font-mono tracking-widest uppercase border border-[#172847] bg-[#0a1224]/90 text-[#00d2ff] rounded-sm shadow-[0_0_12px_rgba(0,210,255,0.12)]',
+          'inline-flex items-center gap-2 mb-3.5 px-3 py-1 text-xs font-mono tracking-widest uppercase border border-[#172847] bg-[#0a1224]/90 text-[#00d2ff] rounded-sm shadow-[0_0_14px_rgba(0,210,255,0.14)] backdrop-blur-sm',
           align === 'center' && 'justify-center'
         )}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff] animate-pulse shadow-[0_0_6px_#00d2ff]" />
-        <span>{badge}</span>
+        <span>{scrambledBadge}</span>
       </div>
 
       {/* Main section title with comfortable modern display font */}

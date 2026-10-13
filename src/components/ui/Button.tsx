@@ -1,10 +1,12 @@
 import React from 'react'
 import { cn } from '../../utils/cn'
+import { useMagnetic } from '../../animations/useMagnetic'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'accent-outline'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
+  magnetic?: boolean
   href?: string
   target?: string
   rel?: string
@@ -16,10 +18,14 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   isLoading = false,
+  magnetic = false,
   disabled,
   href,
   ...props
 }) => {
+  const magneticRef = useMagnetic<HTMLButtonElement>({ strength: 0.3, radius: 90 })
+  const anchorMagneticRef = useMagnetic<HTMLAnchorElement>({ strength: 0.3, radius: 90 })
+
   const baseStyles =
     'relative inline-flex items-center justify-center font-mono font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050a14] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.97] cursor-pointer'
 
@@ -52,6 +58,7 @@ export const Button: React.FC<ButtonProps> = ({
   if (href) {
     return (
       <a
+        ref={magnetic ? anchorMagneticRef : undefined}
         href={href}
         className={combinedClasses}
         {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
@@ -70,6 +77,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      ref={magnetic ? magneticRef : undefined}
       className={combinedClasses}
       disabled={disabled || isLoading}
       {...props}

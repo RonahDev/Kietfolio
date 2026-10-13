@@ -3,8 +3,10 @@ import { AuthProvider } from './context/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { LightningAtmosphere } from './components/ui/LightningAtmosphere'
+import { GlobalParticleField } from './three/GlobalParticleField'
 import { HeroSection } from './features/hero/HeroSection'
 import { AboutSection } from './features/about/AboutSection'
+import { ProjectsSection } from './features/projects/ProjectsSection'
 import { ExperienceSection } from './features/experience/ExperienceSection'
 import { SkillsSection } from './features/skills/SkillsSection'
 import { PrinciplesSection } from './features/principles/PrinciplesSection'
@@ -15,8 +17,11 @@ import { AdminDashboardModal } from './components/admin/AdminDashboardModal'
 
 export function AppContent() {
   return (
-    <div className="min-h-screen bg-[#050a14] text-[#f1f5f9] flex flex-col font-sans selection:bg-[#00d2ff] selection:text-[#050a14]">
-      {/* Interactive Lightning Cursor Atmosphere & Scroll Bar */}
+    <div className="min-h-screen bg-[#050a14] text-[#f1f5f9] flex flex-col font-sans selection:bg-[#00d2ff] selection:text-[#050a14] relative">
+      {/* Ambient 3D Three.js Global Particle Field */}
+      <GlobalParticleField />
+
+      {/* Interactive Cyber Cursor Atmosphere & Scroll Bar */}
       <LightningAtmosphere />
 
       {/* Accessible Skip to Content Link */}
@@ -34,6 +39,7 @@ export function AppContent() {
       <main id="main-content" className="flex-1 relative z-10">
         <HeroSection />
         <AboutSection />
+        <ProjectsSection />
         <ExperienceSection />
         <SkillsSection />
         <PrinciplesSection />
