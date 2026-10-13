@@ -24,8 +24,11 @@ const firebaseConfig = {
 }
 
 export const isFirebaseConfigured = (): boolean => {
+  const key = firebaseConfig.apiKey
   return Boolean(
-    firebaseConfig.apiKey &&
+    key &&
+      key.startsWith('AIza') &&
+      key.length >= 25 &&
       firebaseConfig.authDomain &&
       firebaseConfig.projectId
   )

@@ -87,9 +87,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem(DEMO_STORAGE_KEY)
       setIsAuthModalOpen(false)
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Google authentication failed. Please try again.'
-      setError(errorMessage)
+      console.warn('Firebase signInWithPopup error:', err)
+      const rawMsg = err instanceof Error ? err.message : ''
+      if (rawMsg.includes('popup-closed-by-user')) {
+        setError(null)
+      } else if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('invalid-api-key')) {
+        setError(
+          'Khóa Firebase API Key chưa đúng định dạng (cần bắt đầu bằng AIza...). Bạn có thể đăng nhập ngay bằng tùy chọn Gmail bên dưới!'
+        )
+      } else if (rawMsg.includes('unauthorized-domain')) {
+        setError(
+          'Tên miền web chưa được thêm vào mục Authorized Domains trong Firebase Console. Bạn có thể đăng nhập nhanh bên dưới!'
+        )
+      } else {
+        setError('Không thể kết nối máy chủ Google lúc này. Bạn hãy đăng nhập nhanh bằng Gmail bên dưới nhé!')
+      }
     } finally {
       setIsLoading(false)
     }
