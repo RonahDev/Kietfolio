@@ -102,12 +102,21 @@ describe('AuthContext & Google Authentication Flow', () => {
   it('prevents unauthorized admin elevation through unverified custom email and requires password', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
-    // 1. Unverified custom email string NEVER receives admin role
+    // 1. Trying to impersonate Kiệt's admin email via unverified custom input is rejected
     act(() => {
       result.current.signInWithCustomGmail(ADMIN_EMAIL, 'Mai Anh Kiệt')
     })
 
+    expect(result.current.user).toBeNull()
+    expect(result.current.error).toBeTruthy()
+
+    // 2. Normal visitor personal Gmail signs in successfully as verified Member
+    act(() => {
+      result.current.signInWithCustomGmail('visitor.guest@gmail.com', 'Visitor Guest')
+    })
+
     expect(result.current.user).not.toBeNull()
+    expect(result.current.user?.email).toBe('visitor.guest@gmail.com')
     expect(result.current.user?.role).toBe('member')
     expect(result.current.isAdmin).toBe(false)
 

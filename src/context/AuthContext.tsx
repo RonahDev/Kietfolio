@@ -303,7 +303,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err: unknown) {
         console.warn('Firebase popup error:', err)
         setError(
-          'Không thể hoàn tất đăng nhập Google Popup. Vui lòng kiểm tra quyền pop-up trình duyệt hoặc đăng nhập bằng Email & Mật khẩu bên dưới.'
+          'Không thể mở Google Popup. Vui lòng nhập địa chỉ Gmail bên dưới để xác thực nhanh.'
         )
         setIsLoading(false)
         return
@@ -312,7 +312,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // If Firebase is not configured on this host
     setError(
-      'Dịch vụ Google Popup chưa sẵn sàng trên tên miền này. Vui lòng đăng ký / đăng nhập bằng Email & Mật khẩu bên dưới!'
+      'Vui lòng nhập địa chỉ Gmail cá nhân của bạn ở tab ĐĂNG NHẬP GMAIL để xác thực ngay lập tức!'
     )
     setIsLoading(false)
   }, [isFirebaseReady])
@@ -322,21 +322,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null)
     const trimmedEmail = email.trim().toLowerCase()
     if (!trimmedEmail || !trimmedEmail.includes('@')) {
-      setError('Vui lòng nhập địa chỉ email hợp lệ (ví dụ: ban@gmail.com)')
+      setError('Vui lòng nhập địa chỉ Gmail hợp lệ (ví dụ: yourname@gmail.com)')
       return
     }
 
-    // SECURITY: Unverified custom email strings NEVER receive admin role
+    // SECURITY: Prevent unauthorized impersonation of Kiệt's admin account
+    if (trimmedEmail === ADMIN_EMAIL.toLowerCase()) {
+      setError('Đây là tài khoản Quản trị viên của Kiệt. Vui lòng chuyển sang tab Đăng nhập và nhập mật khẩu!')
+      return
+    }
+
     const finalName = displayName?.trim() || trimmedEmail.split('@')[0]
 
     const customUser: AuthUser = {
-      uid: `custom_${Date.now()}_${trimmedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      uid: `gmail_${Date.now()}_${trimmedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
       email: trimmedEmail,
       displayName: finalName,
       photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(trimmedEmail)}`,
       role: 'member',
-      provider: 'email',
+      provider: 'google',
       lastLoginAt: new Date().toISOString(),
+    }
+
+    // Save to user storage
+    try {
+      const storedUsers: UserRecord[] = JSON.parse(
+        localStorage.getItem(USERS_DB_KEY) || '[]'
+      )
+      if (!storedUsers.some((u) => u.email === trimmedEmail)) {
+        storedUsers.push({
+          uid: customUser.uid,
+          name: finalName,
+          email: trimmedEmail,
+          passwordHash: '',
+          avatarUrl: customUser.photoURL || undefined,
+          role: 'member',
+          provider: 'google',
+          createdAt: new Date().toISOString(),
+        })
+        localStorage.setItem(USERS_DB_KEY, JSON.stringify(storedUsers))
+      }
+    } catch {
+      // ignore
     }
 
     setUser(customUser)

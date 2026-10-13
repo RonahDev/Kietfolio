@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import type { AuthUser } from '../types/auth'
 
-export type AuthModalMode = 'signin' | 'signup'
+export type AuthModalMode = 'signin' | 'signup' | 'gmail'
 
 export interface AuthContextType {
   user: AuthUser | null
