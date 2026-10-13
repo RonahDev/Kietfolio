@@ -5,7 +5,9 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { LightningAtmosphere } from './components/ui/LightningAtmosphere'
 import { PageIntroLoader } from './components/ui/PageIntroLoader'
+import { WhaleController } from './components/ui/WhaleController'
 import { isReducedMotion } from './animations/gsapUtils'
+import { OceanWhaleScene } from './three/OceanWhaleScene'
 import { GlobalParticleField } from './three/GlobalParticleField'
 import { HeroSection } from './features/hero/HeroSection'
 import { AboutSection } from './features/about/AboutSection'
@@ -29,11 +31,17 @@ export function AppContent() {
       {/* Cinematic GSAP Page Entrance Boot Loader */}
       <PageIntroLoader onComplete={() => setIsIntroReady(true)} />
 
+      {/* 3D Undulating Ocean Waves & Flying Cyber Whale */}
+      <OceanWhaleScene />
+
       {/* Ambient 3D Three.js Global Particle Field */}
       <GlobalParticleField />
 
       {/* Interactive Cyber Cursor Atmosphere & Scroll Bar */}
       <LightningAtmosphere />
+
+      {/* Floating Whale Controller HUD */}
+      <WhaleController />
 
       {/* Accessible Skip to Content Link */}
       <a

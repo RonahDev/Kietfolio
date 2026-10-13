@@ -30,8 +30,8 @@ describe('PageIntroLoader Component', () => {
       </LanguageProvider>
     )
 
-    expect(screen.getByText(/Mai Anh Kiệt/i)).toBeInTheDocument()
-    expect(screen.getByText(/^0%$/)).toBeInTheDocument()
+    expect(screen.getByText(/Mai Anh Kiệt/i)).toBeTruthy()
+    expect(screen.getByText(/^0%$/)).toBeTruthy()
   })
 
   it('triggers onComplete when skip intro button is clicked', () => {

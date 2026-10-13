@@ -226,6 +226,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
                   <Terminal className="w-3 h-3" />
                   <span>CLI SHELL</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('kietfolio:summon-whale'))}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xs transition-all cursor-pointer text-[#38bdf8] hover:text-[#00d2ff] hover:bg-[#00d2ff]/10 border border-transparent hover:border-[#00d2ff]/30"
+                  title={language === 'vi' ? 'Triệu hồi cá voi bay vào giữa màn hình' : 'Summon cyber whale into center of screen'}
+                >
+                  <span className="text-xs">🐋</span>
+                  <span>{language === 'vi' ? 'CÁ VOI' : 'WHALE'}</span>
+                </button>
               </div>
             </div>
           </div>
