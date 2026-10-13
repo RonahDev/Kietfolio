@@ -37,7 +37,7 @@ export const AboutSection: React.FC = () => {
         {/* 3 Pillars / Dimensions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Dimension 1: Engineering */}
-          <Card tilt className="flex flex-col justify-between group">
+          <Card className="flex flex-col justify-between group">
             <div className="space-y-4">
               <div className="w-10 h-10 rounded-sm bg-[#0f1b33] border border-[#172847] flex items-center justify-center text-[#00d2ff] group-hover:border-[#00d2ff] group-hover:shadow-[0_0_12px_rgba(0,210,255,0.25)] transition-all">
                 <Code2 className="w-5 h-5" />
@@ -56,7 +56,7 @@ export const AboutSection: React.FC = () => {
           </Card>
 
           {/* Dimension 2: Creativity */}
-          <Card tilt className="flex flex-col justify-between group">
+          <Card className="flex flex-col justify-between group">
             <div className="space-y-4">
               <div className="w-10 h-10 rounded-sm bg-[#0f1b33] border border-[#172847] flex items-center justify-center text-[#38bdf8] group-hover:border-[#38bdf8] group-hover:shadow-[0_0_12px_rgba(56,189,248,0.25)] transition-all">
                 <Sparkles className="w-5 h-5" />
@@ -75,7 +75,7 @@ export const AboutSection: React.FC = () => {
           </Card>
 
           {/* Dimension 3: Operations */}
-          <Card tilt className="flex flex-col justify-between group">
+          <Card className="flex flex-col justify-between group">
             <div className="space-y-4">
               <div className="w-10 h-10 rounded-sm bg-[#0f1b33] border border-[#172847] flex items-center justify-center text-[#00d2ff] group-hover:border-[#00d2ff] group-hover:shadow-[0_0_12px_rgba(0,210,255,0.25)] transition-all">
                 <Boxes className="w-5 h-5" />

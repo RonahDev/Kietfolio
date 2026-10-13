@@ -67,3 +67,4 @@ export function useTextScramble(targetText: string, autoStart: boolean = true) {
 
   return { displayText, isScrambling, trigger }
 }
+

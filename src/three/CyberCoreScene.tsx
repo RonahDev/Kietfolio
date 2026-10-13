@@ -4,7 +4,6 @@ import { isReducedMotion } from '../animations/gsapUtils'
 
 interface CyberCoreSceneProps {
   className?: string
-  interactive?: boolean
 }
 
 function checkWebGlSupport(): boolean {
@@ -17,13 +16,9 @@ function checkWebGlSupport(): boolean {
   }
 }
 
-export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
-  className = '',
-  interactive = true,
-}) => {
+export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hasWebGlError] = useState(() => !checkWebGlSupport())
-  const [isHovered, setIsHovered] = useState(false)
 
   useEffect(() => {
     if (hasWebGlError) return
@@ -32,7 +27,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
 
     const reducedMotion = isReducedMotion()
 
-    // 1. Scene, Camera & Lighting
+    // 1. Scene, Camera & Setup
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(
       42,
@@ -61,8 +56,8 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     const systemGroup = new THREE.Group()
     scene.add(systemGroup)
 
-    // A. Outer Holographic Icosahedron Core
-    const outerGeo = new THREE.IcosahedronGeometry(4.5, 1)
+    // A. Outer Holographic Icosahedron Core (Electric Cyan)
+    const outerGeo = new THREE.IcosahedronGeometry(4.6, 1)
     const outerMat = new THREE.MeshBasicMaterial({
       color: 0x00d2ff,
       wireframe: true,
@@ -72,8 +67,8 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     const outerMesh = new THREE.Mesh(outerGeo, outerMat)
     systemGroup.add(outerMesh)
 
-    // B. Inner Quantum Core (Dodecahedron)
-    const innerGeo = new THREE.DodecahedronGeometry(2.5, 0)
+    // B. Inner Quantum Core (Sapphire Dodecahedron)
+    const innerGeo = new THREE.DodecahedronGeometry(2.6, 0)
     const innerMat = new THREE.MeshBasicMaterial({
       color: 0x38bdf8,
       wireframe: true,
@@ -84,11 +79,11 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     systemGroup.add(innerMesh)
 
     // C. Glowing Center Nucleus Point
-    const nucleusGeo = new THREE.SphereGeometry(0.55, 16, 16)
+    const nucleusGeo = new THREE.SphereGeometry(0.65, 16, 16)
     const nucleusMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
     })
     const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat)
     systemGroup.add(nucleusMesh)
@@ -98,13 +93,13 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     const ring1Mat = new THREE.MeshBasicMaterial({
       color: 0x00d2ff,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.45,
     })
     const ring1Mesh = new THREE.Mesh(ring1Geo, ring1Mat)
     ring1Mesh.rotation.x = Math.PI / 3
     systemGroup.add(ring1Mesh)
 
-    const ring2Geo = new THREE.TorusGeometry(8.2, 0.025, 16, 100)
+    const ring2Geo = new THREE.TorusGeometry(8.4, 0.025, 16, 100)
     const ring2Mat = new THREE.MeshBasicMaterial({
       color: 0x0284c7,
       transparent: true,
@@ -115,14 +110,14 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     systemGroup.add(ring2Mesh)
 
     // E. Constellation Satellite Nodes & Lines
-    const nodeCount = 38
+    const nodeCount = 42
     const nodePositions: THREE.Vector3[] = []
     const nodeGeo = new THREE.SphereGeometry(0.12, 8, 8)
     const nodeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff })
     const nodesGroup = new THREE.Group()
 
     for (let i = 0; i < nodeCount; i++) {
-      const radius = 6.2 + (Math.random() - 0.5) * 2.8
+      const radius = 6.4 + (Math.random() - 0.5) * 3
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(Math.random() * 2 - 1)
 
@@ -143,7 +138,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     const lineCoords: number[] = []
     for (let i = 0; i < nodePositions.length; i++) {
       for (let j = i + 1; j < nodePositions.length; j++) {
-        if (nodePositions[i].distanceTo(nodePositions[j]) < 3.6) {
+        if (nodePositions[i].distanceTo(nodePositions[j]) < 3.8) {
           lineCoords.push(
             nodePositions[i].x,
             nodePositions[i].y,
@@ -161,52 +156,15 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     const linesMat = new THREE.LineBasicMaterial({
       color: 0x172847,
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.8,
     })
     const linesMesh = new THREE.LineSegments(linesGeo, linesMat)
     systemGroup.add(linesMesh)
 
-    // 4. Mouse Tracking & Interactivity
-    let targetRotationX = 0
-    let targetRotationY = 0
-    let impulse = 0
+    // 4. Viewport & Visibility tracking for pure zero-waste performance
     let isIntersecting = true
     let isDocumentVisible = !document.hidden
 
-    const onPointerMove = (e: MouseEvent) => {
-      if (!interactive) return
-      const rect = container.getBoundingClientRect()
-      const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1
-      const mouseY = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-      targetRotationY = mouseX * 0.65
-      targetRotationX = -mouseY * 0.45
-      impulse = 0.008
-    }
-
-    const onPointerEnter = () => setIsHovered(true)
-    const onPointerLeave = () => {
-      setIsHovered(false)
-      targetRotationX = 0
-      targetRotationY = 0
-    }
-
-    window.addEventListener('mousemove', onPointerMove, { passive: true })
-    container.addEventListener('mouseenter', onPointerEnter)
-    container.addEventListener('mouseleave', onPointerLeave)
-
-    // Resize Handler
-    const handleResize = () => {
-      if (!container || !renderer) return
-      const width = container.clientWidth
-      const height = container.clientHeight
-      camera.aspect = width / height
-      camera.updateProjectionMatrix()
-      renderer.setSize(width, height)
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    // IntersectionObserver to auto-pause when scrolled out of view
     const observer = new IntersectionObserver(
       ([entry]) => {
         isIntersecting = entry.isIntersecting
@@ -215,46 +173,52 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
     )
     observer.observe(container)
 
-    // VisibilityChange to pause when tab is inactive
     const handleVisibilityChange = () => {
       isDocumentVisible = !document.hidden
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
-    // 5. Optimized Animation Loop
+    const handleResize = () => {
+      if (!container || !renderer) return
+      const width = container.clientWidth
+      const height = container.clientHeight
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height)
+    }
+    window.addEventListener('resize', handleResize)
+
+    // 5. Cinematic Autonomous Orbiting Animation Loop (Zero Mouse Tugging)
     let animId: number
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
 
-      // Only calculate & render when in viewport and active
       if (!isIntersecting || !isDocumentVisible) return
 
       if (!reducedMotion) {
         const time = clock.getElapsedTime()
-        impulse *= 0.95
 
-        const speed = 0.0035 + impulse
-        systemGroup.rotation.y += speed
-        systemGroup.rotation.x += speed * 0.35
+        // Weightless zero-gravity levitation
+        systemGroup.position.y = Math.sin(time * 0.85) * 0.4
 
-        innerMesh.rotation.y -= speed * 1.5
-        innerMesh.rotation.z += speed * 0.8
+        // Celestial autonomous revolutions
+        systemGroup.rotation.y += 0.0045
+        systemGroup.rotation.x = Math.sin(time * 0.4) * 0.12
+
+        innerMesh.rotation.y -= 0.007
+        innerMesh.rotation.z += 0.004
 
         ring1Mesh.rotation.z += 0.005
         ring2Mesh.rotation.x += 0.004
 
-        // Breathing pulse effect
-        const pulse = 1 + Math.sin(time * 2) * 0.03
+        // Smooth breathing energy scale pulse
+        const pulse = 1 + Math.sin(time * 1.8) * 0.025
         outerMesh.scale.set(pulse, pulse, pulse)
 
-        const innerPulse = 1 + Math.cos(time * 2.5) * 0.04
+        const innerPulse = 1 + Math.cos(time * 2.2) * 0.035
         innerMesh.scale.set(innerPulse, innerPulse, innerPulse)
-
-        // Interpolate toward mouse rotation
-        systemGroup.rotation.x += (targetRotationX - systemGroup.rotation.x) * 0.06
-        systemGroup.rotation.y += (targetRotationY - systemGroup.rotation.y) * 0.06
       }
 
       renderer.render(scene, camera)
@@ -262,12 +226,9 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
 
     animate()
 
-    // 6. Complete Resource Cleanup
+    // 6. Cleanup
     return () => {
       cancelAnimationFrame(animId)
-      window.removeEventListener('mousemove', onPointerMove)
-      container.removeEventListener('mouseenter', onPointerEnter)
-      container.removeEventListener('mouseleave', onPointerLeave)
       window.removeEventListener('resize', handleResize)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       observer.disconnect()
@@ -292,7 +253,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
       linesMat.dispose()
       renderer.dispose()
     }
-  }, [hasWebGlError, interactive])
+  }, [hasWebGlError])
 
   if (hasWebGlError) {
     return (
@@ -327,11 +288,11 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({
       {/* Cyberpunk HUD Frame Accents */}
       <div className="absolute top-3 left-3 pointer-events-none font-mono text-[10px] text-[#00d2ff]/80 flex items-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff] animate-ping" />
-        <span>CYBER_CORE // LIVE_SIM</span>
+        <span>CYBER_CORE // AUTONOMOUS_SIM</span>
       </div>
 
       <div className="absolute bottom-3 right-3 pointer-events-none font-mono text-[9px] text-[#64748b] tracking-wider">
-        {isHovered ? 'STATUS: FLUID_INTERACTION' : 'STATUS: PASSIVE_ORBIT'}
+        STATUS: 60FPS_ORBIT
       </div>
 
       {/* Corner crosshair accents */}

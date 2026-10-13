@@ -143,7 +143,6 @@ export const HeroSection: React.FC = () => {
                 href="#projects"
                 variant="primary"
                 size="lg"
-                magnetic
                 className="font-mono uppercase tracking-wider shadow-[0_0_20px_rgba(0,210,255,0.25)]"
               >
                 <span>{language === 'vi' ? 'Xem Dự Án & Kinh Nghiệm' : 'Explore Work & Projects'}</span>
@@ -154,7 +153,6 @@ export const HeroSection: React.FC = () => {
                 href="#contact"
                 variant="secondary"
                 size="lg"
-                magnetic
                 className="font-mono uppercase tracking-wider"
               >
                 <span>{t.hero.secondaryCta}</span>

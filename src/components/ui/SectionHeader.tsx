@@ -53,13 +53,13 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {/* Electric lightning technical baseline rule */}
       <div
         className={cn(
-          'mt-6 flex items-center gap-2',
+          'mt-6 flex items-center gap-2.5',
           align === 'center' ? 'justify-center' : 'justify-start'
         )}
       >
-        <div className="w-12 h-[2.5px] bg-[#00d2ff] rounded-full shadow-[0_0_10px_#00d2ff]" />
-        <div className="w-3 h-[2px] bg-[#233e6b]" />
-        <div className="w-1.5 h-[2px] bg-[#16243d]" />
+        <div className="w-16 h-[2px] bg-gradient-to-r from-[#00d2ff] to-[#38bdf8] rounded-full shadow-[0_0_12px_rgba(0,210,255,0.7)]" />
+        <div className="w-4 h-[2px] bg-[#0284c7]/60 rounded-full" />
+        <div className="w-1.5 h-[2px] bg-[#172847] rounded-full" />
       </div>
     </div>
   )

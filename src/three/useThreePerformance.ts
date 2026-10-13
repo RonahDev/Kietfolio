@@ -63,3 +63,4 @@ export function useThreePerformance(containerRef: React.RefObject<HTMLElement | 
     hasWebGl,
   }
 }
+

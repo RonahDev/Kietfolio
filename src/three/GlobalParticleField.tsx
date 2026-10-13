@@ -13,10 +13,10 @@ export const GlobalParticleField: React.FC = () => {
     const reducedMotion = isReducedMotion()
     if (reducedMotion) return
 
-    // Scene setup
+    // Scene & Camera
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
-    camera.position.z = 30
+    camera.position.z = 32
 
     let renderer: THREE.WebGLRenderer
     try {
@@ -32,22 +32,22 @@ export const GlobalParticleField: React.FC = () => {
       return
     }
 
-    // 100 Ambient Floating Cyber Dust Particles
-    const particleCount = 100
+    // 120 Cosmic Dust Particles (Celestial Constellation Starfield)
+    const particleCount = 120
     const positions = new Float32Array(particleCount * 3)
     const speeds = new Float32Array(particleCount)
 
     for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 55
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 55
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 40
-      speeds[i] = 0.02 + Math.random() * 0.04
+      positions[i * 3] = (Math.random() - 0.5) * 60
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 60
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 45
+      speeds[i] = 0.015 + Math.random() * 0.03
     }
 
     const geometry = new THREE.BufferGeometry()
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
 
-    // Canvas particle texture to avoid external assets
+    // Soft circular radial gradient texture
     const createCircleTexture = () => {
       const canvas = document.createElement('canvas')
       canvas.width = 16
@@ -56,7 +56,7 @@ export const GlobalParticleField: React.FC = () => {
       if (ctx) {
         const gradient = ctx.createRadialGradient(8, 8, 0, 8, 8, 8)
         gradient.addColorStop(0, 'rgba(0, 210, 255, 1)')
-        gradient.addColorStop(0.5, 'rgba(0, 210, 255, 0.4)')
+        gradient.addColorStop(0.4, 'rgba(56, 189, 248, 0.45)')
         gradient.addColorStop(1, 'rgba(0, 210, 255, 0)')
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, 16, 16)
@@ -67,29 +67,16 @@ export const GlobalParticleField: React.FC = () => {
     const particleTexture = createCircleTexture()
     const material = new THREE.PointsMaterial({
       color: 0x00d2ff,
-      size: 0.65,
+      size: 0.75,
       map: particleTexture,
       transparent: true,
-      opacity: 0.25,
+      opacity: 0.3,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
 
     const particles = new THREE.Points(geometry, material)
     scene.add(particles)
-
-    // Gentle mouse parallax
-    let mouseX = 0
-    let mouseY = 0
-    let targetX = 0
-    let targetY = 0
-
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2
-    }
-
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
 
     // Resize handler
     const onResize = () => {
@@ -108,24 +95,26 @@ export const GlobalParticleField: React.FC = () => {
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
-    // Animation loop
+    // Autonomous slow cosmic drift loop (Zero Mouse Tracking)
     let animId: number
+    const clock = new THREE.Clock()
+
     const animate = () => {
       animId = requestAnimationFrame(animate)
       if (!isVisible) return
 
-      targetX += (mouseX - targetX) * 0.03
-      targetY += (mouseY - targetY) * 0.03
+      const time = clock.getElapsedTime()
 
-      particles.rotation.y = targetX * 0.15
-      particles.rotation.x = -targetY * 0.15
+      // Slow majestic celestial rotation
+      particles.rotation.y = time * 0.02
+      particles.rotation.x = Math.sin(time * 0.015) * 0.05
 
-      // Drift upward slowly
+      // Gentle upward star drift
       const posArray = geometry.attributes.position.array as Float32Array
       for (let i = 0; i < particleCount; i++) {
-        posArray[i * 3 + 1] += speeds[i] * 0.15
-        if (posArray[i * 3 + 1] > 28) {
-          posArray[i * 3 + 1] = -28
+        posArray[i * 3 + 1] += speeds[i] * 0.12
+        if (posArray[i * 3 + 1] > 30) {
+          posArray[i * 3 + 1] = -30
         }
       }
       geometry.attributes.position.needsUpdate = true
@@ -137,7 +126,6 @@ export const GlobalParticleField: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animId)
-      window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVisibilityChange)
 
@@ -155,7 +143,7 @@ export const GlobalParticleField: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 pointer-events-none z-0 opacity-40 transition-opacity duration-700"
+      className="fixed inset-0 pointer-events-none z-0 opacity-45 transition-opacity duration-700"
       aria-hidden="true"
     />
   )

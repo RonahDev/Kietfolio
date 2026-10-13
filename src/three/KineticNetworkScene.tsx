@@ -143,29 +143,6 @@ export const KineticNetworkScene: React.FC<KineticNetworkSceneProps> = ({ classN
     ringMesh.rotation.x = Math.PI / 3
     systemGroup.add(ringMesh)
 
-    // Dynamic Interaction State
-    let targetRotationX = 0
-    let targetRotationY = 0
-    let isPointerActive = false
-    let impulseSpeed = 0
-
-    const onPointerMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1
-      const mouseY = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-      targetRotationY = mouseX * 0.55
-      targetRotationX = -mouseY * 0.4
-      isPointerActive = true
-      impulseSpeed = 0.006 // Dynamic acceleration spark on interaction
-    }
-
-    const onPointerLeave = () => {
-      isPointerActive = false
-    }
-
-    window.addEventListener('mousemove', onPointerMove, { passive: true })
-    container.addEventListener('mouseleave', onPointerLeave, { passive: true })
-
     // Resize Handler
     const handleResize = () => {
       if (!container || !renderer) return
@@ -188,24 +165,15 @@ export const KineticNetworkScene: React.FC<KineticNetworkSceneProps> = ({ classN
       if (!reducedMotion) {
         const elapsedTime = clock.getElapsedTime()
 
-        // Decay interaction impulse smoothly back to baseline
-        impulseSpeed *= 0.96
-
-        // Continuous kinetic rotation with interactive response
-        const baseSpeed = 0.003 + impulseSpeed
-        systemGroup.rotation.y += baseSpeed
-        systemGroup.rotation.x += baseSpeed * 0.35
+        // Continuous kinetic rotation
+        systemGroup.rotation.y += 0.0035
+        systemGroup.rotation.x += 0.0015
         innerMesh.rotation.y -= 0.005
         ringMesh.rotation.z += 0.004
 
-        // Subtle electric breathing effect & interactive glow
+        // Subtle electric breathing effect & glow
         const scaleWave = 1 + Math.sin(elapsedTime * 1.8) * 0.02
         coreMesh.scale.set(scaleWave, scaleWave, scaleWave)
-        innerMaterial.opacity = isPointerActive ? 0.85 : 0.65
-
-        // Smooth pointer interpolation
-        systemGroup.rotation.x += (targetRotationX - systemGroup.rotation.x) * 0.06
-        systemGroup.rotation.y += (targetRotationY - systemGroup.rotation.y) * 0.06
       }
 
       renderer.render(scene, camera)
@@ -216,8 +184,6 @@ export const KineticNetworkScene: React.FC<KineticNetworkSceneProps> = ({ classN
     // Cleanup & Resource Disposal
     return () => {
       cancelAnimationFrame(animationFrameId)
-      window.removeEventListener('mousemove', onPointerMove)
-      container.removeEventListener('mouseleave', onPointerLeave)
       window.removeEventListener('resize', handleResize)
 
       if (container && renderer.domElement) {
