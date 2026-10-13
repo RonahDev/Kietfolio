@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
-import { experienceData } from '../../data/experience'
+import { experienceData, LOGISTICS_SOFTWARE_CORRELATIONS } from '../../data/experience'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
@@ -17,23 +17,11 @@ import {
 export const ExperienceSection: React.FC = () => {
   const { t, language } = useLanguage()
 
-  const correlationPoints = [
-    {
-      logistics: language === 'en' ? 'Parcel Intake & Dispatch Queues' : 'Hàng đợi Tiếp nhận & Xuất kho',
-      software: language === 'en' ? 'Asynchronous Message Queues & Event Loops' : 'Hàng đợi Bất đồng bộ & Event Loops',
-      icon: Layers,
-    },
-    {
-      logistics: language === 'en' ? 'Sorting Misroutes & Bin Conflicts' : 'Sai tuyến phân loại & Xung đột vị trí',
-      software: language === 'en' ? 'Defensive Type Validation & Schema Constraints' : 'Xác thực Kiểu phòng thủ & Ràng buộc CSDL',
-      icon: Cpu,
-    },
-    {
-      logistics: language === 'en' ? 'Peak Season Volume Spikes' : 'Đỉnh tải lưu lượng mùa cao điểm',
-      software: language === 'en' ? 'Throughput Benchmarking & Backpressure Handling' : 'Đo lường Thông lượng & Cơ chế Backpressure',
-      icon: Workflow,
-    },
-  ]
+  const correlationIcons = {
+    queues: Layers,
+    validation: Cpu,
+    throughput: Workflow,
+  }
 
   return (
     <section
@@ -151,11 +139,11 @@ export const ExperienceSection: React.FC = () => {
 
                 {/* Conceptual Translation Diagram */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {correlationPoints.map((point, idx) => {
-                    const IconComp = point.icon
+                  {LOGISTICS_SOFTWARE_CORRELATIONS.map((point) => {
+                    const IconComp = correlationIcons[point.iconType]
                     return (
                       <div
-                        key={idx}
+                        key={point.id}
                         className="p-4 rounded-sm bg-[#0f1b33] border border-[#172847] space-y-2 font-mono text-xs transition-all hover:border-[#00d2ff]/40"
                       >
                         <div className="flex items-center gap-2 text-[#64748b]">
@@ -163,10 +151,10 @@ export const ExperienceSection: React.FC = () => {
                           <span className="uppercase text-[10px]">Logistics Domain</span>
                         </div>
                         <div className="text-[#f1f5f9] font-medium font-sans">
-                          {point.logistics}
+                          {point.logistics[language]}
                         </div>
                         <div className="pt-2 border-t border-[#172847] text-[#38bdf8] font-sans">
-                          ↳ {point.software}
+                          ↳ {point.software[language]}
                         </div>
                       </div>
                     )

@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { HeroTerminal } from './HeroTerminal'
+import { HERO_TELEMETRY_METRICS } from '../../config/telemetry'
 
 // Lazy-load CyberCoreScene to keep initial bundle ultra-fast
 const CyberCoreScene = lazy(() =>
@@ -211,69 +212,33 @@ export const HeroSection: React.FC = () => {
 
         {/* Bottom Bento Telemetry Strip */}
         <div className="hero-bento-strip grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-4">
-          {/* Card 1: Education */}
-          <div className="p-4 rounded-sm bg-[#0a1224]/80 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group">
-            <div className="flex items-center gap-2 text-[#00d2ff] mb-1">
-              <GraduationCap className="w-4 h-4" />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748b] group-hover:text-[#00d2ff] transition-colors">
-                ACADEMICS
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] font-mono">
-              FPT University
-            </p>
-            <p className="text-[11px] text-[#94a3b8] mt-0.5">
-              BSc Software Engineering
-            </p>
-          </div>
-
-          {/* Card 2: Operations */}
-          <div className="p-4 rounded-sm bg-[#0a1224]/80 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group">
-            <div className="flex items-center gap-2 text-[#38bdf8] mb-1">
-              <Boxes className="w-4 h-4" />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748b] group-hover:text-[#38bdf8] transition-colors">
-                OPERATIONS
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] font-mono">
-              SPX Express Lead
-            </p>
-            <p className="text-[11px] text-[#94a3b8] mt-0.5">
-              High-Velocity Sorting Hub
-            </p>
-          </div>
-
-          {/* Card 3: Stack */}
-          <div className="p-4 rounded-sm bg-[#0a1224]/80 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group">
-            <div className="flex items-center gap-2 text-[#00d2ff] mb-1">
-              <Cpu className="w-4 h-4" />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748b] group-hover:text-[#00d2ff] transition-colors">
-                TECH CORE
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] font-mono">
-              TypeScript & React 19
-            </p>
-            <p className="text-[11px] text-[#94a3b8] mt-0.5">
-              Three.js, Node.js, Docker
-            </p>
-          </div>
-
-          {/* Card 4: System Integrity */}
-          <div className="p-4 rounded-sm bg-[#0a1224]/80 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group">
-            <div className="flex items-center gap-2 text-emerald-400 mb-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748b] group-hover:text-emerald-400 transition-colors">
-                RELIABILITY
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] font-mono">
-              100% Type-Safe
-            </p>
-            <p className="text-[11px] text-[#94a3b8] mt-0.5">
-              Zero Production Defects
-            </p>
-          </div>
+          {HERO_TELEMETRY_METRICS.map((metric) => {
+            const icons = {
+              academics: <GraduationCap className="w-4 h-4 text-[#00d2ff]" />,
+              operations: <Boxes className="w-4 h-4 text-[#38bdf8]" />,
+              tech: <Cpu className="w-4 h-4 text-[#00d2ff]" />,
+              reliability: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+            }
+            return (
+              <div
+                key={metric.id}
+                className="p-4 rounded-sm bg-[#0a1224]/85 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {icons[metric.iconName]}
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-[#64748b] group-hover:text-[#00d2ff] transition-colors">
+                    {metric.label[language]}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-[#f1f5f9] font-mono">
+                  {metric.title}
+                </p>
+                <p className="text-[11px] text-[#94a3b8] mt-0.5">
+                  {metric.subtitle[language]}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

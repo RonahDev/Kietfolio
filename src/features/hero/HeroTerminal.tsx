@@ -1,58 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Terminal, CornerDownLeft, Sparkles } from 'lucide-react'
-import { profileData } from '../../data/profile'
 import { useLanguage } from '../../hooks/useLanguage'
+import { useTerminal } from '../../hooks/useTerminal'
 
 export const HeroTerminal: React.FC = () => {
   const { language } = useLanguage()
-  const [inputVal, setInputVal] = useState('')
-  const [history, setHistory] = useState<Array<{ command: string; output: string | React.ReactNode }>>([
-    {
-      command: 'kiet.init()',
-      output: language === 'vi'
-        ? 'Hệ thống Kietfolio v2.4 trực tuyến. Sẵn sàng nhận lệnh điều khiển.'
-        : 'Kietfolio System v2.4 initialized. Ready for operations.',
-    },
-    {
-      command: 'kiet.status',
-      output: language === 'vi'
-        ? '✦ Sinh viên Kỹ thuật Phần mềm ĐH FPT\n✦ Trưởng Ca Điều Phối SPX Express Hub Cần Thơ\n✦ Trạng thái: Sẵn sàng hợp tác / Thực tập'
-        : '✦ Software Engineering Student @ FPT University\n✦ Shift Dispatch Lead @ SPX Express Can Tho Hub\n✦ Status: Open for Software Engineering Opportunities',
-    },
-  ])
-
-  const suggestedCommands = ['kiet.skills', 'kiet.experience', 'kiet.contact', 'clear']
-
-  const handleCommand = (cmd: string) => {
-    const clean = cmd.trim().toLowerCase()
-    if (!clean) return
-
-    if (clean === 'clear' || clean === 'cls') {
-      setHistory([])
-      setInputVal('')
-      return
-    }
-
-    let out: string | React.ReactNode = ''
-    if (clean === 'kiet.skills' || clean === 'skills') {
-      out = 'Tech: TypeScript, React, Node.js, Three.js, GSAP, Docker, PostgreSQL\nOps: Điều phối kho bãi, xử lý xung đột hàng hóa, tối ưu thông lượng.'
-    } else if (clean === 'kiet.experience' || clean === 'exp' || clean === 'experience') {
-      out = 'SPX Express (Shopee Logistics) Hub Lead: Giám sát phân loại bưu kiện cao điểm, quản lý đội ngũ 30+ nhân sự điều phối.'
-    } else if (clean === 'kiet.contact' || clean === 'contact' || clean === 'email') {
-      out = `Email: ${profileData.contactLinks.email}\nGitHub: ${profileData.contactLinks.github}\nLocation: ${profileData.location.city}, ${profileData.location.country}`
-    } else if (clean === 'help') {
-      out = 'Lệnh khả dụng: kiet.skills, kiet.experience, kiet.contact, kiet.status, clear'
-    } else {
-      out = `Lệnh không xác định: "${clean}". Hãy thử: ${suggestedCommands.join(', ')}`
-    }
-
-    setHistory((prev) => [...prev, { command: cmd, output: out }])
-    setInputVal('')
-  }
+  const { inputVal, setInputVal, history, suggestedCommands, executeCommand } =
+    useTerminal(language)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    handleCommand(inputVal)
+    executeCommand(inputVal)
   }
 
   return (
@@ -94,13 +52,13 @@ export const HeroTerminal: React.FC = () => {
       <div className="px-3 py-2 bg-[#080e1c] border-t border-[#172847]/70 flex items-center gap-1.5 overflow-x-auto text-[10px]">
         <span className="text-[#64748b] shrink-0 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-[#00d2ff]" />
-          <span>Gợi ý:</span>
+          <span>{language === 'vi' ? 'Gợi ý:' : 'Quick:'}</span>
         </span>
         {suggestedCommands.map((cmd) => (
           <button
             key={cmd}
             type="button"
-            onClick={() => handleCommand(cmd)}
+            onClick={() => executeCommand(cmd)}
             className="px-2 py-0.5 rounded-xs bg-[#0f1b33] border border-[#172847] hover:border-[#00d2ff] hover:text-[#00d2ff] text-[#94a3b8] transition-colors cursor-pointer shrink-0"
           >
             {cmd}
@@ -115,13 +73,17 @@ export const HeroTerminal: React.FC = () => {
           type="text"
           value={inputVal}
           onChange={(e) => setInputVal(e.target.value)}
-          placeholder="Nhập lệnh (vd: kiet.skills, help)..."
+          placeholder={
+            language === 'vi'
+              ? 'Nhập lệnh (vd: kiet.skills, help)...'
+              : 'Enter command (e.g. kiet.skills, help)...'
+          }
           className="flex-1 bg-transparent text-[#f1f5f9] placeholder-[#475569] text-xs outline-none"
         />
         <button
           type="submit"
           aria-label="Submit command"
-          className="p-1 rounded-xs text-[#94a3b8] hover:text-[#00d2ff] transition-colors"
+          className="p-1 rounded-xs text-[#94a3b8] hover:text-[#00d2ff] transition-colors cursor-pointer"
         >
           <CornerDownLeft className="w-3.5 h-3.5" />
         </button>

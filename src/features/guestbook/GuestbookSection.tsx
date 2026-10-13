@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useAuth } from '../../hooks/useAuth'
+import { useGuestbook } from '../../hooks/useGuestbook'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { GoogleIcon } from '../../components/ui/GoogleIcon'
-import { type GuestbookEntry } from '../../types/auth'
 import {
   MessageSquare,
   Send,
@@ -15,87 +15,45 @@ import {
   CheckCircle2,
   LogIn,
   UserPlus,
+  Loader2,
 } from 'lucide-react'
-
-const GUESTBOOK_STORAGE_KEY = 'kietfolio_guestbook_entries'
-
-const defaultSeedEntries: GuestbookEntry[] = [
-  {
-    id: 'gb-seed-1',
-    uid: 'seed-uid-1',
-    name: 'Nguyễn Hoàng Long (FPT Software)',
-    email: 'long.nh@fpt-software.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=LongNH',
-    message:
-      'Giao diện web màu xanh sấm sét rất ấn tượng, chuyển động Three.js và GSAP mượt mà! Thích cách Kiệt liên hệ tư duy vận hành điều phối tài xế vào kỹ thuật phần mềm.',
-    role: 'visitor',
-    timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
-    isVerifiedGoogle: true,
-  },
-  {
-    id: 'gb-seed-2',
-    uid: 'seed-uid-2',
-    name: 'Đồng nghiệp Trạm SPX 63BDG02',
-    email: 'team.spx.hub@gmail.com',
-    avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=SPXTeam',
-    message:
-      'Chúc Kiệt gặt hái nhiều thành công! Tinh thần chịu áp lực ngày sale và khả năng điều phối gần 50 shipper của Kiệt ở hub Thủ Dầu Một luôn được anh em đánh giá rất cao.',
-    role: 'visitor',
-    timestamp: new Date(Date.now() - 3600000 * 36).toISOString(),
-    isVerifiedGoogle: true,
-  },
-]
 
 export const GuestbookSection: React.FC = () => {
   const { language } = useLanguage()
   const { user, isAdmin, openAuthModal } = useAuth()
-  const [entries, setEntries] = useState<GuestbookEntry[]>(() => {
-    try {
-      const stored = localStorage.getItem(GUESTBOOK_STORAGE_KEY)
-      if (stored) {
-        return JSON.parse(stored)
-      }
-    } catch {
-      // fallback
-    }
-    return defaultSeedEntries
-  })
-  const [newMessage, setNewMessage] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [postedSuccess, setPostedSuccess] = useState(false)
+  const {
+    entries,
+    isLoading,
+    isSubmitting,
+    postedSuccess,
+    submitEntry,
+    removeEntry,
+  } = useGuestbook()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [newMessage, setNewMessage] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !newMessage.trim()) return
 
-    setIsSubmitting(true)
-    setTimeout(() => {
-      const newEntry: GuestbookEntry = {
-        id: `gb-${Date.now()}`,
-        uid: user.uid,
-        name: user.displayName || 'Google User',
-        email: user.email || '',
-        avatarUrl: user.photoURL || undefined,
-        message: newMessage.trim(),
-        role: user.role,
-        timestamp: new Date().toISOString(),
-        isVerifiedGoogle: true,
-      }
+    const ok = await submitEntry({
+      uid: user.uid,
+      name: user.displayName || 'Google User',
+      email: user.email || '',
+      avatarUrl: user.photoURL || undefined,
+      message: newMessage.trim(),
+      role: user.role,
+      isVerifiedGoogle: true,
+    })
 
-      const updated = [newEntry, ...entries]
-      setEntries(updated)
-      localStorage.setItem(GUESTBOOK_STORAGE_KEY, JSON.stringify(updated))
+    if (ok) {
       setNewMessage('')
-      setIsSubmitting(false)
-      setPostedSuccess(true)
-      setTimeout(() => setPostedSuccess(false), 3000)
-    }, 400)
+    }
   }
 
-  const handleDelete = (id: string) => {
-    const updated = entries.filter((e) => e.id !== id)
-    setEntries(updated)
-    localStorage.setItem(GUESTBOOK_STORAGE_KEY, JSON.stringify(updated))
+  const handleDelete = async (id: string) => {
+    if (!user) return
+    await removeEntry(id, user.uid, isAdmin)
   }
 
   return (
@@ -191,7 +149,11 @@ export const GuestbookSection: React.FC = () => {
                     disabled={!newMessage.trim() || isSubmitting}
                     className="w-full justify-center font-mono text-xs uppercase cursor-pointer"
                   >
-                    <Send className="w-3.5 h-3.5 mr-2" />
+                    {isSubmitting ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5 mr-2" />
+                    )}
                     <span>
                       {isSubmitting
                         ? language === 'vi'
@@ -264,11 +226,22 @@ export const GuestbookSection: React.FC = () => {
 
           {/* Right Column: Wall of messages */}
           <div className="lg:col-span-7 space-y-4">
-            {entries.length === 0 ? (
-              <div className="p-12 text-center rounded-sm bg-[#0a1224] border border-[#172847] text-[#94a3b8] font-mono text-xs">
-                Chưa có lời nhắn nào. Hãy là người đầu tiên để lại lời nhắn!
+            {isLoading && (
+              <div className="p-12 text-center text-xs font-mono text-[#00d2ff] flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>[SYNCING_COMMUNITY_LEDGER...]</span>
               </div>
-            ) : (
+            )}
+
+            {!isLoading && entries.length === 0 && (
+              <div className="p-12 text-center rounded-sm bg-[#0a1224] border border-[#172847] text-[#94a3b8] font-mono text-xs">
+                {language === 'vi'
+                  ? 'Chưa có lời nhắn nào. Hãy là người đầu tiên để lại lời nhắn!'
+                  : 'No entries yet. Be the first to leave an endorsement!'}
+              </div>
+            )}
+
+            {!isLoading &&
               entries.map((entry) => (
                 <div
                   key={entry.id}
@@ -329,12 +302,10 @@ export const GuestbookSection: React.FC = () => {
                     {entry.message}
                   </p>
                 </div>
-              ))
-            )}
+              ))}
           </div>
         </div>
       </div>
     </section>
   )
 }
-

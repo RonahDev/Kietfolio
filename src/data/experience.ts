@@ -50,3 +50,49 @@ export const experienceData: ExperienceItem[] = [
   },
 ]
 
+export interface CorrelationItem {
+  id: string
+  logistics: { en: string; vi: string }
+  software: { en: string; vi: string }
+  iconType: 'queues' | 'validation' | 'throughput'
+}
+
+export const LOGISTICS_SOFTWARE_CORRELATIONS: CorrelationItem[] = [
+  {
+    id: 'queues',
+    logistics: {
+      en: 'Parcel Intake & Dispatch Queues',
+      vi: 'Hàng đợi Tiếp nhận & Xuất kho',
+    },
+    software: {
+      en: 'Asynchronous Message Queues & Event Loops',
+      vi: 'Hàng đợi Bất đồng bộ & Event Loops',
+    },
+    iconType: 'queues',
+  },
+  {
+    id: 'validation',
+    logistics: {
+      en: 'Sorting Misroutes & Bin Conflicts',
+      vi: 'Sai tuyến phân loại & Xung đột vị trí',
+    },
+    software: {
+      en: 'Defensive Type Validation & Schema Constraints',
+      vi: 'Xác thực Kiểu phòng thủ & Ràng buộc CSDL',
+    },
+    iconType: 'validation',
+  },
+  {
+    id: 'throughput',
+    logistics: {
+      en: 'Peak Season Volume Spikes',
+      vi: 'Đỉnh tải lưu lượng mùa cao điểm',
+    },
+    software: {
+      en: 'Throughput Benchmarking & Backpressure Handling',
+      vi: 'Đo lường Thông lượng & Cơ chế Backpressure',
+    },
+    iconType: 'throughput',
+  },
+]
+

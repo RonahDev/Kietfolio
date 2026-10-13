@@ -1,18 +1,19 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
-import { projectsData } from '../../data/projects'
+import { useProjects } from '../../hooks/useProjects'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { ProjectCard } from './ProjectCard'
-import { Info, Sparkles, Layers, Code2 } from 'lucide-react'
+import { Info, Sparkles, Layers, Code2, Loader2 } from 'lucide-react'
 
 export const ProjectsSection: React.FC = () => {
   const { t, language } = useLanguage()
-  const [filterCategory, setFilterCategory] = useState<string>('all')
-
-  const filteredProjects =
-    filterCategory === 'all'
-      ? projectsData
-      : projectsData.filter((p) => p.category === filterCategory)
+  const {
+    projects,
+    activeCategory,
+    setActiveCategory,
+    isLoading,
+    error,
+  } = useProjects('all')
 
   return (
     <section
@@ -27,14 +28,14 @@ export const ProjectsSection: React.FC = () => {
           subtitle={t.projects.subtitle}
         />
 
-        {/* Top Controls: Filter Category Tabs & Notice */}
+        {/* Top Controls: Filter Category Tabs & Telemetry */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-10">
           <div className="inline-flex items-center gap-1.5 p-1 rounded-sm bg-[#0a1224] border border-[#172847] font-mono text-xs">
             <button
               type="button"
-              onClick={() => setFilterCategory('all')}
+              onClick={() => setActiveCategory('all')}
               className={`px-3 py-1.5 rounded-xs transition-all cursor-pointer flex items-center gap-1.5 ${
-                filterCategory === 'all'
+                activeCategory === 'all'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold shadow-[0_0_12px_rgba(0,210,255,0.3)]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
@@ -44,9 +45,9 @@ export const ProjectsSection: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setFilterCategory('fullstack')}
+              onClick={() => setActiveCategory('fullstack')}
               className={`px-3 py-1.5 rounded-xs transition-all cursor-pointer flex items-center gap-1.5 ${
-                filterCategory === 'fullstack'
+                activeCategory === 'fullstack'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold shadow-[0_0_12px_rgba(0,210,255,0.3)]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
@@ -56,9 +57,9 @@ export const ProjectsSection: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setFilterCategory('creative')}
+              onClick={() => setActiveCategory('creative')}
               className={`px-3 py-1.5 rounded-xs transition-all cursor-pointer flex items-center gap-1.5 ${
-                filterCategory === 'creative'
+                activeCategory === 'creative'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold shadow-[0_0_12px_rgba(0,210,255,0.3)]'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
               }`}
@@ -70,24 +71,39 @@ export const ProjectsSection: React.FC = () => {
 
           <div className="text-[11px] font-mono text-[#64748b] flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff]" />
-            <span>TOTAL: {projectsData.length} SYSTEMS DOCUMENTED</span>
+            <span>TOTAL: {projects.length} SYSTEMS DOCUMENTED</span>
           </div>
         </div>
 
         {/* Prototype Transparency Notice */}
         <div className="mb-10 p-4 rounded-sm bg-[#0a1224] border border-[#172847] flex items-center gap-3 text-xs font-mono text-[#94a3b8]">
           <Info className="w-4 h-4 text-[#00d2ff] shrink-0" />
-          <span>
-            {t.projects.prototypeNotice}
-          </span>
+          <span>{t.projects.prototypeNotice}</span>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="py-16 text-center text-xs font-mono text-[#00d2ff] flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>[RETRIEVING_PROJECT_TOPOLOGY...]</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="p-4 rounded-sm bg-red-950/40 border border-red-500/40 text-xs font-mono text-red-200">
+            {error}
+          </div>
+        )}
+
         {/* Project Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

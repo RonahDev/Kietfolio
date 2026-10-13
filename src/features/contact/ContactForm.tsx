@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useAuth } from '../../hooks/useAuth'
+import { useContactForm } from '../../hooks/useContactForm'
 import { profileData } from '../../data/profile'
-import { validateContactForm } from '../../utils/validation'
-import type { ContactFormData, FormValidationErrors } from '../../types'
-import type { ContactMessage } from '../../types/auth'
 import { Button } from '../../components/ui/Button'
 import { GoogleIcon } from '../../components/ui/GoogleIcon'
 import {
@@ -17,103 +15,21 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 
-const MESSAGES_STORAGE_KEY = 'kietfolio_inbox_messages'
-
 export const ContactForm: React.FC = () => {
   const { t, language } = useLanguage()
   const { user, openAuthModal } = useAuth()
 
-  const [formData, setFormData] = useState<ContactFormData>(() => ({
-    name: user?.displayName || '',
-    email: user?.email || '',
-    subject: '',
-    message: '',
-    honeypot: '',
-  }))
-
-  const handleApplyGoogleProfile = () => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.displayName || prev.name,
-        email: user.email || prev.email,
-      }))
-    }
-  }
-
-  const [errors, setErrors] = useState<FormValidationErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [copied, setCopied] = useState(false)
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-
-    // Clear field-specific error as user types
-    if (errors[name as keyof FormValidationErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }))
-    }
-  }
-
-  const handleCopyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(profileData.contactLinks.email)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
-    } catch {
-      // Fallback
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // 1. Validate Form Data
-    const validation = validateContactForm(formData, language)
-    if (!validation.isValid) {
-      setErrors(validation.errors)
-      setSubmitStatus('error')
-      return
-    }
-
-    setErrors({})
-    setIsSubmitting(true)
-
-    // Save message into Admin inbox storage for Kiệt
-    try {
-      const existingStr = localStorage.getItem(MESSAGES_STORAGE_KEY)
-      const existing: ContactMessage[] = existingStr ? JSON.parse(existingStr) : []
-      const newMessage: ContactMessage = {
-        id: `msg-${Date.now()}`,
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
-        timestamp: new Date().toISOString(),
-        isVerifiedUser: Boolean(user),
-        read: false,
-      }
-      localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify([newMessage, ...existing]))
-    } catch (err) {
-      console.warn('Could not save to local inbox storage:', err)
-    }
-
-    // Simulate validation and open client email dispatch honestly
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setSubmitStatus('success')
-
-      // Prepare mailto link with encoded parameters to deliver message directly
-      const subject = encodeURIComponent(`[Portfolio Inquiry] ${formData.subject}`)
-      const body = encodeURIComponent(
-        `From: ${formData.name} <${formData.email}>\n\nMessage:\n${formData.message}`
-      )
-      window.location.href = `mailto:${profileData.contactLinks.email}?subject=${subject}&body=${body}`
-    }, 600)
-  }
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    submitStatus,
+    copied,
+    handleChange,
+    handleApplyGoogleProfile,
+    handleCopyEmail,
+    handleSubmit,
+  } = useContactForm(user, language)
 
   return (
     <div className="space-y-6">
@@ -135,7 +51,7 @@ export const ContactForm: React.FC = () => {
 
         <button
           type="button"
-          onClick={handleCopyEmail}
+          onClick={() => handleCopyEmail(profileData.contactLinks.email)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-[#0a1224] hover:bg-[#13223f] border border-[#172847] hover:border-[#00d2ff] text-[#94a3b8] hover:text-[#00d2ff] rounded-sm transition-all self-start sm:self-auto cursor-pointer"
           aria-label={t.contact.copyEmail}
         >
