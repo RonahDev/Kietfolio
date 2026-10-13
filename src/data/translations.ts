@@ -13,6 +13,9 @@ export interface TranslationDictionary {
     close: string
     statusAvailable: string
     loginGoogle: string
+    signIn: string
+    signUp: string
+    guest: string
     adminDashboard: string
     logout: string
   }
@@ -130,6 +133,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       close: 'Close',
       statusAvailable: 'Undergraduate · Open for Collaborations',
       loginGoogle: 'Sign In (Gmail)',
+      signIn: 'Sign In',
+      signUp: 'Sign Up',
+      guest: 'Guest Mode',
       adminDashboard: 'Admin Control',
       logout: 'Sign Out',
     },
@@ -245,6 +251,9 @@ export const translations: Record<Language, TranslationDictionary> = {
       close: 'Đóng',
       statusAvailable: 'Sinh viên ĐH · Sẵn sàng hợp tác & Thực tập',
       loginGoogle: 'Đăng Nhập Gmail',
+      signIn: 'Đăng Nhập',
+      signUp: 'Đăng Ký',
+      guest: 'Chế độ Khách',
       adminDashboard: 'Quản Trị Admin',
       logout: 'Đăng Xuất',
     },

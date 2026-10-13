@@ -191,7 +191,7 @@ export const ContactForm: React.FC = () => {
           </span>
           <button
             type="button"
-            onClick={openAuthModal}
+            onClick={() => openAuthModal('signin')}
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-[#0f1b33] hover:bg-[#142444] border border-[#172847] hover:border-[#00d2ff] text-[#00d2ff] text-[11px] font-bold cursor-pointer transition-colors self-start sm:self-auto"
           >
             <GoogleIcon className="w-3.5 h-3.5" />

@@ -1,13 +1,28 @@
 export const ADMIN_EMAIL = 'kietteve22102005@gmail.com'
 
+export type UserRole = 'admin' | 'member' | 'visitor'
+export type AuthProviderType = 'google' | 'email' | 'demo'
+
 export interface AuthUser {
   uid: string
   email: string | null
   displayName: string | null
   photoURL: string | null
-  role: 'admin' | 'visitor'
-  provider: 'google' | 'demo'
+  role: UserRole
+  provider: AuthProviderType
+  createdAt?: string
   lastLoginAt: string
+}
+
+export interface UserRecord {
+  uid: string
+  name: string
+  email: string
+  passwordHash: string
+  avatarUrl?: string
+  role: UserRole
+  provider: AuthProviderType
+  createdAt: string
 }
 
 export interface ContactMessage {
@@ -28,8 +43,7 @@ export interface GuestbookEntry {
   email: string
   avatarUrl?: string
   message: string
-  role: 'admin' | 'visitor'
+  role: UserRole
   timestamp: string
   isVerifiedGoogle: boolean
 }
-

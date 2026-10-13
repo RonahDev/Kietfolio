@@ -13,6 +13,8 @@ import {
   Clock,
   Sparkles,
   CheckCircle2,
+  LogIn,
+  UserPlus,
 } from 'lucide-react'
 
 const GUESTBOOK_STORAGE_KEY = 'kietfolio_guestbook_entries'
@@ -207,25 +209,54 @@ export const GuestbookSection: React.FC = () => {
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-mono font-bold text-[#f1f5f9] mb-1">
-                      {language === 'vi' ? 'Xác Thực Với Google' : 'Google Authentication Required'}
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs bg-[#172847] text-[10px] font-mono text-[#00d2ff] mb-2 font-bold border border-[#00d2ff]/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <span>{language === 'vi' ? 'CHẾ ĐỘ KHÁCH (GUEST MODE)' : 'GUEST MODE ACTIVE'}</span>
+                    </div>
+                    <h4 className="text-sm font-mono font-bold text-[#f1f5f9] mb-1.5">
+                      {language === 'vi'
+                        ? 'Yêu Cầu Đăng Ký / Đăng Nhập'
+                        : 'Authentication Required'}
                     </h4>
                     <p className="text-xs text-[#94a3b8] font-['Be_Vietnam_Pro',sans-serif] leading-relaxed">
                       {language === 'vi'
-                        ? 'Để tránh spam và đảm bảo tính chân thực, vui lòng đăng nhập bằng Gmail trước khi để lại lời nhắn.'
-                        : 'To prevent automated spam and ensure authenticity, please sign in with Google to post.'}
+                        ? 'Bạn đang duyệt trang ở chế độ khách. Để gửi lời nhắn lên Sổ lưu bút và mở khóa các tính năng tương tác của Portfolio trong tương lai, vui lòng đăng nhập hoặc tạo tài khoản mới.'
+                        : 'You are browsing in guest mode. To post endorsements and access upcoming interactive features, please sign in or create a new account.'}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={openAuthModal}
-                    className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-sm bg-[#f1f5f9] hover:bg-white text-[#050a14] font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] cursor-pointer"
-                  >
-                    <GoogleIcon className="w-4 h-4" />
-                    <span>
-                      {language === 'vi' ? 'Đăng Nhập Với Gmail' : 'Sign In with Google'}
-                    </span>
-                  </button>
+
+                  <div className="space-y-2.5 pt-1 font-mono">
+                    <button
+                      type="button"
+                      onClick={() => openAuthModal('signin')}
+                      className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] text-xs font-bold transition-all shadow-[0_0_15px_rgba(255,255,255,0.15)] cursor-pointer"
+                    >
+                      <GoogleIcon className="w-4 h-4 shrink-0" />
+                      <span>
+                        {language === 'vi' ? 'Tiếp tục với Google / Gmail' : 'Continue with Google Account'}
+                      </span>
+                    </button>
+
+                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => openAuthModal('signin')}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-sm border border-[#172847] bg-[#070d18] hover:border-[#00d2ff] text-[#f1f5f9] hover:text-[#00d2ff] text-xs font-bold transition-all cursor-pointer"
+                      >
+                        <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
+                        <span>{language === 'vi' ? 'Đăng Nhập' : 'Sign In'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openAuthModal('signup')}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-sm border border-[#00d2ff]/60 bg-[#0c182e] hover:bg-[#00d2ff] text-[#00d2ff] hover:text-[#050a14] text-xs font-bold transition-all shadow-[0_0_12px_rgba(0,210,255,0.2)] cursor-pointer"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>{language === 'vi' ? 'Đăng Ký' : 'Sign Up'}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </Card>

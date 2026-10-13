@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../ui/Button'
-import { GoogleIcon } from '../ui/GoogleIcon'
 import {
   Menu,
   X,
@@ -12,6 +11,8 @@ import {
   Shield,
   LogOut,
   ChevronDown,
+  LogIn,
+  UserPlus,
 } from 'lucide-react'
 
 export const Navbar: React.FC = () => {
@@ -140,15 +141,30 @@ export const Navbar: React.FC = () => {
           <div className="hidden sm:flex items-center gap-3">
             {/* Google Authentication Button / User Profile Menu */}
             {!user ? (
-              <button
-                type="button"
-                onClick={openAuthModal}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm transition-all shadow-[0_0_12px_rgba(0,210,255,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
-                title="Đăng nhập Gmail / Google OAuth"
-              >
-                <GoogleIcon className="w-3.5 h-3.5 shrink-0" />
-                <span className="font-bold">{t.nav.loginGoogle}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="hidden xl:inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono rounded-xs bg-[#0a1224] border border-[#172847] text-[#64748b]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
+                  <span>{t.nav.guest}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('signin')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm transition-all shadow-[0_0_12px_rgba(0,210,255,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+                  title={t.nav.signIn}
+                >
+                  <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
+                  <span className="font-bold">{t.nav.signIn}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('signup')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#00d2ff]/60 bg-[#0c182e] hover:bg-[#00d2ff] text-[#00d2ff] hover:text-[#050a14] rounded-sm transition-all shadow-[0_0_15px_rgba(0,210,255,0.2)] cursor-pointer font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+                  title={t.nav.signUp}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{t.nav.signUp}</span>
+                </button>
+              </div>
             ) : (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -250,18 +266,28 @@ export const Navbar: React.FC = () => {
           {/* Mobile Menu Button */}
           <div className="flex sm:hidden items-center gap-2">
             {!user ? (
-              <button
-                type="button"
-                onClick={openAuthModal}
-                className="p-1.5 border border-[#172847] bg-[#0a1224] text-xs font-mono rounded-sm cursor-pointer"
-                title="Đăng nhập Gmail"
-              >
-                <GoogleIcon className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('signin')}
+                  className="px-2 py-1 border border-[#172847] bg-[#0a1224] text-[11px] font-mono text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm cursor-pointer"
+                  title={t.nav.signIn}
+                >
+                  {t.nav.signIn}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('signup')}
+                  className="px-2 py-1 border border-[#00d2ff]/50 bg-[#0c182e] text-[11px] font-mono text-[#00d2ff] rounded-sm cursor-pointer font-bold"
+                  title={t.nav.signUp}
+                >
+                  {t.nav.signUp}
+                </button>
+              </div>
             ) : (
               <button
                 type="button"
-                onClick={isAdmin ? openAdminModal : openAuthModal}
+                onClick={isAdmin ? openAdminModal : () => openAuthModal('signin')}
                 className="p-1 border border-[#00d2ff]/40 bg-[#0a1224] rounded-sm cursor-pointer"
               >
                 <img
@@ -345,17 +371,41 @@ export const Navbar: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  openAuthModal()
-                }}
-                className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#00d2ff]/40 flex items-center justify-center gap-2 text-xs font-bold text-[#f1f5f9]"
-              >
-                <GoogleIcon className="w-4 h-4" />
-                <span>{t.nav.loginGoogle}</span>
-              </button>
+              <div className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#172847] space-y-2.5">
+                <div className="flex items-center justify-between text-xs text-[#94a3b8]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
+                    <span className="font-mono">{t.nav.guest}</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-[#64748b]">
+                    {language === 'vi' ? 'Chưa đăng nhập' : 'Not logged in'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      openAuthModal('signin')
+                    }}
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-sm border border-[#172847] bg-[#070d18] text-[#f1f5f9] text-xs font-mono font-bold cursor-pointer hover:border-[#00d2ff]"
+                  >
+                    <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{t.nav.signIn}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      openAuthModal('signup')
+                    }}
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-sm border border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] text-xs font-mono font-bold cursor-pointer hover:bg-[#00d2ff] hover:text-[#050a14]"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>{t.nav.signUp}</span>
+                  </button>
+                </div>
+              </div>
             )}
 
             {navLinks.map((link) => {

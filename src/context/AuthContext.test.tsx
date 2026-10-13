@@ -30,7 +30,7 @@ describe('AuthContext & Google Authentication Flow', () => {
     })
 
     expect(result.current.user).not.toBeNull()
-    expect(result.current.user?.role).toBe('visitor')
+    expect(result.current.user?.role).toBe('member')
     expect(result.current.isAdmin).toBe(false)
     expect(result.current.user?.email).not.toBe(ADMIN_EMAIL)
   })
@@ -64,18 +64,29 @@ describe('AuthContext & Google Authentication Flow', () => {
     expect(result.current.isAdmin).toBe(false)
   })
 
-  it('opens and closes auth modal and admin modal correctly', () => {
+  it('opens and closes auth modal and admin modal correctly with modes', () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
     act(() => {
-      result.current.openAuthModal()
+      result.current.openAuthModal('signup')
     })
     expect(result.current.isAuthModalOpen).toBe(true)
+    expect(result.current.authModalMode).toBe('signup')
 
     act(() => {
       result.current.closeAuthModal()
     })
     expect(result.current.isAuthModalOpen).toBe(false)
+
+    act(() => {
+      result.current.openAuthModal('signin')
+    })
+    expect(result.current.isAuthModalOpen).toBe(true)
+    expect(result.current.authModalMode).toBe('signin')
+
+    act(() => {
+      result.current.closeAuthModal()
+    })
 
     act(() => {
       result.current.openAdminModal()
@@ -107,8 +118,62 @@ describe('AuthContext & Google Authentication Flow', () => {
 
     expect(result.current.user?.email).toBe('recruiter.top@shopee.vn')
     expect(result.current.user?.displayName).toBe('Shopee HR')
-    expect(result.current.user?.role).toBe('visitor')
+    expect(result.current.user?.role).toBe('member')
     expect(result.current.isAdmin).toBe(false)
+  })
+
+  it('handles email registration and sign in with password', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper })
+
+    let regSuccess = false
+    await act(async () => {
+      regSuccess = await result.current.registerWithEmail(
+        'Nguyễn Thành Nam',
+        'nam.nguyen@testcorp.com',
+        'securePass123'
+      )
+    })
+
+    expect(regSuccess).toBe(true)
+    expect(result.current.user?.email).toBe('nam.nguyen@testcorp.com')
+    expect(result.current.user?.displayName).toBe('Nguyễn Thành Nam')
+    expect(result.current.user?.role).toBe('member')
+
+    // Sign out
+    await act(async () => {
+      await result.current.signOutUser()
+    })
+    expect(result.current.user).toBeNull()
+
+    // Sign back in with registered credentials
+    let loginSuccess = false
+    await act(async () => {
+      loginSuccess = await result.current.signInWithEmail(
+        'nam.nguyen@testcorp.com',
+        'securePass123'
+      )
+    })
+
+    expect(loginSuccess).toBe(true)
+    expect(result.current.user?.email).toBe('nam.nguyen@testcorp.com')
+    expect(result.current.user?.displayName).toBe('Nguyễn Thành Nam')
+
+    // Sign in with wrong password fails
+    await act(async () => {
+      await result.current.signOutUser()
+    })
+
+    let wrongPassSuccess = false
+    await act(async () => {
+      wrongPassSuccess = await result.current.signInWithEmail(
+        'nam.nguyen@testcorp.com',
+        'wrongPassword'
+      )
+    })
+
+    expect(wrongPassSuccess).toBe(false)
+    expect(result.current.user).toBeNull()
+    expect(result.current.error).toBeTruthy()
   })
 })
 

@@ -3,6 +3,9 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   type Auth,
@@ -51,6 +54,16 @@ if (isFirebaseConfigured()) {
   }
 }
 
-export { app, auth, googleProvider, signInWithPopup, firebaseSignOut, onAuthStateChanged }
+export {
+  app,
+  auth,
+  googleProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+  firebaseSignOut,
+  onAuthStateChanged,
+}
 export type { User }
 
