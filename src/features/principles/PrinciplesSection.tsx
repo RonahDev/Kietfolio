@@ -3,10 +3,12 @@ import { useLanguage } from '../../hooks/useLanguage'
 import { engineeringPrinciples } from '../../data/principles'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { Terminal, Shield, Check, GitCommit, Box, Cpu } from 'lucide-react'
 
 export const PrinciplesSection: React.FC = () => {
   const { t, language } = useLanguage()
+  const sectionRef = useScrollReveal()
 
   const systemBadges = [
     { icon: Terminal, label: 'Strict TypeScript' },
@@ -19,6 +21,7 @@ export const PrinciplesSection: React.FC = () => {
   return (
     <section
       id="principles"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="Engineering Principles"
     >

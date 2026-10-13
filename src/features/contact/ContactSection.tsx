@@ -3,15 +3,18 @@ import { useLanguage } from '../../hooks/useLanguage'
 import { profileData } from '../../data/profile'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { ContactForm } from './ContactForm'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { GithubIcon, LinkedinIcon } from '../../components/ui/SocialIcons'
 import { Mail, MapPin, Terminal, Shield } from 'lucide-react'
 
 export const ContactSection: React.FC = () => {
   const { t } = useLanguage()
+  const sectionRef = useScrollReveal()
 
   return (
     <section
       id="contact"
+      ref={sectionRef}
       className="py-24 sm:py-32 bg-[#050a14] relative"
       aria-label="Contact Section"
     >

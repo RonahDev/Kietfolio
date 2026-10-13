@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useAuth } from '../../hooks/useAuth'
 import { useGuestbook } from '../../hooks/useGuestbook'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -20,6 +21,7 @@ import {
 
 export const GuestbookSection: React.FC = () => {
   const { language } = useLanguage()
+  const sectionRef = useScrollReveal()
   const { user, isAdmin, openAuthModal } = useAuth()
   const {
     entries,
@@ -59,6 +61,7 @@ export const GuestbookSection: React.FC = () => {
   return (
     <section
       id="guestbook"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="Verified Guestbook"
     >

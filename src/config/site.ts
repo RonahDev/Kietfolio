@@ -21,6 +21,7 @@ export const SITE_CONFIG = {
     inbox: 'kietfolio_inbox_messages',
     language: 'kietfolio_preferred_language',
     theme: 'kietfolio_theme',
+    introSeen: 'kietfolio_intro_seen',
   },
   timeouts: {
     apiDefaultMs: 8000,
@@ -28,3 +29,4 @@ export const SITE_CONFIG = {
     clipboardFeedbackMs: 2500,
   },
 } as const
+

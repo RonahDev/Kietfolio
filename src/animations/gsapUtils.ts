@@ -2,7 +2,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 // Register plugins safely in client environments
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
@@ -10,7 +10,7 @@ if (typeof window !== 'undefined') {
  * Check whether user prefers reduced motion for accessibility compliance
  */
 export function isReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 

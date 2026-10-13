@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { isReducedMotion } from '../../animations/gsapUtils'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../ui/Button'
@@ -23,6 +25,7 @@ export const Navbar: React.FC = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
 
+  const headerRef = useRef<HTMLElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const navLinks = [
@@ -84,8 +87,22 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [mobileMenuOpen, userDropdownOpen])
 
+  useEffect(() => {
+    if (isReducedMotion() || !headerRef.current) return
+    const ctx = gsap.context(() => {
+      gsap.from(headerRef.current, {
+        yPercent: -100,
+        opacity: 0,
+        duration: 0.85,
+        ease: 'power3.out',
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
   return (
     <header
+      ref={headerRef}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
           ? 'bg-[#050a14]/90 backdrop-blur-md border-b border-[#172847] shadow-lg shadow-[#02050a]/40 py-3'

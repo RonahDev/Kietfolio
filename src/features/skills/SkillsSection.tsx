@@ -5,6 +5,7 @@ import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { TechIcon } from '../../components/ui/TechIcons'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { cn } from '../../utils/cn'
 import {
   Code,
@@ -26,6 +27,7 @@ import {
 
 export const SkillsSection: React.FC = () => {
   const { t, language } = useLanguage()
+  const sectionRef = useScrollReveal()
   const [activeTab, setActiveTab] = useState<'technical' | 'operational'>('technical')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
@@ -53,6 +55,7 @@ export const SkillsSection: React.FC = () => {
   return (
     <section
       id="skills"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="Skills & Capabilities"
     >

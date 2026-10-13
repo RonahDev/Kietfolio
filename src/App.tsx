@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { LightningAtmosphere } from './components/ui/LightningAtmosphere'
+import { PageIntroLoader } from './components/ui/PageIntroLoader'
+import { isReducedMotion } from './animations/gsapUtils'
 import { GlobalParticleField } from './three/GlobalParticleField'
 import { HeroSection } from './features/hero/HeroSection'
 import { AboutSection } from './features/about/AboutSection'
@@ -16,8 +19,16 @@ import { AuthModal } from './components/auth/AuthModal'
 import { AdminDashboardModal } from './components/admin/AdminDashboardModal'
 
 export function AppContent() {
+  const [isIntroReady, setIsIntroReady] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return isReducedMotion()
+  })
+
   return (
     <div className="min-h-screen bg-[#050a14] text-[#f1f5f9] flex flex-col font-sans selection:bg-[#00d2ff] selection:text-[#050a14] relative">
+      {/* Cinematic GSAP Page Entrance Boot Loader */}
+      <PageIntroLoader onComplete={() => setIsIntroReady(true)} />
+
       {/* Ambient 3D Three.js Global Particle Field */}
       <GlobalParticleField />
 
@@ -37,7 +48,7 @@ export function AppContent() {
 
       {/* Main Experience Stream */}
       <main id="main-content" className="flex-1 relative z-10">
-        <HeroSection />
+        <HeroSection isIntroReady={isIntroReady} />
         <AboutSection />
         <ProjectsSection />
         <ExperienceSection />

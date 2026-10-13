@@ -24,7 +24,11 @@ const CyberCoreScene = lazy(() =>
   }))
 )
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  isIntroReady?: boolean
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true }) => {
   const { t, language } = useLanguage()
   const heroRootRef = useRef<HTMLDivElement>(null)
   const [heroMode, setHeroMode] = useState<'3d' | 'terminal'>('3d')
@@ -32,59 +36,93 @@ export const HeroSection: React.FC = () => {
   const { displayText: scrambledRole } = useTextScramble(profileData.roleTitle[language])
 
   useEffect(() => {
-    if (isReducedMotion()) return
+    if (isReducedMotion() || !isIntroReady) return
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
       tl.from('.hero-badge-elem', {
         opacity: 0,
-        y: -15,
+        y: -20,
         duration: 0.6,
-        delay: 0.1,
+        ease: 'back.out(1.5)',
       })
         .from(
-          '.hero-title-elem',
+          '.hero-title-text',
           {
+            yPercent: 120,
             opacity: 0,
-            y: 40,
-            duration: 0.8,
-            stagger: 0.1,
+            duration: 0.95,
+            ease: 'power4.out',
           },
           '-=0.3'
+        )
+        .from(
+          '.hero-role-divider',
+          {
+            scaleX: 0,
+            transformOrigin: 'left center',
+            duration: 0.6,
+            ease: 'power3.inOut',
+          },
+          '-=0.5'
+        )
+        .from(
+          '.hero-role-text',
+          {
+            opacity: 0,
+            x: -20,
+            duration: 0.5,
+            ease: 'power3.out',
+          },
+          '-=0.4'
         )
         .from(
           '.hero-desc-elem',
           {
             opacity: 0,
-            y: 20,
-            duration: 0.6,
+            y: 25,
+            duration: 0.7,
+            ease: 'power3.out',
           },
-          '-=0.4'
+          '-=0.3'
         )
         .from(
           '.hero-cta-elem',
           {
             opacity: 0,
             y: 20,
-            duration: 0.5,
+            scale: 0.96,
+            duration: 0.55,
+            ease: 'back.out(1.3)',
           },
-          '-=0.3'
+          '-=0.4'
         )
         .from(
-          '.hero-bento-strip',
+          '.hero-visual-box',
           {
             opacity: 0,
-            y: 25,
-            duration: 0.7,
-            stagger: 0.08,
+            scale: 0.9,
+            duration: 1.0,
+            ease: 'expo.out',
           },
-          '-=0.3'
+          '-=0.7'
+        )
+        .from(
+          '.hero-bento-card',
+          {
+            opacity: 0,
+            y: 30,
+            duration: 0.65,
+            stagger: 0.08,
+            ease: 'power3.out',
+          },
+          '-=0.5'
         )
     }, heroRootRef)
 
     return () => ctx.revert()
-  }, [])
+  }, [isIntroReady])
 
   return (
     <section
@@ -117,12 +155,14 @@ export const HeroSection: React.FC = () => {
 
             {/* Giant Typographic Architectural Display */}
             <div className="space-y-1">
-              <h1 className="hero-title-elem text-4xl sm:text-6xl md:text-7xl font-extrabold font-['Plus_Jakarta_Sans',sans-serif] tracking-tight text-[#f1f5f9] leading-[1.08]">
-                {profileData.fullName.toUpperCase()}
-              </h1>
-              <div className="hero-title-elem flex items-center gap-3 pt-2">
-                <span className="h-[2px] w-8 sm:w-12 bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
-                <span className="font-mono text-sm sm:text-base font-bold text-[#00d2ff] uppercase tracking-wider">
+              <div className="overflow-hidden py-1">
+                <h1 className="hero-title-text text-4xl sm:text-6xl md:text-7xl font-extrabold font-['Plus_Jakarta_Sans',sans-serif] tracking-tight text-[#f1f5f9] leading-[1.08] inline-block">
+                  {profileData.fullName.toUpperCase()}
+                </h1>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <span className="hero-role-divider h-[2px] w-8 sm:w-12 bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
+                <span className="hero-role-text font-mono text-sm sm:text-base font-bold text-[#00d2ff] uppercase tracking-wider">
                   {scrambledRole}
                 </span>
               </div>
@@ -192,7 +232,7 @@ export const HeroSection: React.FC = () => {
 
           {/* Right Column: 3D Cyber Core Canvas or Terminal Shell */}
           <div className="lg:col-span-5 relative w-full flex items-center justify-center">
-            <div className="relative w-full max-w-lg aspect-square rounded-sm bg-[#0a1224]/50 border border-[#172847] shadow-[0_0_50px_rgba(0,210,255,0.12)] overflow-hidden">
+            <div className="hero-visual-box relative w-full max-w-lg aspect-square rounded-sm bg-[#0a1224]/50 border border-[#172847] shadow-[0_0_50px_rgba(0,210,255,0.12)] overflow-hidden">
               {heroMode === '3d' ? (
                 <Suspense
                   fallback={
@@ -211,7 +251,7 @@ export const HeroSection: React.FC = () => {
         </div>
 
         {/* Bottom Bento Telemetry Strip */}
-        <div className="hero-bento-strip grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-4">
           {HERO_TELEMETRY_METRICS.map((metric) => {
             const icons = {
               academics: <GraduationCap className="w-4 h-4 text-[#00d2ff]" />,
@@ -222,7 +262,7 @@ export const HeroSection: React.FC = () => {
             return (
               <div
                 key={metric.id}
-                className="p-4 rounded-sm bg-[#0a1224]/85 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group"
+                className="hero-bento-card p-4 rounded-sm bg-[#0a1224]/85 border border-[#172847] hover:border-[#00d2ff]/40 transition-colors group"
               >
                 <div className="flex items-center gap-2 mb-1">
                   {icons[metric.iconName]}

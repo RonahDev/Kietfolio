@@ -27,3 +27,4 @@ export interface QueryState<T> {
   error: string | null
   refetch: () => Promise<void>
 }
+

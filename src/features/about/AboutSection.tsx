@@ -4,6 +4,7 @@ import { profileData } from '../../data/profile'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import {
   Code2,
   Sparkles,
@@ -20,10 +21,12 @@ import {
 export const AboutSection: React.FC = () => {
   const { t, language } = useLanguage()
   const [showTelemetryDetails, setShowTelemetryDetails] = useState(false)
+  const sectionRef = useScrollReveal()
 
   return (
     <section
       id="about"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="About Mai Anh Kiệt"
     >

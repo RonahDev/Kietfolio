@@ -4,6 +4,7 @@ import { experienceData, LOGISTICS_SOFTWARE_CORRELATIONS } from '../../data/expe
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import {
   Building2,
   TrendingUp,
@@ -16,6 +17,7 @@ import {
 
 export const ExperienceSection: React.FC = () => {
   const { t, language } = useLanguage()
+  const sectionRef = useScrollReveal()
 
   const correlationIcons = {
     queues: Layers,
@@ -26,6 +28,7 @@ export const ExperienceSection: React.FC = () => {
   return (
     <section
       id="experience"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="Professional Experience"
     >

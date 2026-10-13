@@ -1,12 +1,14 @@
 import React from 'react'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useProjects } from '../../hooks/useProjects'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { SectionHeader } from '../../components/ui/SectionHeader'
 import { ProjectCard } from './ProjectCard'
 import { Info, Sparkles, Layers, Code2, Loader2 } from 'lucide-react'
 
 export const ProjectsSection: React.FC = () => {
   const { t, language } = useLanguage()
+  const sectionRef = useScrollReveal()
   const {
     projects,
     activeCategory,
@@ -18,6 +20,7 @@ export const ProjectsSection: React.FC = () => {
   return (
     <section
       id="projects"
+      ref={sectionRef}
       className="py-24 sm:py-32 border-b border-[#172847] bg-[#050a14] relative"
       aria-label="Selected Projects"
     >
