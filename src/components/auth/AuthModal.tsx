@@ -26,6 +26,7 @@ export const AuthModal: React.FC = () => {
     signInDemo,
     isLoading,
     error,
+    isFirebaseReady,
   } = useAuth()
   const { language } = useLanguage()
 
@@ -119,6 +120,40 @@ export const AuthModal: React.FC = () => {
                     : 'You can use the direct Gmail sign-in form below to log in immediately without any external setup.'}
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Section 0: Official Google Popup (When Firebase is Configured) */}
+          {isFirebaseReady && (
+            <div className="p-4 sm:p-5 rounded-sm bg-gradient-to-br from-[#0c1e3d] to-[#0a1224] border border-[#00d2ff] shadow-[0_0_25px_rgba(0,210,255,0.2)] space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-[#00d2ff] font-bold">[OFFICIAL_GOOGLE_GATEWAY]</span>
+                <span className="px-2 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] font-bold border border-[#34a853]/30">
+                  READY
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => signInWithGoogle()}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] font-bold text-sm shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(0,210,255,0.4)] transition-all cursor-pointer disabled:opacity-50"
+              >
+                <GoogleIcon className="w-5 h-5 shrink-0" />
+                <span>
+                  {isLoading
+                    ? language === 'vi'
+                      ? 'Đang mở cửa sổ Google...'
+                      : 'Opening Google Gateway...'
+                    : language === 'vi'
+                    ? 'ĐĂNG NHẬP VỚI TÀI KHOẢN GOOGLE'
+                    : 'SIGN IN WITH GOOGLE ACCOUNT'}
+                </span>
+              </button>
+              <p className="text-[11px] text-[#94a3b8] text-center font-mono">
+                {language === 'vi'
+                  ? 'Cửa sổ popup chính thức từ accounts.google.com sẽ mở ra để bạn chọn tài khoản Gmail của mình.'
+                  : 'Official popup window from accounts.google.com will open for you to select your account.'}
+              </p>
             </div>
           )}
 
