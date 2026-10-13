@@ -302,9 +302,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return
       } catch (err: unknown) {
         console.warn('Firebase popup error:', err)
-        setError(
-          'Không thể mở Google Popup. Vui lòng nhập địa chỉ Gmail bên dưới để xác thực nhanh.'
-        )
+        const rawMsg = err instanceof Error ? err.message : ''
+        if (rawMsg.includes('popup-closed-by-user')) {
+          setError(null)
+        } else if (rawMsg.includes('unauthorized-domain')) {
+          setError('Tên miền Vercel chưa được thêm vào mục Authorized Domains trong Firebase Console!')
+        } else {
+          setError('Không thể mở cửa sổ Google Popup lúc này. Vui lòng kiểm tra quyền pop-up của trình duyệt!')
+        }
         setIsLoading(false)
         return
       }
@@ -312,7 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // If Firebase is not configured on this host
     setError(
-      'Vui lòng nhập địa chỉ Gmail cá nhân của bạn ở tab ĐĂNG NHẬP GMAIL để xác thực ngay lập tức!'
+      'Cần kết nối Firebase Project để kích hoạt cửa sổ liên kết Google OAuth. Vui lòng cung cấp mã cấu hình firebaseConfig!'
     )
     setIsLoading(false)
   }, [isFirebaseReady])
