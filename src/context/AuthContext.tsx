@@ -205,44 +205,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.getItem(USERS_DB_KEY) || '[]'
         )
 
-        // Special convenience for Kiệt's admin account
-        if (trimmedEmail === ADMIN_EMAIL.toLowerCase()) {
-          const adminUser: AuthUser = {
-            uid: 'admin_kiet_uid',
-            email: ADMIN_EMAIL,
-            displayName: 'Mai Anh Kiệt (Hub Admin)',
-            photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve',
-            role: 'admin',
-            provider: 'email',
-            lastLoginAt: new Date().toISOString(),
-          }
-          setUser(adminUser)
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(adminUser))
-          setIsAuthModalOpen(false)
-          setIsLoading(false)
-          return true
-        }
+        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase()
+        const adminMasterPassword = (import.meta as unknown as { env: Record<string, string | undefined> }).env?.VITE_ADMIN_PASSWORD
 
         const foundUser = storedUsers.find(
           (u) => u.email === trimmedEmail && u.passwordHash === btoa(password)
         )
 
-        if (!foundUser) {
+        const isMasterAdminMatch =
+          isAdminEmail &&
+          Boolean(adminMasterPassword) &&
+          password === adminMasterPassword
+
+        if (!foundUser && !isMasterAdminMatch) {
           setError('Email hoặc mật khẩu chưa chính xác. Nếu chưa có tài khoản, hãy bấm Đăng ký ngay!')
           setIsLoading(false)
           return false
         }
 
-        const authUser: AuthUser = {
-          uid: foundUser.uid,
-          email: foundUser.email,
-          displayName: foundUser.name,
-          photoURL: foundUser.avatarUrl || null,
-          role: foundUser.role,
-          provider: 'email',
-          createdAt: foundUser.createdAt,
-          lastLoginAt: new Date().toISOString(),
-        }
+        const authUser: AuthUser = isMasterAdminMatch && !foundUser
+          ? {
+              uid: 'admin_kiet_uid',
+              email: ADMIN_EMAIL,
+              displayName: 'Mai Anh Kiệt (Hub Admin)',
+              photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve',
+              role: 'admin',
+              provider: 'email',
+              lastLoginAt: new Date().toISOString(),
+            }
+          : {
+              uid: foundUser!.uid,
+              email: foundUser!.email,
+              displayName: foundUser!.name,
+              photoURL: foundUser!.avatarUrl || null,
+              role: isAdminEmail ? 'admin' : foundUser!.role,
+              provider: 'email',
+              createdAt: foundUser!.createdAt,
+              lastLoginAt: new Date().toISOString(),
+            }
 
         setUser(authUser)
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
@@ -258,7 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [isFirebaseReady]
   )
 
-  // 3. 1-Click Demo Sign In
+  // 3. 1-Click Demo Sign In (strictly for test / local demo)
   const signInDemo = useCallback((asAdmin: boolean = false) => {
     setError(null)
     const demoUser: AuthUser = asAdmin
@@ -286,7 +286,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthModalOpen(false)
   }, [])
 
-  // 4. Sign In with Google
+  // 4. Sign In with Google (Verified Google OAuth)
   const signInWithGoogle = useCallback(async () => {
     setError(null)
     setIsLoading(true)
@@ -301,37 +301,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false)
         return
       } catch (err: unknown) {
-        console.warn('Firebase popup error, falling back to direct Gmail auth:', err)
+        console.warn('Firebase popup error:', err)
+        setError(
+          'Không thể hoàn tất đăng nhập Google Popup. Vui lòng kiểm tra quyền pop-up trình duyệt hoặc đăng nhập bằng Email & Mật khẩu bên dưới.'
+        )
+        setIsLoading(false)
+        return
       }
     }
 
-    // Default fast Google/Gmail sign-in
+    // If Firebase is not configured on this host
+    setError(
+      'Dịch vụ Google Popup chưa sẵn sàng trên tên miền này. Vui lòng đăng ký / đăng nhập bằng Email & Mật khẩu bên dưới!'
+    )
     setIsLoading(false)
-    signInDemo(true)
-  }, [isFirebaseReady, signInDemo])
+  }, [isFirebaseReady])
 
-  // 5. Direct Custom Gmail Sign In
+  // 5. Direct Custom Gmail Sign In (Safe fallback: never grants Admin)
   const signInWithCustomGmail = useCallback((email: string, displayName?: string) => {
     setError(null)
     const trimmedEmail = email.trim().toLowerCase()
     if (!trimmedEmail || !trimmedEmail.includes('@')) {
-      setError('Vui lòng nhập địa chỉ email hợp lệ (ví dụ: kietteve22102005@gmail.com)')
+      setError('Vui lòng nhập địa chỉ email hợp lệ (ví dụ: ban@gmail.com)')
       return
     }
 
-    const isAdmin = trimmedEmail === ADMIN_EMAIL.toLowerCase()
-    const finalName =
-      displayName?.trim() || (isAdmin ? 'Mai Anh Kiệt (Admin)' : trimmedEmail.split('@')[0])
+    // SECURITY: Unverified custom email strings NEVER receive admin role
+    const finalName = displayName?.trim() || trimmedEmail.split('@')[0]
 
     const customUser: AuthUser = {
       uid: `custom_${Date.now()}_${trimmedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
       email: trimmedEmail,
       displayName: finalName,
-      photoURL: isAdmin
-        ? 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve'
-        : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(trimmedEmail)}`,
-      role: isAdmin ? 'admin' : 'member',
-      provider: 'google',
+      photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(trimmedEmail)}`,
+      role: 'member',
+      provider: 'email',
       lastLoginAt: new Date().toISOString(),
     }
 
@@ -374,7 +378,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearError = useCallback(() => setError(null), [])
 
   const isAdmin = useMemo(() => {
-    return Boolean(user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase())
+    return Boolean(
+      user &&
+      user.role === 'admin' &&
+      user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+    )
   }, [user])
 
   const isMember = useMemo(() => {

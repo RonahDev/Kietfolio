@@ -5,7 +5,6 @@ import { GoogleIcon } from '../ui/GoogleIcon'
 import { ADMIN_EMAIL } from '../../types/auth'
 import {
   X,
-  ShieldCheck,
   Lock,
   Mail,
   User,
@@ -17,7 +16,6 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   LogIn,
   UserPlus,
 } from 'lucide-react'
@@ -30,8 +28,6 @@ export const AuthModal: React.FC = () => {
     registerWithEmail,
     signInWithEmail,
     signInWithGoogle,
-    signInWithCustomGmail,
-    signInDemo,
     isLoading,
     error: authError,
     clearError,
@@ -64,11 +60,6 @@ export const AuthModal: React.FC = () => {
   const [signUpPassword, setSignUpPassword] = useState('')
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('')
   const [showSignUpPassword, setShowSignUpPassword] = useState(false)
-
-  // Custom Gmail quick login
-  const [showDirectGmail, setShowDirectGmail] = useState(false)
-  const [directGmail, setDirectGmail] = useState('')
-  const [directName, setDirectName] = useState('')
 
   // Firebase setup guide
   const [showFirebaseGuide, setShowFirebaseGuide] = useState(false)
@@ -128,13 +119,6 @@ export const AuthModal: React.FC = () => {
     }
 
     await registerWithEmail(signUpName.trim(), signUpEmail.trim(), signUpPassword)
-  }
-
-  const handleDirectGmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setLocalError(null)
-    if (!directGmail.trim()) return
-    signInWithCustomGmail(directGmail.trim(), directName.trim() || undefined)
   }
 
   const displayedError = localError || authError
@@ -221,7 +205,7 @@ export const AuthModal: React.FC = () => {
             </div>
           )}
 
-          {/* 1-Click Fast Google / Gmail Login Button */}
+          {/* Real Google OAuth Button */}
           <div className="space-y-2">
             <button
               type="button"
@@ -240,68 +224,18 @@ export const AuthModal: React.FC = () => {
                   : 'Fast Sign Up with Google'}
               </span>
             </button>
-
-            {/* Direct Gmail Address Input (Expandable) */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => setShowDirectGmail(!showDirectGmail)}
-                className="text-[11px] font-mono text-[#94a3b8] hover:text-[#00d2ff] transition-colors cursor-pointer inline-flex items-center gap-1"
-              >
-                <span>
-                  {language === 'vi'
-                    ? 'Hoặc xác thực trực tiếp bằng địa chỉ Gmail'
-                    : 'Or sign in directly with Gmail address'}
-                </span>
-                {showDirectGmail ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </button>
-
-              {showDirectGmail && (
-                <form
-                  onSubmit={handleDirectGmailSubmit}
-                  className="mt-2.5 p-3 rounded-sm bg-[#081020] border border-[#172847] space-y-2.5 text-left animate-in fade-in"
-                >
-                  <div>
-                    <label className="block text-[10px] font-mono uppercase text-[#94a3b8] mb-1">
-                      {language === 'vi' ? 'Địa chỉ Gmail của bạn *' : 'Your Gmail Address *'}
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={directGmail}
-                      onChange={(e) => setDirectGmail(e.target.value)}
-                      placeholder="ban.cua.ban@gmail.com"
-                      className="w-full px-3 py-2 text-xs font-mono rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-mono uppercase text-[#94a3b8] mb-1">
-                      {language === 'vi' ? 'Tên hiển thị (Tùy chọn)' : 'Display Name (Optional)'}
-                    </label>
-                    <input
-                      type="text"
-                      value={directName}
-                      onChange={(e) => setDirectName(e.target.value)}
-                      placeholder="Nguyễn Văn A"
-                      className="w-full px-3 py-2 text-xs font-mono rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] outline-none"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-2 px-3 rounded-sm bg-[#0f1b33] hover:bg-[#172847] border border-[#00d2ff]/40 text-[#00d2ff] font-mono text-xs font-bold uppercase transition-all cursor-pointer"
-                  >
-                    {language === 'vi' ? 'Xác nhận Gmail' : 'Confirm Gmail'}
-                  </button>
-                </form>
-              )}
-            </div>
+            <p className="text-[11px] font-mono text-center text-[#64748b]">
+              {language === 'vi'
+                ? 'Xác thực bảo mật qua máy chủ Google OAuth'
+                : 'Secure authentication via Google OAuth servers'}
+            </p>
           </div>
 
           {/* Divider */}
           <div className="flex items-center gap-3 py-1">
             <div className="flex-1 h-[1px] bg-[#172847]" />
             <span className="text-[10px] font-mono text-[#64748b] uppercase tracking-wider">
-              {language === 'vi' ? 'HOẶC VỚI TÀI KHOẢN EMAIL' : 'OR WITH EMAIL ACCOUNT'}
+              {language === 'vi' ? 'HOẶC VỚI EMAIL & MẬT KHẨU' : 'OR WITH EMAIL & PASSWORD'}
             </span>
             <div className="flex-1 h-[1px] bg-[#172847]" />
           </div>
@@ -377,27 +311,6 @@ export const AuthModal: React.FC = () => {
                 >
                   {language === 'vi' ? 'Đăng ký ngay' : 'Sign Up now'}
                 </button>
-              </div>
-
-              {/* Quick Admin Access Shortcut for Kiệt */}
-              <div className="pt-3 border-t border-[#172847] space-y-2">
-                <div className="p-3 rounded-sm bg-[#0c162b] border border-[#00d2ff]/30 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#00d2ff]" />
-                    <div className="text-[11px] font-mono text-[#f1f5f9]">
-                      <span className="font-bold">Quản Trị Viên (Admin Kiệt)</span>
-                      <span className="block text-[9px] text-[#64748b]">{ADMIN_EMAIL}</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => signInDemo(true)}
-                    className="px-2.5 py-1.5 rounded-xs bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-[10px] tracking-wider uppercase transition-all cursor-pointer shadow-[0_0_10px_rgba(0,210,255,0.3)] flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span>1-CLICK</span>
-                  </button>
-                </div>
               </div>
             </form>
           )}
@@ -558,7 +471,7 @@ export const AuthModal: React.FC = () => {
 
         {/* Modal Footer */}
         <div className="px-4 sm:px-5 py-2.5 bg-[#070d1a] border-t border-[#172847] flex items-center justify-between text-[10px] font-mono text-[#64748b]">
-          <span>STORAGE: DUAL_ENGINE (FIREBASE + LOCAL)</span>
+          <span>SECURITY: STRICT CREDENTIALS REQUIRED</span>
           <span>ADMIN: {ADMIN_EMAIL}</span>
         </div>
       </div>

@@ -99,27 +99,58 @@ describe('AuthContext & Google Authentication Flow', () => {
     expect(result.current.isAdminModalOpen).toBe(false)
   })
 
-  it('authenticates custom Gmail address and grants admin if email is kietteve22102005@gmail.com', () => {
+  it('prevents unauthorized admin elevation through unverified custom email and requires password', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
+    // 1. Unverified custom email string NEVER receives admin role
     act(() => {
       result.current.signInWithCustomGmail(ADMIN_EMAIL, 'Mai Anh Kiệt')
     })
 
     expect(result.current.user).not.toBeNull()
-    expect(result.current.user?.email).toBe(ADMIN_EMAIL)
-    expect(result.current.user?.displayName).toBe('Mai Anh Kiệt')
-    expect(result.current.isAdmin).toBe(true)
-
-    // Test with regular visitor email
-    act(() => {
-      result.current.signInWithCustomGmail('recruiter.top@shopee.vn', 'Shopee HR')
-    })
-
-    expect(result.current.user?.email).toBe('recruiter.top@shopee.vn')
-    expect(result.current.user?.displayName).toBe('Shopee HR')
     expect(result.current.user?.role).toBe('member')
     expect(result.current.isAdmin).toBe(false)
+
+    // Sign out
+    await act(async () => {
+      await result.current.signOutUser()
+    })
+
+    // 2. Logging in with Kiệt's admin email using a wrong password fails
+    let failLogin = false
+    await act(async () => {
+      failLogin = await result.current.signInWithEmail(ADMIN_EMAIL, 'wrongPassword123')
+    })
+    expect(failLogin).toBe(false)
+    expect(result.current.user).toBeNull()
+    expect(result.current.isAdmin).toBe(false)
+
+    // 3. Registering and logging in with correct credentials grants Admin
+    let regAdmin = false
+    await act(async () => {
+      regAdmin = await result.current.registerWithEmail(
+        'Mai Anh Kiệt (Hub Admin)',
+        ADMIN_EMAIL,
+        'SecretAdminKey@2005'
+      )
+    })
+    expect(regAdmin).toBe(true)
+    expect(result.current.isAdmin).toBe(true)
+    expect(result.current.user?.role).toBe('admin')
+
+    // Sign out
+    await act(async () => {
+      await result.current.signOutUser()
+    })
+
+    // Sign back in with correct password grants admin
+    let loginAdmin = false
+    await act(async () => {
+      loginAdmin = await result.current.signInWithEmail(ADMIN_EMAIL, 'SecretAdminKey@2005')
+    })
+    expect(loginAdmin).toBe(true)
+    expect(result.current.isAdmin).toBe(true)
+    expect(result.current.user?.role).toBe('admin')
   })
 
   it('handles email registration and sign in with password', async () => {
