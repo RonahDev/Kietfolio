@@ -389,16 +389,16 @@ export const OceanWhaleScene: React.FC = () => {
     // ==========================================
     // 3. CINEMATIC FLIGHT PATH
     // ==========================================
-    // Smooth flight path: Surfaces from ocean horizon, swoops gracefully across center horizon, then dives smoothly
+    // Surfaces from ocean swell, breaches right into the center of the viewer's screen, and dives gracefully
     const flightPoints = [
-      new THREE.Vector3(-32, -12, -45), // Deep ocean swell
-      new THREE.Vector3(-18, -4, -28),  // Surfacing through waves
-      new THREE.Vector3(-7, 0.4, -10),  // Climbing into atmosphere
-      new THREE.Vector3(0, 1.2, 2.0),   // Center background horizon (elegant & non-obtrusive)
-      new THREE.Vector3(8, 1.6, -6.0),  // Banking turn
-      new THREE.Vector3(18, 2.8, -18),  // Wide gliding arc
-      new THREE.Vector3(24, -5, -35),   // Diving back into waves
-      new THREE.Vector3(0, -14, -52),   // Deep ocean swell loop
+      new THREE.Vector3(-34, -13, -46), // 0: Deep ocean swell
+      new THREE.Vector3(-20, -5, -26),  // 1: Surfacing through ocean waves
+      new THREE.Vector3(-8, 0.6, -6),   // 2: Climbing into atmosphere
+      new THREE.Vector3(0, 1.8, 5.5),   // 3: CENTER FOREGROUND OF VIEWER'S SCREEN
+      new THREE.Vector3(9, 2.0, 0.5),   // 4: Elegant banking turn
+      new THREE.Vector3(18, 2.2, -14),  // 5: Wide gliding arc
+      new THREE.Vector3(24, -5, -32),   // 6: Diving back into waves
+      new THREE.Vector3(0, -15, -48),   // 7: Deep ocean loop back
     ]
 
     const flightCurve = new THREE.CatmullRomCurve3(flightPoints, true)
@@ -407,19 +407,31 @@ export const OceanWhaleScene: React.FC = () => {
     const normalFlightSpeed = 0.022
     let currentSpeed = normalFlightSpeed
 
-    // Smooth breach trigger on demand
-    const triggerCenterBreach = () => {
-      flightProgress = 0.30
-      currentSpeed = normalFlightSpeed * 1.5
-      setTimeout(() => {
-        currentSpeed = normalFlightSpeed
-      }, 3500)
+    // Cinematic breach trigger
+    const startCinematicBreach = () => {
+      flightProgress = 0.12 // Just below water surface, ready to breach
+      currentSpeed = 0.14 // Fast, majestic breach curve (travels ~0.63 in 4.5s)
+    }
+
+    const endCinematicBreach = () => {
+      currentSpeed = normalFlightSpeed
     }
 
     const handleSummonEvent = () => {
-      triggerCenterBreach()
+      startCinematicBreach()
     }
+
+    const handleCinematicStart = () => {
+      startCinematicBreach()
+    }
+
+    const handleCinematicEnd = () => {
+      endCinematicBreach()
+    }
+
     window.addEventListener('kietfolio:summon-whale', handleSummonEvent)
+    window.addEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
+    window.addEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
 
     // Window Resize Handler
     const onResize = () => {
@@ -463,12 +475,12 @@ export const OceanWhaleScene: React.FC = () => {
 
       // Smooth orientation banking along trajectory
       const lookMatrix = new THREE.Matrix4().lookAt(
-        whaleGroup.position,
         lookAtTarget,
+        whaleGroup.position,
         new THREE.Vector3(0, 1, 0)
       )
       const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix)
-      whaleGroup.quaternion.slerp(targetQuat, 0.08)
+      whaleGroup.quaternion.slerp(targetQuat, 0.1)
 
       // 4C. Organic Whale Swimming Articulation
       const swimCycle = time * 3.4
@@ -507,6 +519,8 @@ export const OceanWhaleScene: React.FC = () => {
       window.removeEventListener('resize', onResize)
       window.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('kietfolio:summon-whale', handleSummonEvent)
+      window.removeEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
+      window.removeEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
 
       waveGeometry.dispose()
       waveMaterial.dispose()

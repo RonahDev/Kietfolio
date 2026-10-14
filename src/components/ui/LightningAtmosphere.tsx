@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { useWhaleCinematic } from '../../hooks/useWhaleCinematic'
 
 export const LightningAtmosphere: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0)
+  const { isCinematicActive } = useWhaleCinematic()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -21,7 +23,9 @@ export const LightningAtmosphere: React.FC = () => {
     <>
       {/* Top Cybernetic Scroll Progress Bar */}
       <div
-        className="fixed top-0 left-0 right-0 h-[2px] z-50 pointer-events-none bg-transparent"
+        className={`fixed top-0 left-0 right-0 h-[2px] z-50 pointer-events-none bg-transparent transition-opacity duration-500 ${
+          isCinematicActive ? 'opacity-0' : 'opacity-100'
+        }`}
         aria-hidden="true"
       >
         <div
