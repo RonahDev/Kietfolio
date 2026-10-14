@@ -1,27 +1,22 @@
 import { useState } from 'react'
-import { LanguageProvider } from './context/LanguageContext'
-import { AuthProvider } from './context/AuthContext'
-import { WhaleCinematicProvider } from './context/WhaleCinematicContext'
-import { useWhaleCinematic } from './hooks/useWhaleCinematic'
-import { useLanguage } from './hooks/useLanguage'
-import { Navbar } from './components/layout/Navbar'
-import { Footer } from './components/layout/Footer'
-import { LightningAtmosphere } from './components/ui/LightningAtmosphere'
-import { PageIntroLoader } from './components/ui/PageIntroLoader'
-import { WhaleController } from './components/ui/WhaleController'
-import { isReducedMotion } from './animations/gsapUtils'
-import { OceanWhaleScene } from './three/OceanWhaleScene'
-import { GlobalParticleField } from './three/GlobalParticleField'
-import { HeroSection } from './features/hero/HeroSection'
-import { AboutSection } from './features/about/AboutSection'
-import { ProjectsSection } from './features/projects/ProjectsSection'
-import { ExperienceSection } from './features/experience/ExperienceSection'
-import { SkillsSection } from './features/skills/SkillsSection'
-import { PrinciplesSection } from './features/principles/PrinciplesSection'
-import { GuestbookSection } from './features/guestbook/GuestbookSection'
-import { ContactSection } from './features/contact/ContactSection'
-import { AuthModal } from './components/auth/AuthModal'
-import { AdminDashboardModal } from './components/admin/AdminDashboardModal'
+import { LanguageProvider, AuthProvider, WhaleCinematicProvider } from '@/context'
+import { useWhaleCinematic, useLanguage } from '@/hooks'
+import { isReducedMotion } from '@/animations'
+import { Navbar, Footer } from '@/components/layout'
+import { LightningAtmosphere, PageIntroLoader, WhaleController } from '@/components/ui'
+import { AuthModal } from '@/components/auth'
+import { AdminDashboardModal } from '@/components/admin'
+import { OceanWhaleScene, GlobalParticleField } from '@/three'
+import {
+  HeroSection,
+  AboutSection,
+  ProjectsSection,
+  ExperienceSection,
+  SkillsSection,
+  PrinciplesSection,
+  GuestbookSection,
+  ContactSection,
+} from '@/features'
 
 export function AppContent() {
   const { language } = useLanguage()

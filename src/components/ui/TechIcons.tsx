@@ -5,7 +5,7 @@ interface TechIconProps {
   className?: string
 }
 
-export const TechIcon: React.FC<TechIconProps> = ({ name, className = 'w-4 h-4' }) => {
+export const TechIcon: React.FC<TechIconProps> = React.memo(({ name, className = 'w-4 h-4' }) => {
   const normalized = name.toLowerCase()
 
   // 1. React
@@ -218,5 +218,5 @@ export const TechIcon: React.FC<TechIconProps> = ({ name, className = 'w-4 h-4' 
       <path d="M7 9l3 3-3 3M13 15h4" stroke="#00d2ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
-}
+})
 

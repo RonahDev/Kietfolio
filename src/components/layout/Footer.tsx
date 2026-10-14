@@ -1,8 +1,8 @@
 import React from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { profileData } from '../../data/profile'
+import { useLanguage } from '@/hooks'
+import { profileData } from '@/data'
 import { ArrowUp, Mail, Cpu, Terminal } from 'lucide-react'
-import { GithubIcon, LinkedinIcon } from '../ui/SocialIcons'
+import { GithubIcon, LinkedinIcon } from '@/components/ui'
 
 const CURRENT_YEAR = new Date().getFullYear()
 

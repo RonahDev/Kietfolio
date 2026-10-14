@@ -1,12 +1,6 @@
 import React, { useState } from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { useAuth } from '../../hooks/useAuth'
-import { useGuestbook } from '../../hooks/useGuestbook'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
-import { SectionHeader } from '../../components/ui/SectionHeader'
-import { Card } from '../../components/ui/Card'
-import { Button } from '../../components/ui/Button'
-import { GoogleIcon } from '../../components/ui/GoogleIcon'
+import { useLanguage, useAuth, useGuestbook, useScrollReveal } from '@/hooks'
+import { SectionHeader, Card, Button, GoogleIcon } from '@/components/ui'
 import {
   MessageSquare,
   Send,

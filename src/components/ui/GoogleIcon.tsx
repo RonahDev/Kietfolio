@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => {
+export const GoogleIcon: React.FC<{ className?: string }> = React.memo(({ className = 'w-4 h-4' }) => {
   return (
     <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
       <path
@@ -21,5 +21,5 @@ export const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 
       />
     </svg>
   )
-}
+})
 

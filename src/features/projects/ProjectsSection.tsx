@@ -1,8 +1,6 @@
 import React from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { useProjects } from '../../hooks/useProjects'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
-import { SectionHeader } from '../../components/ui/SectionHeader'
+import { useLanguage, useProjects, useScrollReveal } from '@/hooks'
+import { SectionHeader } from '@/components/ui'
 import { ProjectCard } from './ProjectCard'
 import { Info, Sparkles, Layers, Code2, Loader2 } from 'lucide-react'
 

@@ -1,10 +1,8 @@
 import React from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { profileData } from '../../data/profile'
-import { SectionHeader } from '../../components/ui/SectionHeader'
+import { useLanguage, useScrollReveal } from '@/hooks'
+import { profileData } from '@/data'
+import { SectionHeader, GithubIcon, LinkedinIcon } from '@/components/ui'
 import { ContactForm } from './ContactForm'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
-import { GithubIcon, LinkedinIcon } from '../../components/ui/SocialIcons'
 import { Mail, MapPin, Terminal, Shield } from 'lucide-react'
 
 export const ContactSection: React.FC = () => {

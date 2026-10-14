@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
-import type { ProjectItem } from '../../types'
-import { useLanguage } from '../../hooks/useLanguage'
-import { Card } from '../../components/ui/Card'
-import { Badge } from '../../components/ui/Badge'
-import { Button } from '../../components/ui/Button'
-import { GithubIcon } from '../../components/ui/SocialIcons'
+import type { ProjectItem } from '@/types'
+import { useLanguage } from '@/hooks'
+import { Card, Badge, Button, GithubIcon } from '@/components/ui'
 import {
   ExternalLink,
   ChevronDown,
@@ -19,7 +16,7 @@ interface ProjectCardProps {
   project: ProjectItem
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project }) => {
   const { t, language } = useLanguage()
   const [isExpanded, setIsExpanded] = useState(project.isFeatured)
 
@@ -174,4 +171,4 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       </div>
     </Card>
   )
-}
+})

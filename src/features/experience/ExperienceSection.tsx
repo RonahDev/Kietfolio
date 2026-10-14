@@ -1,10 +1,7 @@
 import React from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { experienceData, LOGISTICS_SOFTWARE_CORRELATIONS } from '../../data/experience'
-import { SectionHeader } from '../../components/ui/SectionHeader'
-import { Card } from '../../components/ui/Card'
-import { Badge } from '../../components/ui/Badge'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { useLanguage, useScrollReveal } from '@/hooks'
+import { experienceData, LOGISTICS_SOFTWARE_CORRELATIONS } from '@/data'
+import { SectionHeader, Card, Badge } from '@/components/ui'
 import {
   Building2,
   TrendingUp,

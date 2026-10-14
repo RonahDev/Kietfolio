@@ -1,12 +1,8 @@
 import React, { useState } from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { skillCategories, softSkillsData } from '../../data/skills'
-import { SectionHeader } from '../../components/ui/SectionHeader'
-import { Card } from '../../components/ui/Card'
-import { Badge } from '../../components/ui/Badge'
-import { TechIcon } from '../../components/ui/TechIcons'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
-import { cn } from '../../utils/cn'
+import { useLanguage, useScrollReveal } from '@/hooks'
+import { skillCategories, softSkillsData } from '@/data'
+import { SectionHeader, Card, Badge, TechIcon } from '@/components/ui'
+import { cn } from '@/utils'
 import {
   Code,
   Server,

@@ -3,6 +3,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
@@ -10,6 +15,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {
@@ -20,6 +30,12 @@ export default defineConfig({
           }
           if (id.includes('node_modules/gsap')) {
             return 'gsap'
+          }
+          if (id.includes('node_modules/firebase')) {
+            return 'firebase'
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'icons'
           }
         },
       },

@@ -1,9 +1,7 @@
 import React from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { engineeringPrinciples } from '../../data/principles'
-import { SectionHeader } from '../../components/ui/SectionHeader'
-import { Card } from '../../components/ui/Card'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { useLanguage, useScrollReveal } from '@/hooks'
+import { engineeringPrinciples } from '@/data'
+import { SectionHeader, Card } from '@/components/ui'
 import { Terminal, Shield, Check, GitCommit, Box, Cpu } from 'lucide-react'
 
 export const PrinciplesSection: React.FC = () => {

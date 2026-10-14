@@ -6,7 +6,7 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   hasDot?: boolean
 }
 
-export const Badge: React.FC<BadgeProps> = ({
+export const Badge: React.FC<BadgeProps> = React.memo(({
   className,
   variant = 'default',
   hasDot = false,
@@ -43,4 +43,4 @@ export const Badge: React.FC<BadgeProps> = ({
       {children}
     </span>
   )
-}
+})

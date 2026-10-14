@@ -10,7 +10,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   rel?: string
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = React.memo(({
   children,
   className,
   variant = 'primary',
@@ -84,4 +84,4 @@ export const Button: React.FC<ButtonProps> = ({
       )}
     </button>
   )
-}
+})

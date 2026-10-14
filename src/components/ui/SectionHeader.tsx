@@ -10,7 +10,7 @@ interface SectionHeaderProps {
   align?: 'left' | 'center'
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = ({
+export const SectionHeader: React.FC<SectionHeaderProps> = React.memo(({
   badge,
   title,
   subtitle,
@@ -63,4 +63,4 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       </div>
     </div>
   )
-}
+})

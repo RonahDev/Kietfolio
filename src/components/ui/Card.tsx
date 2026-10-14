@@ -6,7 +6,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   withCornerTicks?: boolean
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card: React.FC<CardProps> = React.memo(({
   children,
   className,
   hoverEffect = true,
@@ -35,4 +35,4 @@ export const Card: React.FC<CardProps> = ({
       {children}
     </div>
   )
-}
+})

@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState, Suspense, lazy } from 'react'
 import gsap from 'gsap'
-import { useLanguage } from '../../hooks/useLanguage'
-import { profileData } from '../../data/profile'
-import { Button } from '../../components/ui/Button'
-import { isReducedMotion } from '../../animations/gsapUtils'
-import { useTextScramble } from '../../animations/useTextScramble'
+import { useLanguage } from '@/hooks'
+import { profileData } from '@/data'
+import { Button } from '@/components/ui'
+import { isReducedMotion, useTextScramble } from '@/animations'
 import {
   ArrowDown,
   ArrowUpRight,
@@ -15,11 +14,11 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { HeroTerminal } from './HeroTerminal'
-import { HERO_TELEMETRY_METRICS } from '../../config/telemetry'
+import { HERO_TELEMETRY_METRICS } from '@/config'
 
 // Lazy-load CyberCoreScene to keep initial bundle ultra-fast
 const CyberCoreScene = lazy(() =>
-  import('../../three/CyberCoreScene').then((m) => ({
+  import('@/three/CyberCoreScene').then((m) => ({
     default: m.CyberCoreScene,
   }))
 )

@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
-import { profileData } from '../../data/profile'
-import { SectionHeader } from '../../components/ui/SectionHeader'
-import { Card } from '../../components/ui/Card'
-import { Badge } from '../../components/ui/Badge'
-import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { useLanguage, useScrollReveal } from '@/hooks'
+import { profileData } from '@/data'
+import { SectionHeader, Card, Badge } from '@/components/ui'
 import {
   Code2,
   Sparkles,

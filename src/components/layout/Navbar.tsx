@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import { isReducedMotion } from '../../animations/gsapUtils'
-import { useLanguage } from '../../hooks/useLanguage'
-import { useAuth } from '../../hooks/useAuth'
-import { Button } from '../ui/Button'
+import { isReducedMotion } from '@/animations'
+import { useLanguage, useAuth } from '@/hooks'
+import { Button } from '@/components/ui'
 import {
   Menu,
   X,
