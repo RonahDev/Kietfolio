@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { isReducedMotion } from '../animations/gsapUtils'
 
 /**
  * 3D Cyber Ocean & Celestial Flying Whale Scene
  * Features:
  * 1. Undulating bioluminescent 3D ocean wave mesh with compound sine swell physics
- * 2. Majestic articulated Cyber Whale with flapping pectoral fins, oscillating tail fluke, and particle wake
- * 3. Cinematic trajectory soaring from the deep ocean straight into the center of the viewer's screen
- * 4. Responsive canvas, reduced motion guard, and event-based whale summoning
+ * 2. Majestic articulated Cyber Whale with flapping pectoral fins, oscillating tail fluke, and luminous stardust wake
+ * 3. Cinematic trajectory soaring from the deep ocean straight into the center of the viewer's screen (z: 11.5)
+ * 4. Stacking at z-20 with transparent WebGL canvas and pointer-events-none so it renders visibly over the site without blocking clicks
  */
 export const OceanWhaleScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -17,8 +16,6 @@ export const OceanWhaleScene: React.FC = () => {
     if (typeof window === 'undefined') return
     const container = containerRef.current
     if (!container) return
-
-    if (isReducedMotion()) return
 
     // Scene & Perspective Camera
     const scene = new THREE.Scene()
@@ -38,31 +35,38 @@ export const OceanWhaleScene: React.FC = () => {
         alpha: true,
         powerPreference: 'high-performance',
       })
+      renderer.setClearColor(0x000000, 0)
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+      renderer.domElement.style.position = 'absolute'
+      renderer.domElement.style.top = '0'
+      renderer.domElement.style.left = '0'
+      renderer.domElement.style.width = '100%'
+      renderer.domElement.style.height = '100%'
+      renderer.domElement.style.pointerEvents = 'none'
       container.appendChild(renderer.domElement)
     } catch {
       return
     }
 
-    // Ambient & Directional Cyber Lights
-    const ambientLight = new THREE.AmbientLight(0x0a192f, 1.8)
+    // High-impact Cyber Lights
+    const ambientLight = new THREE.AmbientLight(0x0c2548, 2.5)
     scene.add(ambientLight)
 
-    const keyLight = new THREE.DirectionalLight(0x00d2ff, 3.5)
-    keyLight.position.set(15, 25, 20)
+    const keyLight = new THREE.DirectionalLight(0x00ffff, 4.0)
+    keyLight.position.set(12, 25, 25)
     scene.add(keyLight)
 
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.5)
-    rimLight.position.set(-20, 10, -25)
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 3.2)
+    rimLight.position.set(-20, 15, -20)
     scene.add(rimLight)
 
     // ==========================================
     // 1. UNDULATING 3D OCEAN WAVE SYSTEM
     // ==========================================
-    const waveWidth = 140
-    const waveHeight = 140
-    const waveSegments = 60
+    const waveWidth = 160
+    const waveHeight = 160
+    const waveSegments = 64
 
     const waveGeometry = new THREE.PlaneGeometry(
       waveWidth,
@@ -70,40 +74,39 @@ export const OceanWhaleScene: React.FC = () => {
       waveSegments,
       waveSegments
     )
-    // Tilted slightly toward camera to form infinite ocean horizon
     waveGeometry.rotateX(-Math.PI / 2.3)
 
-    // Dual-layer material: Deep ocean surface + Glowing wireframe crests
+    // Dual-layer material: Oceanic surface + Glowing wireframe crests
     const oceanMaterial = new THREE.MeshStandardMaterial({
-      color: 0x051329,
-      roughness: 0.35,
-      metalness: 0.75,
+      color: 0x061935,
+      roughness: 0.25,
+      metalness: 0.85,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.65,
       flatShading: true,
     })
 
     const oceanMesh = new THREE.Mesh(waveGeometry, oceanMaterial)
-    oceanMesh.position.set(0, -9.5, -12)
+    oceanMesh.position.set(0, -7.5, -8)
     scene.add(oceanMesh)
 
     const wireframeMaterial = new THREE.MeshBasicMaterial({
       color: 0x00d2ff,
       wireframe: true,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.45,
     })
     const wireframeMesh = new THREE.Mesh(waveGeometry, wireframeMaterial)
     wireframeMesh.position.copy(oceanMesh.position)
     scene.add(wireframeMesh)
 
     // Ocean Bioluminescent Foam / Mist Particles
-    const foamCount = 100
+    const foamCount = 120
     const foamPositions = new Float32Array(foamCount * 3)
     for (let i = 0; i < foamCount; i++) {
-      foamPositions[i * 3] = (Math.random() - 0.5) * 110
-      foamPositions[i * 3 + 1] = -7 + (Math.random() - 0.5) * 2.5
-      foamPositions[i * 3 + 2] = (Math.random() - 0.5) * 80 - 10
+      foamPositions[i * 3] = (Math.random() - 0.5) * 120
+      foamPositions[i * 3 + 1] = -5.5 + (Math.random() - 0.5) * 2.5
+      foamPositions[i * 3 + 2] = (Math.random() - 0.5) * 90 - 5
     }
     const foamGeometry = new THREE.BufferGeometry()
     foamGeometry.setAttribute(
@@ -118,8 +121,8 @@ export const OceanWhaleScene: React.FC = () => {
       const ctx = canvas.getContext('2d')
       if (ctx) {
         const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
-        gradient.addColorStop(0, 'rgba(0, 210, 255, 1)')
-        gradient.addColorStop(0.3, 'rgba(56, 189, 248, 0.7)')
+        gradient.addColorStop(0, 'rgba(0, 255, 255, 1)')
+        gradient.addColorStop(0.35, 'rgba(56, 189, 248, 0.85)')
         gradient.addColorStop(1, 'rgba(0, 210, 255, 0)')
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, 32, 32)
@@ -129,17 +132,16 @@ export const OceanWhaleScene: React.FC = () => {
 
     const glowTexture = createGlowTexture()
     const foamMaterial = new THREE.PointsMaterial({
-      size: 1.2,
+      size: 1.5,
       map: glowTexture,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.55,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const foamPoints = new THREE.Points(foamGeometry, foamMaterial)
     scene.add(foamPoints)
 
-    // Store base vertex positions for wave calculations
     const basePositions = waveGeometry.attributes.position.array.slice()
 
     // ==========================================
@@ -147,32 +149,38 @@ export const OceanWhaleScene: React.FC = () => {
     // ==========================================
     const whaleGroup = new THREE.Group()
 
-    // Materials
+    // High-visibility Bioluminescent Cyber Materials
     const whaleSkinMaterial = new THREE.MeshStandardMaterial({
-      color: 0x071b34,
-      roughness: 0.25,
+      color: 0x0c3e72,
+      emissive: 0x004d80,
+      emissiveIntensity: 0.85,
+      roughness: 0.15,
       metalness: 0.85,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.95,
     })
 
     const neonAccentMaterial = new THREE.MeshBasicMaterial({
-      color: 0x00d2ff,
+      color: 0x00ffff,
       wireframe: true,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.95,
     })
 
     const ventralBellyMaterial = new THREE.MeshStandardMaterial({
-      color: 0x00f2fe,
-      emissive: 0x0077aa,
-      emissiveIntensity: 0.6,
-      roughness: 0.2,
+      color: 0x38bdf8,
+      emissive: 0x00d2ff,
+      emissiveIntensity: 1.5,
+      roughness: 0.1,
       metalness: 0.9,
     })
 
-    // Whale Torso / Main Spindle
-    // Built using elongated smooth capsule/ellipsoid geometry
+    // Dynamic point light attached directly to whale
+    const whalePointLight = new THREE.PointLight(0x00f2fe, 5.0, 35)
+    whalePointLight.position.set(0, 1.8, 3.0)
+    whaleGroup.add(whalePointLight)
+
+    // Whale Torso / Main Body
     const bodyGeometry = new THREE.ConeGeometry(2.4, 9.5, 16, 8)
     bodyGeometry.rotateX(Math.PI / 2)
     bodyGeometry.scale(1.15, 0.95, 1.0)
@@ -180,13 +188,13 @@ export const OceanWhaleScene: React.FC = () => {
     bodyMesh.position.set(0, 0, 1.2)
     whaleGroup.add(bodyMesh)
 
-    // Wireframe overlay for cyber aesthetic
+    // Wireframe overlay for glowing cyber silhouette
     const bodyWireMesh = new THREE.Mesh(bodyGeometry, neonAccentMaterial)
     bodyWireMesh.position.copy(bodyMesh.position)
-    bodyWireMesh.scale.set(1.02, 1.02, 1.02)
+    bodyWireMesh.scale.set(1.03, 1.03, 1.03)
     whaleGroup.add(bodyWireMesh)
 
-    // Whale Head & Rostrum (Front Dome)
+    // Whale Head & Rostrum
     const headGeometry = new THREE.SphereGeometry(2.2, 16, 12)
     headGeometry.scale(0.9, 0.8, 1.4)
     const headMesh = new THREE.Mesh(headGeometry, whaleSkinMaterial)
@@ -195,10 +203,10 @@ export const OceanWhaleScene: React.FC = () => {
 
     const headWireMesh = new THREE.Mesh(headGeometry, neonAccentMaterial)
     headWireMesh.position.copy(headMesh.position)
-    headWireMesh.scale.set(1.02, 1.02, 1.02)
+    headWireMesh.scale.set(1.03, 1.03, 1.03)
     whaleGroup.add(headWireMesh)
 
-    // Ventral Grooves (Rãnh bụng phát sáng đặc trưng của cá voi)
+    // Ventral Grooves (Rãnh bụng phát sáng cyan rực rỡ)
     const ventralGeometry = new THREE.CylinderGeometry(1.6, 2.0, 5.5, 12, 1, true, 0, Math.PI)
     ventralGeometry.rotateX(Math.PI / 2)
     ventralGeometry.rotateZ(Math.PI)
@@ -206,10 +214,10 @@ export const OceanWhaleScene: React.FC = () => {
     ventralMesh.position.set(0, -0.65, 2.4)
     whaleGroup.add(ventralMesh)
 
-    // Glowing Cyber Eyes
-    const eyeGeometry = new THREE.SphereGeometry(0.2, 8, 8)
+    // Glowing Cyan Eyes
+    const eyeGeometry = new THREE.SphereGeometry(0.24, 8, 8)
     const eyeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x00f2fe,
+      color: 0xffffff,
     })
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial)
     leftEye.position.set(1.4, 0.35, 4.2)
@@ -227,7 +235,12 @@ export const OceanWhaleScene: React.FC = () => {
     dorsalFin.position.set(0, 1.6, -1.8)
     whaleGroup.add(dorsalFin)
 
-    // Pectoral Flippers (Vây bơi hai bên - có khớp xoay)
+    const dorsalWire = new THREE.Mesh(dorsalFinGeometry, neonAccentMaterial)
+    dorsalWire.position.copy(dorsalFin.position)
+    dorsalWire.scale.set(1.05, 1.05, 1.05)
+    whaleGroup.add(dorsalWire)
+
+    // Pectoral Flippers (Vây bơi lớn hai bên tự vỗ nhịp nhàng)
     const flipperGeometry = new THREE.ConeGeometry(0.85, 4.8, 4)
     flipperGeometry.scale(0.2, 1.0, 0.8)
     flipperGeometry.rotateZ(Math.PI / 2.2)
@@ -238,6 +251,11 @@ export const OceanWhaleScene: React.FC = () => {
     const leftFlipper = new THREE.Mesh(flipperGeometry, whaleSkinMaterial)
     leftFlipper.position.set(1.8, 0, -0.6)
     leftFlipperPivot.add(leftFlipper)
+
+    const leftFlipperWire = new THREE.Mesh(flipperGeometry, neonAccentMaterial)
+    leftFlipperWire.position.copy(leftFlipper.position)
+    leftFlipperWire.scale.set(1.05, 1.05, 1.05)
+    leftFlipperPivot.add(leftFlipperWire)
     whaleGroup.add(leftFlipperPivot)
 
     // Right Flipper
@@ -247,9 +265,15 @@ export const OceanWhaleScene: React.FC = () => {
     rightFlipper.rotation.y = Math.PI
     rightFlipper.position.set(-1.8, 0, -0.6)
     rightFlipperPivot.add(rightFlipper)
+
+    const rightFlipperWire = new THREE.Mesh(flipperGeometry, neonAccentMaterial)
+    rightFlipperWire.rotation.y = Math.PI
+    rightFlipperWire.position.copy(rightFlipper.position)
+    rightFlipperWire.scale.set(1.05, 1.05, 1.05)
+    rightFlipperPivot.add(rightFlipperWire)
     whaleGroup.add(rightFlipperPivot)
 
-    // Tail Peduncle & Fluke (Đuôi và vây đuôi cá voi chuyển động nhịp nhàng)
+    // Tail Peduncle & Fluke (Đuôi và vây đuôi cá voi uốn lượn)
     const tailPedunclePivot = new THREE.Group()
     tailPedunclePivot.position.set(0, 0, -3.2)
 
@@ -258,6 +282,11 @@ export const OceanWhaleScene: React.FC = () => {
     const tailSegment = new THREE.Mesh(tailSegmentGeometry, whaleSkinMaterial)
     tailSegment.position.set(0, 0, -2.0)
     tailPedunclePivot.add(tailSegment)
+
+    const tailSegmentWire = new THREE.Mesh(tailSegmentGeometry, neonAccentMaterial)
+    tailSegmentWire.position.copy(tailSegment.position)
+    tailSegmentWire.scale.set(1.05, 1.05, 1.05)
+    tailPedunclePivot.add(tailSegmentWire)
 
     // Tail Fluke (Cánh vây đuôi nằm ngang xòe rộng)
     const flukeGeometry = new THREE.ConeGeometry(1.2, 5.2, 4)
@@ -270,18 +299,18 @@ export const OceanWhaleScene: React.FC = () => {
 
     const flukeWireMesh = new THREE.Mesh(flukeGeometry, neonAccentMaterial)
     flukeWireMesh.position.copy(flukeMesh.position)
-    flukeWireMesh.scale.set(1.05, 1.05, 1.05)
+    flukeWireMesh.scale.set(1.08, 1.08, 1.08)
     tailPedunclePivot.add(flukeWireMesh)
 
     whaleGroup.add(tailPedunclePivot)
 
-    // Bioluminescent Particle Wake (Vệt hạt sáng sau đuôi và lỗ thở)
-    const wakeParticleCount = 60
+    // Bioluminescent Particle Wake (Vệt stardust sáng sau đuôi)
+    const wakeParticleCount = 80
     const wakePositions = new Float32Array(wakeParticleCount * 3)
     for (let i = 0; i < wakeParticleCount; i++) {
-      wakePositions[i * 3] = (Math.random() - 0.5) * 1.5
-      wakePositions[i * 3 + 1] = (Math.random() - 0.5) * 1.5
-      wakePositions[i * 3 + 2] = -5 - Math.random() * 8
+      wakePositions[i * 3] = (Math.random() - 0.5) * 1.8
+      wakePositions[i * 3 + 1] = (Math.random() - 0.5) * 1.8
+      wakePositions[i * 3 + 2] = -5 - Math.random() * 10
     }
     const wakeGeometry = new THREE.BufferGeometry()
     wakeGeometry.setAttribute(
@@ -289,49 +318,49 @@ export const OceanWhaleScene: React.FC = () => {
       new THREE.BufferAttribute(wakePositions, 3)
     )
     const wakeMaterial = new THREE.PointsMaterial({
-      size: 0.9,
+      size: 1.4,
       map: glowTexture,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.85,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
     const wakePoints = new THREE.Points(wakeGeometry, wakeMaterial)
     whaleGroup.add(wakePoints)
 
-    // Initial scale & position
-    whaleGroup.scale.set(0.9, 0.9, 0.9)
+    // Grand Scale: Make whale unmistakably large and impressive in screen
+    whaleGroup.scale.set(1.65, 1.65, 1.65)
     scene.add(whaleGroup)
 
     // ==========================================
     // 3. CINEMATIC FLIGHT PATH INTO CENTER SCREEN
     // ==========================================
-    // Flight Path Curve: Breaches out of waves, soars directly into center of viewer's screen (0, 0.5, 7.5), then dives smoothly
+    // Flight Path Curve: Breaches out of waves, soars directly into center of viewer's screen (0, 1.8, 11.5)
     const flightPoints = [
-      new THREE.Vector3(-38, -14, -60), // Deep in distant ocean
-      new THREE.Vector3(-22, -6, -38),  // Surfacing through ocean waves
-      new THREE.Vector3(-8, 0, -18),    // Climbing into atmosphere
-      new THREE.Vector3(0, 0.6, 7.5),   // EXACT CENTER OF VIEWER'S SCREEN
-      new THREE.Vector3(7, -0.2, 4.0),  // Banking glide in viewer foreground
-      new THREE.Vector3(22, 3, -15),    // Sweeping right arc
-      new THREE.Vector3(28, -8, -42),   // Diving back toward ocean
-      new THREE.Vector3(0, -16, -65),   // Submerged deep loop back
+      new THREE.Vector3(-36, -14, -50), // Deep in distant ocean
+      new THREE.Vector3(-20, -5, -28),  // Surfacing through ocean waves
+      new THREE.Vector3(-8, 0.5, -6),   // Soaring upward
+      new THREE.Vector3(0, 1.8, 11.5),  // EXACT CENTER OF VIEWER'S SCREEN
+      new THREE.Vector3(7, 1.2, 7.0),   // Banking turn in foreground
+      new THREE.Vector3(20, 3.5, -12),  // Sweeping wide arc
+      new THREE.Vector3(26, -6, -35),   // Diving back toward ocean
+      new THREE.Vector3(0, -15, -55),   // Submerged deep loop back
     ]
 
     const flightCurve = new THREE.CatmullRomCurve3(flightPoints, true)
 
-    // Flight progress state: 0 to 1 along curve
-    let flightProgress = 0.38 // Start near center screen for immediate impact
-    const normalFlightSpeed = 0.024
+    // Initial progress starts heading straight into center screen
+    let flightProgress = 0.32
+    const normalFlightSpeed = 0.026
     let currentSpeed = normalFlightSpeed
 
     // Method to trigger instantaneous heroic center breach
     const triggerCenterBreach = () => {
-      flightProgress = 0.28 // Breaching upward toward center
+      flightProgress = 0.30 // Breaching upward toward center screen
       currentSpeed = normalFlightSpeed * 1.6
       setTimeout(() => {
         currentSpeed = normalFlightSpeed
-      }, 3500)
+      }, 4000)
     }
 
     const handleSummonEvent = () => {
@@ -348,7 +377,7 @@ export const OceanWhaleScene: React.FC = () => {
     }
     window.addEventListener('resize', onResize)
 
-    // Visibility Listener to preserve battery & CPU
+    // Visibility Listener
     let isVisible = true
     const onVisibilityChange = () => {
       isVisible = !document.hidden
@@ -376,7 +405,6 @@ export const OceanWhaleScene: React.FC = () => {
         const u = basePositions[i * 3]
         const v = basePositions[i * 3 + 1]
 
-        // Natural turbulent ocean swell equation
         const elevation =
           Math.sin(u * 0.08 + time * 1.6) * 1.7 +
           Math.cos(v * 0.09 + time * 1.3) * 1.5 +
@@ -404,30 +432,30 @@ export const OceanWhaleScene: React.FC = () => {
         new THREE.Vector3(0, 1, 0)
       )
       const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix)
-      whaleGroup.quaternion.slerp(targetQuat, 0.08)
+      whaleGroup.quaternion.slerp(targetQuat, 0.09)
 
       // 4C. Organic Whale Swimming Articulation
       const swimCycle = time * 3.8
 
-      // Tail peduncle vertical oscillation (flapping up & down like real cetaceans)
-      tailPedunclePivot.rotation.x = Math.sin(swimCycle) * 0.32
-      tailPedunclePivot.rotation.y = Math.cos(swimCycle * 0.5) * 0.08
+      // Tail peduncle vertical oscillation (flapping up & down)
+      tailPedunclePivot.rotation.x = Math.sin(swimCycle) * 0.35
+      tailPedunclePivot.rotation.y = Math.cos(swimCycle * 0.5) * 0.1
 
-      // Pectoral flippers gentle wave
-      leftFlipperPivot.rotation.z = Math.sin(swimCycle - 0.5) * 0.18
-      rightFlipperPivot.rotation.z = -Math.sin(swimCycle - 0.5) * 0.18
-      leftFlipperPivot.rotation.x = Math.cos(swimCycle) * 0.12
-      rightFlipperPivot.rotation.x = Math.cos(swimCycle) * 0.12
+      // Pectoral flippers wave
+      leftFlipperPivot.rotation.z = Math.sin(swimCycle - 0.5) * 0.2
+      rightFlipperPivot.rotation.z = -Math.sin(swimCycle - 0.5) * 0.2
+      leftFlipperPivot.rotation.x = Math.cos(swimCycle) * 0.14
+      rightFlipperPivot.rotation.x = Math.cos(swimCycle) * 0.14
 
       // Gentle body roll
-      bodyMesh.rotation.z = Math.sin(swimCycle * 0.5) * 0.05
+      bodyMesh.rotation.z = Math.sin(swimCycle * 0.5) * 0.06
 
       // 4D. Animated Particle Wake
       const wakePosAttr = wakeGeometry.attributes.position
       for (let j = 0; j < wakeParticleCount; j++) {
         let pz = wakePosAttr.getZ(j)
-        pz -= 0.15
-        if (pz < -14) {
+        pz -= 0.2
+        if (pz < -16) {
           pz = -4
         }
         wakePosAttr.setZ(j, pz)
@@ -478,7 +506,7 @@ export const OceanWhaleScene: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+      className="fixed inset-0 pointer-events-none z-20 overflow-hidden select-none"
       aria-hidden="true"
     />
   )

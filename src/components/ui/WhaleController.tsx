@@ -17,7 +17,7 @@ export const WhaleController: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-5 left-5 z-30 hidden sm:flex items-center gap-2 font-mono text-xs pointer-events-auto">
+    <div className="fixed bottom-4 left-4 z-30 flex items-center gap-2 font-mono text-xs pointer-events-auto">
       <button
         type="button"
         onClick={handleSummon}
@@ -51,3 +51,4 @@ export const WhaleController: React.FC = () => {
     </div>
   )
 }
+
