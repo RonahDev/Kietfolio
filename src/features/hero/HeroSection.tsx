@@ -128,7 +128,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
     <section
       id="hero"
       ref={heroRootRef}
-      className="relative min-h-[100svh] pt-28 pb-14 flex flex-col justify-center overflow-hidden border-b border-[#172847] bg-[#050a14]"
+      className="relative min-h-[100svh] pt-28 pb-14 flex flex-col justify-center overflow-hidden border-b border-[#172847] bg-gradient-to-b from-[#050a14]/75 via-[#050a14]/40 to-[#050a14]/85"
       aria-label="Hero Section"
     >
       {/* Background Subtle Cyber Grid & Atmospheric Glows */}
