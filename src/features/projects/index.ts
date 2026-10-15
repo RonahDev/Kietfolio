@@ -1,2 +1,5 @@
-export * from './ProjectsSection'
-export * from './ProjectCard'
+export * from './components/ProjectsSection'
+export * from './components/ProjectCard'
+export * from './hooks/useProjects'
+export * from './api/projectApi'
+export * from './data/projects'

@@ -1,1 +1,2 @@
-export * from './PrinciplesSection'
+export * from './components/PrinciplesSection'
+export * from './data/principles'

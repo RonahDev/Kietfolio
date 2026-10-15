@@ -1,1 +1,1 @@
-export * from './AuthModal'
+export * from '@/features/auth'

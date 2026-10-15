@@ -1,10 +1,1 @@
-import { createContext } from 'react'
-
-export interface WhaleCinematicContextType {
-  isCinematicActive: boolean
-  triggerWhaleCinematic: () => void
-  skipWhaleCinematic: () => void
-}
-
-export const WhaleCinematicContext = createContext<WhaleCinematicContextType | undefined>(undefined)
-
+export * from '@/features/ocean-whale'

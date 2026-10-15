@@ -1,0 +1,5 @@
+export * from './components/OceanWhaleScene'
+export * from './components/WhaleController'
+export * from './context/WhaleCinematicContext'
+export * from './context/whaleCinematicTypes'
+export * from './hooks/useWhaleCinematic'

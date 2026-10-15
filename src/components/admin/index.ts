@@ -1,1 +1,1 @@
-export * from './AdminDashboardModal'
+export * from '@/features/admin'
