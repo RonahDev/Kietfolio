@@ -1,39 +1,35 @@
 {
-  "name": "kietfolio",
+  "name": "kietfolio-monorepo",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "Fullstack 3D Cybernetic Portfolio Monorepo for Mai Anh Kiệt",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "test": "vitest run",
-    "preview": "vite preview"
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build": "npm run build:frontend && npm run build:backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "lint:frontend": "npm run lint --workspace=frontend",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
-  "dependencies": {
-    "@types/three": "^0.186.0",
-    "clsx": "^2.1.1",
-    "firebase": "^13.0.0",
-    "gsap": "^3.15.0",
-    "lucide-react": "^1.55.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "tailwind-merge": "^3.7.0",
-    "three": "^0.186.1"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.3",
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
-    "@vitejs/plugin-react": "^6.1.1",
-    "jsdom": "^30.1.2",
-    "oxlint": "^1.81.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.3"
-  }
+  "keywords": [
+    "portfolio",
+    "threejs",
+    "react19",
+    "gsap",
+    "nodejs",
+    "express",
+    "postgresql",
+    "docker",
+    "fullstack"
+  ],
+  "author": "Mai Anh Kiệt <kiet.maianh@gmail.com>",
+  "license": "MIT"
 }

@@ -1,158 +1,192 @@
-# Mai Anh Kiệt — Creative Full-Stack Developer Portfolio
-
-> **"Building digital experiences. Engineering solutions that matter."**  
-> *Full-Stack Developer | Creative Developer | Software Engineering Student*
-
----
-
-## 1. Executive Overview
-
-This repository houses the personal portfolio and digital identity of **Mai Anh Kiệt**, designed and engineered with an editorial Swiss-grid aesthetic, interactive WebGL 3D systems, robust motion choreography, and production-ready software engineering standards.
-
-The project highlights the intersection of three core dimensions:
-1. **Engineering Rigor:** Building type-safe, maintainable, and containerized web architectures.
-2. **Creative Expression:** Interactive 3D graphics using **Three.js** and smooth orchestration with **GSAP**.
-3. **Operational Intuition:** 2 years of operational ground experience at **SPX Express (Thủ Dầu Một 01 Hub)**, currently serving as **Senior Analyst** at the warehouse, applying analytical systems thinking to software engineering.
+# ✦ KIETFOLIO — FULL-STACK ARCHITECTURE MATRIX ✦
+> **Production-grade Cybernetic Portfolio & Systems Showcase for Mai Anh Kiệt**  
+> *Software Engineering @ FPT University (HCMC) • Operations Dispatch Lead @ SPX Express*
 
 ---
 
-## 2. Verified Personal Facts & Data Integrity
+## 🏗 Fullstack Monorepo Architecture
 
-All professional details presented are strictly verified:
-- **Full Name:** Mai Anh Kiệt
-- **Date of Birth:** 22 October 2005 *(Configurable / Optional in verified telemetry panel)*
-- **Education:** Software Engineering, FPT University — Ho Chi Minh City Campus
-- **Operational Background:** 2 years staff experience at **SPX Express — Thủ Dầu Một 01 Hub** → Currently **Senior Analyst** at the warehouse
-- **Professional Interests:** Full-Stack Development, Creative Coding, Interactive Web Experiences, Software Engineering, Logistics Technology
-- **Languages Supported:** English (Default) + Full Vietnamese (`vi-VN`) localization toggle
+Kietfolio được cấu trúc theo mô hình **Fullstack Domain Monorepo** đạt tiêu chuẩn công nghiệp, phân tách độc lập và chuyên biệt hóa theo từng phân tầng:
 
-### Transparent Capability Matrix (No Arbitrary Progress Bars)
-- **Frontend Development:** HTML5, CSS3, JavaScript, TypeScript, React, Tailwind CSS
-- **Backend & APIs:** Node.js, Express.js, Basic Java Web Development
-- **Programming Languages:** TypeScript, JavaScript, Java (FPT curriculum), C++
-- **Databases:** PostgreSQL, Microsoft SQL Server
-- **Infrastructure & Tools:** Git, GitHub, Docker, Vite
-- **Creative Development:** GSAP (GreenSock), Three.js (WebGL), CSS micro-interactions
-
----
-
-## 3. Technology Architecture
-
-```
-src/
-├── animations/
-│   └── gsapUtils.ts           # GSAP timeline helpers & prefers-reduced-motion guards
-├── components/
-│   ├── layout/
-│   │   ├── Container.tsx      # Consistent grid container bounds
-│   │   ├── Footer.tsx         # Editorial telemetry footer & back-to-top
-│   │   └── Navbar.tsx         # Fixed glass dock with scroll-spy & language toggle
-│   └── ui/
-│       ├── Badge.tsx          # Technical monospace indicators
-│       ├── Button.tsx         # Accessible buttons (primary, secondary, link variants)
-│       ├── Card.tsx           # Hairline borders with engineering corner ticks
-│       ├── SectionHeader.tsx  # Editorial section title with index markings
-│       └── SocialIcons.tsx    # Lightweight custom SVG icons
-├── context/
-│   ├── LanguageContext.tsx    # i18n provider with localStorage sync
-│   └── languageTypes.ts      # Context contracts & state typing
-├── data/
-│   ├── experience.ts          # SPX Express timeline & operational correlations
-│   ├── principles.ts          # 6 Core engineering principles
-│   ├── profile.ts             # Verified identity & contact configuration
-│   ├── projects.ts            # Project showcase with full case-study blueprints
-│   ├── skills.ts              # Categorized skill matrix
-│   └── translations.ts        # Comprehensive EN & VI localization dictionary
-├── features/
-│   ├── about/                 # Editorial split layout & collapsible telemetry
-│   ├── contact/               # Validated contact form, honeypot, & copy email
-│   ├── experience/            # Hub career path & logistics-to-software diagram
-│   ├── hero/                  # Typographic composition & lazy-loaded 3D viewport
-│   ├── principles/            # "How I Build Software" architecture blueprints
-│   ├── projects/              # Expandable case study cards with problem/solution
-│   └── skills/                # Filterable capability matrix
-├── hooks/
-│   └── useLanguage.ts         # Fast-refresh-compliant localization hook
-├── test/
-│   └── setup.ts               # Vitest DOM matchers setup
-├── three/
-│   └── KineticNetworkScene.tsx # Procedural 3D node sculpture with pointer parallax
-├── types/
-│   └── index.ts               # Shared TypeScript domain interfaces
-├── utils/
-│   ├── cn.ts                  # Tailwind clsx + twMerge utility
-│   └── validation.ts          # Form validation, bounds checking, & honeypot traps
-├── App.tsx                    # Top-level composition & skip-to-content accessibility link
-├── index.css                  # Tailwind v4 theme tokens & Swiss grid backgrounds
-└── main.tsx                   # React root entry point
+```text
+Kietfolio/
+├── frontend/                   # React 19 + TypeScript + Vite + Tailwind CSS 4
+│   ├── src/
+│   │   ├── animations/         # GSAP timelines & text scramble choreography
+│   │   ├── components/         # Shared UI, layout & atomic primitives
+│   │   ├── config/             # Site metadata & telemetry settings
+│   │   ├── context/            # Language, Auth & Whale Cinematic contexts
+│   │   ├── data/               # Verified profile facts & translations
+│   │   ├── features/           # Domain-Driven self-contained feature slices:
+│   │   │   ├── about/          # Profile story & telemetry
+│   │   │   ├── admin/          # Exclusive Admin Command Center
+│   │   │   ├── auth/           # Google & Email authentication gateway
+│   │   │   ├── contact/        # Interactive contact form & anti-spam
+│   │   │   ├── experience/     # SPX Express logistics operational lead
+│   │   │   ├── guestbook/      # Live guestbook signing & moderation
+│   │   │   ├── hero/           # Cyber core 3D & interactive terminal
+│   │   │   ├── ocean-whale/    # 3D Ocean waves & flying cyber whale
+│   │   │   ├── principles/     # Core software engineering paradigms
+│   │   │   ├── projects/       # Production case studies
+│   │   │   └── skills/         # Technical & operational competencies
+│   │   ├── hooks/              # Global & domain custom hooks
+│   │   ├── services/           # API integration clients & Firebase SDK
+│   │   ├── three/              # Three.js WebGL scenes & GPU performance hooks
+│   │   ├── types/              # Type definitions & API contracts
+│   │   ├── utils/              # Class merging (cn) & validation utilities
+│   │   ├── App.tsx             # Root application orchestrator
+│   │   └── main.tsx            # Entry point wrapped with Cyber ErrorBoundary
+│   ├── Dockerfile              # Standalone production Dockerfile (Node -> Nginx)
+│   ├── nginx.conf              # SPA routing & API reverse proxy configuration
+│   ├── package.json            # Frontend dependencies & build scripts
+│   └── vite.config.ts          # Rollup chunking & proxy configuration
+│
+├── backend/                    # Node.js + Express + TypeScript API Server
+│   ├── src/
+│   │   ├── config/             # Environment variables & constants
+│   │   ├── controllers/        # Request handling (Auth, Guestbook, Contact, Projects)
+│   │   ├── db/                 # PostgreSQL connection pool & health checks
+│   │   ├── middlewares/        # JWT auth, rate limiting, Zod schema validation
+│   │   ├── routes/             # RESTful API routing (/api/auth, /api/guestbook, ...)
+│   │   ├── services/           # Business logic & persistent storage fallbacks
+│   │   ├── types/              # Server-side TypeScript interfaces & payloads
+│   │   ├── app.ts              # Express application configuration
+│   │   └── server.ts           # Server bootstrap & graceful shutdown handler
+│   ├── Dockerfile              # Production multi-stage Dockerfile
+│   └── package.json            # Backend dependencies & scripts
+│
+├── database/                   # PostgreSQL 16 + Migrations + Seeds
+│   ├── migrations/             # Sequential DDL migration scripts
+│   │   ├── 001_create_users_table.sql
+│   │   ├── 002_create_guestbook_table.sql
+│   │   ├── 003_create_contact_messages_table.sql
+│   │   └── 004_create_projects_table.sql
+│   ├── seeds/                  # Initial baseline & verified mock data
+│   │   └── 001_seed_initial_data.sql
+│   ├── init.sql                # Automated container entrypoint bootstrapper
+│   └── README.md               # Database migration & backup/restore guide
+│
+├── infra/                      # Docker + Deployment Configuration
+│   ├── docker/
+│   │   ├── nginx/default.conf  # Production Nginx reverse proxy with gzip & caching
+│   │   ├── frontend.Dockerfile # Multi-stage frontend image build
+│   │   └── backend.Dockerfile  # Multi-stage backend image build
+│   └── scripts/
+│       ├── healthcheck.sh      # Service liveness testing script
+│       └── init-db.sh          # Database readiness check script
+│
+├── docker-compose.yml          # One-command fullstack service orchestration
+├── .gitignore                  # Fullstack monorepo exclusion rules
+└── package.json                # Root monorepo workspace orchestrator
 ```
 
 ---
 
-## 4. Key Engineering Features
+## ⚡ Quickstart: Khởi chạy bằng Docker Compose
 
-- **Chunk Splitting & Lazy-Loaded 3D Engine:** Three.js is isolated into its own lazy-loaded bundle (`three-*.js`), preventing WebGL assets from blocking initial DOM paint.
-- **GSAP Context Management:** All motion timelines use `gsap.context()` for reliable React lifecycle cleanup on unmount, preventing memory leaks and stale event listeners.
-- **Accessibility & Reduced Motion:** Automatically queries `window.matchMedia('(prefers-reduced-motion: reduce)')` to disable continuous rotation and heavy animations.
-- **Defensive Form Architecture:** Client-side regex and length validation with zero third-party tracking, anti-bot honeypot protection, and honest direct email dispatch.
-- **Zero-Warning Codebase:** 100% compliant with strict TypeScript compiler checks and modern `oxlint` rules.
+Khởi động toàn bộ cụm dịch vụ (**Database + Backend + Frontend + Reverse Proxy**) chỉ với **1 câu lệnh duy nhất**:
 
----
-
-## 5. Development & Verification Guide
-
-### Prerequisites
-- Node.js `20.x` or `22.x+` (verified with `v24.18.0`)
-- npm `10.x+`
-
-### Installation
 ```bash
+docker compose up -d --build
+```
+
+### Các dịch vụ được khởi tạo tự động:
+| Dịch vụ | Công nghệ | Cổng | Mô tả |
+| :--- | :--- | :--- | :--- |
+| **`frontend`** | React 19 + Nginx | `http://localhost:80` | Giao diện 3D Cybernetic Portfolio |
+| **`backend`** | Express + TypeScript | `http://localhost:5000` | REST API Server |
+| **`db`** | PostgreSQL 16 Alpine | `localhost:5432` | Cơ sở dữ liệu quan hệ (tự động chạy migration & seed) |
+
+Kiểm tra trạng thái liveness:
+```bash
+docker compose ps
+docker compose logs -f
+```
+
+---
+
+## 💻 Phát triển cục bộ (Local Development)
+
+Nếu bạn muốn chạy từng dịch vụ trực tiếp trên máy không dùng Docker:
+
+### 1. Cài đặt Dependencies
+```bash
+# Cài đặt tại root monorepo
 npm install
+
+# Hoặc cài đặt độc lập cho từng module
+cd frontend && npm install
+cd ../backend && npm install
 ```
 
-### Run Local Development Server
+### 2. Khởi chạy Frontend
 ```bash
-npm run dev
-```
-Starts the Vite dev server at `http://localhost:5173`.
-
-### Run Automated Unit Tests
-```bash
-npm test
-```
-Executes Vitest covering form validation, profile factual integrity, and language state transitions.
-
-### Run Code Quality & Linter
-```bash
-npm run lint
+npm run dev:frontend
+# Trình duyệt: http://localhost:5173
 ```
 
-### Production Build
+### 3. Khởi chạy Backend
 ```bash
+npm run dev:backend
+# API Server: http://localhost:5000
+# Health Check: http://localhost:5000/api/health
+```
+
+### 4. Kiểm thử & Đảm bảo chất lượng (QA)
+```bash
+# Chạy toàn bộ 26 unit & integration tests
+npm run test:frontend
+
+# Kiểm tra cú pháp và code quality siêu tốc với oxlint (0 errors)
+npm run lint:frontend
+
+# Build sản phẩm
 npm run build
 ```
-Generates the minified, code-split distribution in `/dist`.
-
-### Preview Production Build
-```bash
-npm run preview
-```
 
 ---
 
-## 6. Docker Container Deployment
+## 📡 Danh mục API Endpoints
 
-A multi-stage `Dockerfile` is provided for zero-friction containerized deployment:
+### 1. System Health & Telemetry
+- `GET /api/health` — Trả về trạng thái hoạt động, thông số bộ nhớ RAM, uptime và tình trạng kết nối PostgreSQL.
 
-```bash
-# Build and run containerized on port 3000
-docker compose up --build -d
-```
+### 2. Authentication & Admin Security
+- `POST /api/auth/register` — Đăng ký tài khoản với email & password (mã hóa bcrypt).
+- `POST /api/auth/login` — Đăng nhập và nhận JWT token.
+- `POST /api/auth/google` — Xác thực tài khoản Google.
+- `GET /api/auth/me` — Lấy thông tin user hiện tại (yêu cầu Bearer Token).
+> **Admin Clearance:** Tài khoản quản trị viên duy nhất được cấp quyền điều hành là `kiet.maianh@gmail.com`.
 
-Visit `http://localhost:3000` to access the running container.
+### 3. Guestbook (Lưu bút cộng đồng)
+- `GET /api/guestbook` — Lấy danh sách lời nhắn được duyệt (sắp xếp theo pinned và thời gian).
+- `POST /api/guestbook` — Gửi lời nhắn mới (hỗ trợ xác thực người dùng).
+- `DELETE /api/guestbook/:id` — Xóa lời nhắn vi phạm (chỉ dành cho Quản trị viên).
+
+### 4. Contact & Inquiries
+- `POST /api/contact` — Gửi tin nhắn liên hệ (tích hợp bẫy chống bot Honeypot và rate limiter).
+- `GET /api/contact` — Xem hòm thư liên hệ (chỉ dành cho Quản trị viên).
+- `PATCH /api/contact/:id/read` — Đánh dấu tin nhắn đã đọc.
+
+### 5. Projects
+- `GET /api/projects` — Truy xuất danh mục dự án kỹ thuật song ngữ.
+- `GET /api/projects/:id` — Xem chi tiết kiến trúc và quyết định kỹ thuật của dự án.
 
 ---
 
-## 7. License
+## 🛡 Tính năng Nổi bật & Tối ưu hóa
 
-Built for **Mai Anh Kiệt**. All personal information and rights reserved.
+- **Zero-Flicker Whale Cinematic**: Trải nghiệm hoạt cảnh cá voi 3D bay vào trung tâm màn hình, tự động ẩn nội dung trang web để tập trung thị giác và phục hồi mượt mà sau khi kết thúc.
+- **Hardware Acceleration Safeguards**: Tự động giảm tải GPU khi rời tab (`visibilitychange`), giới hạn `devicePixelRatio` ở mức 1.5 - 1.75 và sử dụng `IntersectionObserver` để tắt vòng lặp render khi cuộn ra ngoài khung nhìn.
+- **Cyberpunk Error Boundary**: Bọc toàn bộ ứng dụng bằng cơ chế bắt lỗi trực quan, ngăn chặn sập trắng màn hình và cung cấp nút reboot hệ thống tức thì.
+- **High-Availability Fallbacks**: Backend hoạt động ổn định ngay cả khi PostgreSQL đang khởi động nhờ hệ thống bộ nhớ tạm thời tự phục hồi.
+
+---
+
+## 👨‍💻 Thông tin Tác giả
+
+- **Tên:** Mai Anh Kiệt
+- **Trường:** Đại học FPT TP.HCM (Kỹ thuật Phần mềm)
+- **Kinh nghiệm:** 2 năm Trưởng Ca Điều Phối & Senior Analyst tại Hub SPX Express Thủ Dầu Một (Mã trạm: 63BDG02)
+- **Email:** `kiet.maianh@gmail.com`
+- **GitHub:** [https://github.com/RonahDev/Kietfolio](https://github.com/RonahDev/Kietfolio)
