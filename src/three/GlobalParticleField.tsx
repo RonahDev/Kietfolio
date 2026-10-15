@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { isReducedMotion } from '../animations/gsapUtils'
+import { isReducedMotion } from '@/animations'
 
 export const GlobalParticleField: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)

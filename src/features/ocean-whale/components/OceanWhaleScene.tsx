@@ -459,7 +459,7 @@ export const OceanWhaleScene: React.FC = () => {
       animId = requestAnimationFrame(animate)
       if (!isVisible) return
 
-      const delta = clock.getDelta()
+      const delta = Math.min(clock.getDelta(), 0.1)
       const time = clock.getElapsedTime()
 
       // 4A. Update GPU shader time uniform (0 CPU cost!)
