@@ -16,3 +16,4 @@ CREATE TABLE IF NOT EXISTS guestbook_entries (
 
 CREATE INDEX IF NOT EXISTS idx_guestbook_created_at ON guestbook_entries(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_guestbook_pinned ON guestbook_entries(is_pinned DESC);
+

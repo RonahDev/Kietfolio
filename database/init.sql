@@ -18,3 +18,4 @@
 \i /docker-entrypoint-initdb.d/seeds/001_seed_initial_data.sql
 
 \echo 'Kietfolio Database Initialized Successfully!'
+

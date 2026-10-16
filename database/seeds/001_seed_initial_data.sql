@@ -68,3 +68,4 @@ VALUES (
     NOW()
 )
 ON CONFLICT (id) DO NOTHING;
+

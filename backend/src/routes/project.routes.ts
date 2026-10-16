@@ -5,3 +5,4 @@ export const projectRouter = Router()
 
 projectRouter.get('/', ProjectController.getAll)
 projectRouter.get('/:id', ProjectController.getById)
+

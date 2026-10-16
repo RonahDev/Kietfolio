@@ -30,3 +30,4 @@ pg_dump -h localhost -U kietfolio_user -d kietfolio_db -F c -b -v -f backup_$(da
 ```bash
 pg_restore -h localhost -U kietfolio_user -d kietfolio_db -v backup_20261015.dump
 ```
+

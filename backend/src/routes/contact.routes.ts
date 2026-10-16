@@ -18,3 +18,4 @@ export const contactRouter = Router()
 contactRouter.post('/', contactLimiter, validateBody(contactSchema), ContactController.submit)
 contactRouter.get('/', verifyToken, requireAdmin, ContactController.getAll)
 contactRouter.patch('/:id/read', verifyToken, requireAdmin, ContactController.markRead)
+

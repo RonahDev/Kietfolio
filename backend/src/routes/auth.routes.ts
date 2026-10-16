@@ -22,3 +22,4 @@ authRouter.post('/register', authLimiter, validateBody(registerSchema), AuthCont
 authRouter.post('/login', authLimiter, validateBody(loginSchema), AuthController.login)
 authRouter.post('/google', authLimiter, AuthController.googleAuth)
 authRouter.get('/me', verifyToken, AuthController.getMe)
+

@@ -26,3 +26,4 @@ export const config = {
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
   },
 } as const
+

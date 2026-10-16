@@ -36,3 +36,4 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
 
   next()
 }
+

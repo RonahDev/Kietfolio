@@ -16,3 +16,4 @@ export function errorHandler(
     message: config.env === 'development' ? err.message : undefined,
   })
 }
+

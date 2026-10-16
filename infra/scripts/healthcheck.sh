@@ -21,3 +21,4 @@ else
 fi
 
 echo "=== Health check completed ==="
+

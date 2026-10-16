@@ -16,3 +16,4 @@ export const guestbookRouter = Router()
 guestbookRouter.get('/', GuestbookController.getAll)
 guestbookRouter.post('/', validateBody(guestbookEntrySchema), GuestbookController.create)
 guestbookRouter.delete('/:id', verifyToken, requireAdmin, GuestbookController.delete)
+

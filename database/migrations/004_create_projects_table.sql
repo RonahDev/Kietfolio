@@ -19,3 +19,4 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE INDEX IF NOT EXISTS idx_projects_featured ON projects(is_featured DESC);
 CREATE INDEX IF NOT EXISTS idx_projects_category ON projects(category);
+

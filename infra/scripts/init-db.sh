@@ -9,3 +9,4 @@ until pg_isready -h "${DB_HOST:-localhost}" -p "${DB_PORT:-5432}" -U "${DB_USER:
 done
 
 echo "[Infra Check]: PostgreSQL is ready and accepting connections!"
+

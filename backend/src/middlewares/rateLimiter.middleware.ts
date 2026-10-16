@@ -33,3 +33,4 @@ export const contactLimiter = rateLimit({
     error: 'Submission threshold reached. Please try sending again in 1 hour.',
   },
 })
+
