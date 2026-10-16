@@ -25,5 +25,11 @@ export const config = {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
   },
+  vnpay: {
+    tmnCode: process.env.VNP_TMN_CODE || 'CGXZLS0Z',
+    hashSecret: process.env.VNP_HASH_SECRET || 'XNBCJFAKAZQSGTARRLGCHVZWCIOIGSHN',
+    url: process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
+    returnUrl: process.env.VNP_RETURN_URL || 'http://localhost:5173',
+  },
 } as const
 

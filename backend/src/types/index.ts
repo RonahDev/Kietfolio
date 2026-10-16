@@ -35,6 +35,31 @@ export interface ContactMessage {
   read: boolean
 }
 
+export interface PaymentRecord {
+  id: string
+  orderId: string
+  userUid?: string
+  donorName: string
+  donorMessage?: string
+  amount: number
+  orderType: 'coffee' | 'mentorship' | 'custom'
+  status: 'pending' | 'success' | 'failed'
+  vnpTransactionNo?: string
+  bankCode?: string
+  responseCode?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreatePaymentUrlPayload {
+  amount: number
+  donorName: string
+  donorMessage?: string
+  orderType?: 'coffee' | 'mentorship' | 'custom'
+  bankCode?: string
+  language?: 'vn' | 'en'
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T

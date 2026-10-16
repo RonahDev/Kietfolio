@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LanguageProvider, AuthProvider, WhaleCinematicProvider } from '@/context'
-import { useWhaleCinematic, useLanguage } from '@/hooks'
+import { useWhaleCinematic, useLanguage, useAuth } from '@/hooks'
 import { isReducedMotion } from '@/animations'
 import { Navbar, Footer } from '@/components/layout'
 import { LightningAtmosphere, PageIntroLoader, WhaleController } from '@/components/ui'
@@ -16,15 +16,49 @@ import {
   PrinciplesSection,
   GuestbookSection,
   ContactSection,
+  DonateModal,
+  PaymentResultModal,
+  usePayment,
 } from '@/features'
 
 export function AppContent() {
   const { language } = useLanguage()
+  const { user } = useAuth()
   const { isCinematicActive, triggerWhaleCinematic, skipWhaleCinematic } = useWhaleCinematic()
   const [isIntroReady, setIsIntroReady] = useState(() => {
     if (typeof window === 'undefined') return true
     return isReducedMotion()
   })
+
+  // VNPay QR Donation & Mentorship Checkout State
+  const {
+    isOpen: isDonateOpen,
+    openModal: openDonateModal,
+    closeModal: closeDonateModal,
+    selectedTier,
+    customAmount,
+    setCustomAmount,
+    handleSelectTier,
+    orderType,
+    setOrderType,
+    donorName,
+    setDonorName,
+    donorMessage,
+    setDonorMessage,
+    isLoading: isPaymentLoading,
+    errorMessage: paymentError,
+    calculateAmount,
+    handlePayWithVnpay,
+  } = usePayment(user?.displayName || '')
+
+  useEffect(() => {
+    const handleOpenDonate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ type?: 'coffee' | 'mentorship' | 'custom' }>
+      openDonateModal(customEvent.detail?.type || 'coffee')
+    }
+    window.addEventListener('kietfolio:open-donate-modal', handleOpenDonate)
+    return () => window.removeEventListener('kietfolio:open-donate-modal', handleOpenDonate)
+  }, [openDonateModal])
 
   const handleIntroComplete = () => {
     setIsIntroReady(true)
@@ -115,6 +149,29 @@ export function AppContent() {
 
       {/* Exclusive Admin Command Center Modal for Mai Anh Kiệt */}
       <AdminDashboardModal />
+
+      {/* VNPay QR Donation & Mentorship Checkout Modal */}
+      <DonateModal
+        isOpen={isDonateOpen}
+        onClose={closeDonateModal}
+        selectedTier={selectedTier}
+        customAmount={customAmount}
+        setCustomAmount={setCustomAmount}
+        handleSelectTier={handleSelectTier}
+        orderType={orderType}
+        setOrderType={setOrderType}
+        donorName={donorName}
+        setDonorName={setDonorName}
+        donorMessage={donorMessage}
+        setDonorMessage={setDonorMessage}
+        isLoading={isPaymentLoading}
+        errorMessage={paymentError}
+        calculateAmount={calculateAmount}
+        onPayWithVnpay={handlePayWithVnpay}
+      />
+
+      {/* VNPay Payment Return & Receipt Modal */}
+      <PaymentResultModal />
     </div>
   )
 }

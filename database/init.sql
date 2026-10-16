@@ -14,8 +14,10 @@
 \echo 'Executing Migration 004: Projects Table...'
 \i /docker-entrypoint-initdb.d/migrations/004_create_projects_table.sql
 
+\echo 'Executing Migration 005: Payments Table...'
+\i /docker-entrypoint-initdb.d/migrations/005_create_payments_table.sql
+
 \echo 'Executing Seeds: Initial Database Content...'
 \i /docker-entrypoint-initdb.d/seeds/001_seed_initial_data.sql
 
 \echo 'Kietfolio Database Initialized Successfully!'
-

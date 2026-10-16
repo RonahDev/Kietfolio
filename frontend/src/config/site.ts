@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   name: 'Mai Anh Kiệt',
   title: 'Kietfolio — Software Engineering & Systems Architecture',
   version: '2.5.0',
-  apiBaseUrl: import.meta.env.VITE_API_URL || '', // Point to backend when deployed
+  apiBaseUrl: import.meta.env.VITE_API_URL || '/api',
   author: {
     name: 'Mai Anh Kiệt',
     email: 'kietteve22102005@gmail.com',

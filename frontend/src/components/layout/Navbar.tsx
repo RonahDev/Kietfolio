@@ -14,6 +14,7 @@ import {
   ChevronDown,
   LogIn,
   UserPlus,
+  Coffee,
 } from 'lucide-react'
 
 export const Navbar: React.FC = () => {
@@ -268,6 +269,21 @@ export const Navbar: React.FC = () => {
               <span className="font-bold">{language.toUpperCase()}</span>
             </button>
 
+            {/* Donate VNPay QR Button */}
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:open-donate-modal', { detail: { type: 'coffee' } })
+                )
+              }
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-sm transition-all shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
+              title={language === 'vi' ? 'Ủng hộ tách cà phê qua VNPay QR' : 'Buy me a coffee via VNPay QR'}
+            >
+              <Coffee className="w-3.5 h-3.5 text-amber-400" />
+              <span className="font-bold">{language === 'vi' ? 'Ủng Hộ' : 'Donate'}</span>
+            </button>
+
             {/* Contact CTA */}
             <Button
               href="#contact"
@@ -445,6 +461,20 @@ export const Navbar: React.FC = () => {
             })}
 
             <div className="pt-4 border-t border-[#172847] flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  window.dispatchEvent(
+                    new CustomEvent('kietfolio:open-donate-modal', { detail: { type: 'coffee' } })
+                  )
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-sm border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
+              >
+                <Coffee className="w-4 h-4 text-amber-400" />
+                <span>{language === 'vi' ? '☕ Ủng hộ tác giả (VNPay QR)' : '☕ Donate / Buy Coffee (VNPay QR)'}</span>
+              </button>
+
               <div className="flex items-center justify-between text-xs text-[#64748b] px-3">
                 <span>{t.nav.statusAvailable}</span>
               </div>
