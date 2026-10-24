@@ -27,6 +27,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@kietfolio/shared-types': path.resolve(__dirname, '../../packages/shared-types/src/index.ts'),
     },
   },
   build: {
@@ -53,6 +54,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
+    pool: 'threads',
   },
 })

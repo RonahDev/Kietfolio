@@ -1,15 +1,20 @@
 # Node dependencies
 node_modules/
-*/node_modules/
+apps/*/node_modules/
+packages/*/node_modules/
+**/node_modules/
 .pnp
 .pnp.js
 
 # Build outputs
 dist/
-*/dist/
+apps/*/dist/
+packages/*/dist/
+**/dist/
 dist-ssr/
 build/
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 # Environment variables & secrets
 .env

@@ -1,5 +1,5 @@
 # =============================================================================
-# Production Multi-Stage Dockerfile for Kietfolio Backend
+# Production Multi-Stage Dockerfile for Kietfolio Backend (Monorepo)
 # =============================================================================
 
 # Stage 1: Build TypeScript artifacts
@@ -7,12 +7,20 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY backend/package*.json ./
+# Copy root workspace configurations
+COPY package*.json ./
+COPY packages/shared-types/package*.json ./packages/shared-types/
+COPY apps/backend/package*.json ./apps/backend/
+
 RUN npm ci
 
-COPY backend/tsconfig.json ./
-COPY backend/src/ ./src/
-RUN npm run build
+# Copy source files
+COPY packages/shared-types/ ./packages/shared-types/
+COPY apps/backend/ ./apps/backend/
+
+# Build shared types and backend
+RUN npm run build:types
+RUN npm run build:backend
 
 # Stage 2: Production Execution Image
 FROM node:20-alpine AS runner
@@ -20,14 +28,19 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY backend/package*.json ./
-RUN npm ci --only=production
+COPY package*.json ./
+COPY packages/shared-types/package*.json ./packages/shared-types/
+COPY apps/backend/package*.json ./apps/backend/
 
-COPY --from=builder /app/dist ./dist
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/packages/shared-types/dist ./packages/shared-types/dist
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+WORKDIR /app/apps/backend
 
 EXPOSE 5000
 
 USER node
 
 CMD ["node", "dist/server.js"]
-

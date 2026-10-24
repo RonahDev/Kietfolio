@@ -1,5 +1,5 @@
 {
-  "name": "kietfolio-backend",
+  "name": "@kietfolio/backend",
   "version": "1.0.0",
   "description": "Production Node.js + Express + TypeScript API server for Kietfolio",
   "main": "dist/server.js",

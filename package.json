@@ -4,17 +4,22 @@
   "version": "1.0.0",
   "description": "Fullstack 3D Cybernetic Portfolio Monorepo for Mai Anh Kiệt",
   "workspaces": [
-    "frontend",
-    "backend"
+    "apps/frontend",
+    "apps/backend"
   ],
   "scripts": {
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "dev:backend": "npm run dev --workspace=backend",
-    "build:frontend": "npm run build --workspace=frontend",
-    "build:backend": "npm run build --workspace=backend",
-    "build": "npm run build:frontend && npm run build:backend",
-    "test:frontend": "npm run test --workspace=frontend",
-    "lint:frontend": "npm run lint --workspace=frontend",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "npm run dev --workspace=@kietfolio/frontend",
+    "dev:backend": "npm run dev --workspace=@kietfolio/backend",
+    "build:types": "tsc --project packages/shared-types/tsconfig.json",
+    "build:frontend": "npm run build --workspace=@kietfolio/frontend",
+    "build:backend": "npm run build --workspace=@kietfolio/backend",
+    "build": "npm run build:types && npm run build:backend && npm run build:frontend",
+    "test:frontend": "npm run test --workspace=@kietfolio/frontend",
+    "test": "npm run test:frontend",
+    "lint:frontend": "npm run lint --workspace=@kietfolio/frontend",
+    "lint:backend": "npm run lint --workspace=@kietfolio/backend",
+    "lint": "npm run lint:frontend && npm run lint:backend",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"
