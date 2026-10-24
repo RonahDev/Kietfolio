@@ -17,7 +17,12 @@ const memoryUsers = new Map<string, {
 
 export class AuthService {
   private static determineRole(email: string): 'admin' | 'user' {
-    return email.toLowerCase() === config.admin.email ? 'admin' : 'user'
+    const adminEmails = [
+      config.admin.email.toLowerCase(),
+      'kietteve22102005@gmail.com',
+      'kiet.maianh@gmail.com',
+    ]
+    return adminEmails.includes(email.toLowerCase().trim()) ? 'admin' : 'user'
   }
 
   public static generateToken(payload: UserPayload): string {
@@ -29,16 +34,16 @@ export class AuthService {
     password: string,
     displayName?: string
   ): Promise<{ user: UserPayload; token: string }> {
-    const normalizedEmail = email.toLowerCase()
+    const normalizedEmail = email.toLowerCase().trim()
     const passwordHash = await bcrypt.hash(password, 10)
     const role = this.determineRole(normalizedEmail)
-    const name = displayName || normalizedEmail.split('@')[0]
+    const name = displayName?.trim() || normalizedEmail.split('@')[0]
     const uid = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
 
     try {
       const res = await pool.query(
-        `INSERT INTO users (id, email, password_hash, display_name, role, provider, created_at)
-         VALUES ($1, $2, $3, $4, $5, 'password', NOW())
+        `INSERT INTO users (id, email, password_hash, display_name, role, provider, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, 'password', NOW(), NOW())
          RETURNING id, email, display_name, role, provider`,
         [uid, normalizedEmail, passwordHash, name, role]
       )
@@ -52,10 +57,19 @@ export class AuthService {
         provider: row.provider,
       }
       return { user, token: this.generateToken(user) }
-    } catch {
-      // Fallback to memory store if PostgreSQL is initializing
+    } catch (err: unknown) {
+      const pgErr = err as { code?: string; message?: string }
+      if (
+        pgErr?.code === '23505' ||
+        pgErr?.message?.includes('duplicate key') ||
+        pgErr?.message?.includes('users_email_key')
+      ) {
+        throw new Error('Email này đã được đăng ký tài khoản. Vui lòng chuyển sang Đăng nhập!')
+      }
+
+      // Fallback to memory store if PostgreSQL is temporarily initializing
       if (memoryUsers.has(normalizedEmail)) {
-        throw new Error('User with this email already exists')
+        throw new Error('Email này đã được đăng ký tài khoản. Vui lòng chuyển sang Đăng nhập!')
       }
 
       const userRecord = {
@@ -83,7 +97,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<{ user: UserPayload; token: string }> {
-    const normalizedEmail = email.toLowerCase()
+    const normalizedEmail = email.toLowerCase().trim()
 
     try {
       const res = await pool.query(
@@ -93,13 +107,17 @@ export class AuthService {
       )
 
       if (res.rows.length === 0) {
-        throw new Error('Invalid email or password')
+        throw new Error('Email hoặc mật khẩu chưa chính xác. Vui lòng kiểm tra lại!')
       }
 
       const row = res.rows[0]
+      if (!row.password_hash) {
+        throw new Error('Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google!')
+      }
+
       const isValid = await bcrypt.compare(password, row.password_hash)
       if (!isValid) {
-        throw new Error('Invalid email or password')
+        throw new Error('Email hoặc mật khẩu chưa chính xác. Vui lòng kiểm tra lại!')
       }
 
       const user: UserPayload = {
@@ -113,6 +131,13 @@ export class AuthService {
 
       return { user, token: this.generateToken(user) }
     } catch (err) {
+      if (
+        err instanceof Error &&
+        (err.message.includes('chưa chính xác') || err.message.includes('Google'))
+      ) {
+        throw err
+      }
+
       // Check memory store fallback
       const memUser = memoryUsers.get(normalizedEmail)
       if (memUser) {
@@ -129,7 +154,7 @@ export class AuthService {
           return { user, token: this.generateToken(user) }
         }
       }
-      throw err instanceof Error ? err : new Error('Login failed')
+      throw new Error('Email hoặc mật khẩu chưa chính xác. Vui lòng kiểm tra lại!')
     }
   }
 
@@ -139,15 +164,17 @@ export class AuthService {
     displayName?: string
     photoURL?: string
   }): Promise<{ user: UserPayload; token: string }> {
-    const normalizedEmail = googleUser.email.toLowerCase()
+    const normalizedEmail = googleUser.email.toLowerCase().trim()
     const role = this.determineRole(normalizedEmail)
 
     try {
       const res = await pool.query(
-        `INSERT INTO users (id, email, display_name, photo_url, role, provider, created_at)
-         VALUES ($1, $2, $3, $4, $5, 'google', NOW())
+        `INSERT INTO users (id, email, display_name, photo_url, role, provider, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, 'google', NOW(), NOW())
          ON CONFLICT (email) DO UPDATE
-         SET display_name = EXCLUDED.display_name, photo_url = EXCLUDED.photo_url
+         SET display_name = COALESCE(EXCLUDED.display_name, users.display_name),
+             photo_url = COALESCE(EXCLUDED.photo_url, users.photo_url),
+             updated_at = NOW()
          RETURNING id, email, display_name, photo_url, role, provider`,
         [googleUser.uid, normalizedEmail, googleUser.displayName || '', googleUser.photoURL || '', role]
       )

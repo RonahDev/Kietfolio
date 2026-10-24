@@ -26,8 +26,14 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
     return
   }
 
+  const adminEmails = [
+    config.admin.email.toLowerCase(),
+    'kietteve22102005@gmail.com',
+    'kiet.maianh@gmail.com',
+  ]
+
   const isVerifiedAdmin =
-    req.user.role === 'admin' && req.user.email.toLowerCase() === config.admin.email
+    req.user.role === 'admin' && adminEmails.includes(req.user.email.toLowerCase())
 
   if (!isVerifiedAdmin) {
     res.status(403).json({ success: false, error: 'Access forbidden: Admin clearance required' })

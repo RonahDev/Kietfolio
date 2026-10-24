@@ -16,6 +16,7 @@ import { AuthContext, type AuthModalMode } from './authTypes'
 
 const SESSION_STORAGE_KEY = 'kietfolio_auth_active_session'
 const USERS_DB_KEY = 'kietfolio_registered_users_db'
+const JWT_TOKEN_KEY = 'kietfolio_auth_jwt_token'
 
 const mapFirebaseUser = (firebaseUser: User): AuthUser => {
   const email = firebaseUser.email || ''
@@ -54,6 +55,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isFirebaseReady = useMemo(() => isFirebaseConfigured(), [])
 
   useEffect(() => {
+    // 1. Verify and restore session from backend API if JWT token is stored
+    const jwtToken = localStorage.getItem(JWT_TOKEN_KEY)
+    if (jwtToken) {
+      fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${jwtToken}` },
+      })
+        .then((res) => res.json())
+        .then((resData) => {
+          if (resData?.success && resData?.data?.user) {
+            const apiUser = resData.data.user
+            const mappedUser: AuthUser = {
+              uid: apiUser.uid,
+              email: apiUser.email,
+              displayName: apiUser.displayName || apiUser.email?.split('@')[0] || 'User',
+              photoURL: apiUser.photoURL || null,
+              role: apiUser.role === 'admin' ? 'admin' : 'member',
+              provider: apiUser.provider === 'google' ? 'google' : 'email',
+              lastLoginAt: new Date().toISOString(),
+            }
+            setUser(mappedUser)
+            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(mappedUser))
+          } else {
+            localStorage.removeItem(JWT_TOKEN_KEY)
+          }
+        })
+        .catch(() => {
+          // Backend offline; keep existing local session
+        })
+    }
+
     if (!auth || !isFirebaseReady) return
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -76,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe()
   }, [isFirebaseReady])
 
-  // 1. Register with Name, Email & Password
+  // 1. Register with Name, Email & Password (PostgreSQL DB + Bcrypt)
   const registerWithEmail = useCallback(
     async (name: string, email: string, password: string): Promise<boolean> => {
       setError(null)
@@ -97,6 +128,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false
       }
 
+      // Try Backend REST API (PostgreSQL + Bcrypt + JWT)
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: trimmedEmail,
+            password,
+            displayName: trimmedName,
+          }),
+        })
+
+        const resData = await response.json().catch(() => null)
+        if (response.ok && resData?.success && resData?.data) {
+          const { user: apiUser, token } = resData.data
+          localStorage.setItem(JWT_TOKEN_KEY, token)
+          const authUser: AuthUser = {
+            uid: apiUser.uid,
+            email: apiUser.email,
+            displayName: apiUser.displayName || trimmedName,
+            photoURL: apiUser.photoURL || null,
+            role: apiUser.role === 'admin' ? 'admin' : 'member',
+            provider: 'email',
+            lastLoginAt: new Date().toISOString(),
+          }
+          setUser(authUser)
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
+          setIsAuthModalOpen(false)
+          setIsLoading(false)
+          return true
+        } else if (!response.ok && resData?.error) {
+          setError(resData.error)
+          setIsLoading(false)
+          return false
+        }
+      } catch {
+        // Backend service is offline/unreachable; proceed to fallback
+      }
+
       // Try Firebase if configured
       if (auth && isFirebaseReady) {
         try {
@@ -115,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Local Database Registration
+      // Local Database Registration Fallback (Test/Offline Mode)
       try {
         const storedUsers: UserRecord[] = JSON.parse(
           localStorage.getItem(USERS_DB_KEY) || '[]'
@@ -170,7 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [isFirebaseReady]
   )
 
-  // 2. Sign In with Email & Password
+  // 2. Sign In with Email & Password (PostgreSQL DB + Bcrypt)
   const signInWithEmail = useCallback(
     async (email: string, password: string): Promise<boolean> => {
       setError(null)
@@ -182,6 +252,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError('Vui lòng nhập địa chỉ email hợp lệ.')
         setIsLoading(false)
         return false
+      }
+
+      // Try Backend REST API (PostgreSQL + Bcrypt + JWT)
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: trimmedEmail,
+            password,
+          }),
+        })
+
+        const resData = await response.json().catch(() => null)
+        if (response.ok && resData?.success && resData?.data) {
+          const { user: apiUser, token } = resData.data
+          localStorage.setItem(JWT_TOKEN_KEY, token)
+          const authUser: AuthUser = {
+            uid: apiUser.uid,
+            email: apiUser.email,
+            displayName: apiUser.displayName || trimmedEmail.split('@')[0],
+            photoURL: apiUser.photoURL || null,
+            role: apiUser.role === 'admin' ? 'admin' : 'member',
+            provider: 'email',
+            lastLoginAt: new Date().toISOString(),
+          }
+          setUser(authUser)
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
+          setIsAuthModalOpen(false)
+          setIsLoading(false)
+          return true
+        } else if (!response.ok && resData?.error) {
+          setError(resData.error)
+          setIsLoading(false)
+          return false
+        }
+      } catch {
+        // Backend service is offline/unreachable; proceed to fallback
       }
 
       // Try Firebase if configured
@@ -199,7 +307,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Check Local Database
+      // Check Local Database Fallback (Test/Offline Mode)
       try {
         const storedUsers: UserRecord[] = JSON.parse(
           localStorage.getItem(USERS_DB_KEY) || '[]'
@@ -297,6 +405,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const mapped = mapFirebaseUser(result.user)
         setUser(mapped)
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(mapped))
+
+        // Sync with backend PostgreSQL database
+        fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          }),
+        })
+          .then((res) => res.json())
+          .then((resData) => {
+            if (resData?.success && resData?.data?.token) {
+              localStorage.setItem(JWT_TOKEN_KEY, resData.data.token)
+            }
+          })
+          .catch(() => {})
+
         setIsAuthModalOpen(false)
         setIsLoading(false)
         return
@@ -395,6 +523,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('Firebase signout warning:', err)
     } finally {
       localStorage.removeItem(SESSION_STORAGE_KEY)
+      localStorage.removeItem(JWT_TOKEN_KEY)
       setUser(null)
       setIsAdminModalOpen(false)
       setIsLoading(false)
