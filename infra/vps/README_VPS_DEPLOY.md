@@ -163,3 +163,4 @@ Trong Next.js App Router (`layout.tsx` / `globals.css`):
 | **Backup PostgreSQL** | `docker compose exec -t db pg_dump -U kiet_postgres_user kiet_production_db > backup_$(date +%Y%m%d).sql` |
 | **Cập nhật code mới** | `git pull && docker compose up -d --build` |
 | **Dừng an toàn** | `docker compose down` |
+

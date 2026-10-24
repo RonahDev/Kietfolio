@@ -59,3 +59,4 @@ EXPOSE 5000
 
 # Start command: Apply migrations then boot Fastify v5 server
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+

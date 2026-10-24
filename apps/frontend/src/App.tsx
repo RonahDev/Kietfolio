@@ -60,9 +60,35 @@ export function AppContent() {
     return () => window.removeEventListener('kietfolio:open-donate-modal', handleOpenDonate)
   }, [openDonateModal])
 
-  const handleIntroComplete = () => {
+  // Dedicated global keydown capture to guarantee ESC skips whale cinematic instantly under any focus state
+  useEffect(() => {
+    if (!isCinematicActive) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === 'Escape' ||
+        e.key === 'Esc' ||
+        e.code === 'Escape' ||
+        e.keyCode === 27
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        skipWhaleCinematic()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown, true)
+    document.addEventListener('keydown', handleKeyDown, true)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
+    }
+  }, [isCinematicActive, skipWhaleCinematic])
+
+  const handleIntroComplete = (skipped = false) => {
     setIsIntroReady(true)
-    if (!isReducedMotion()) {
+    if (!skipped && !isReducedMotion()) {
       triggerWhaleCinematic()
     }
   }

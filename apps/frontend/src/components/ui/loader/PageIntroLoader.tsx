@@ -21,7 +21,7 @@ const BOOT_STAGES_EN: readonly string[] = [
 ] as const
 
 interface PageIntroLoaderProps {
-  onComplete: () => void
+  onComplete: (skipped?: boolean) => void
 }
 
 export const PageIntroLoader: React.FC<PageIntroLoaderProps> = ({ onComplete }) => {
@@ -36,21 +36,21 @@ export const PageIntroLoader: React.FC<PageIntroLoaderProps> = ({ onComplete }) 
     return isReducedMotion()
   })
 
-  const finishIntro = useCallback(() => {
+  const finishIntro = useCallback((isSkip = false) => {
     if (isDismissed) return
     setIsDismissed(true)
 
     if (!containerRef.current) {
-      onComplete()
+      onComplete(isSkip)
       return
     }
 
     gsap.to(containerRef.current, {
       yPercent: -100,
-      duration: 0.85,
+      duration: isSkip ? 0.35 : 0.85,
       ease: 'expo.inOut',
       onStart: () => {
-        onComplete()
+        onComplete(isSkip)
       },
       onComplete: () => {
         setIsDismissed(true)
@@ -113,8 +113,15 @@ export const PageIntroLoader: React.FC<PageIntroLoaderProps> = ({ onComplete }) 
 
     // Keyboard shortcut to skip intro
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') {
-        finishIntro()
+      if (
+        e.key === 'Escape' ||
+        e.key === 'Esc' ||
+        e.code === 'Escape' ||
+        e.keyCode === 27 ||
+        e.key === ' ' ||
+        e.key === 'Enter'
+      ) {
+        finishIntro(true)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -204,7 +211,7 @@ export const PageIntroLoader: React.FC<PageIntroLoaderProps> = ({ onComplete }) 
         </span>
         <button
           type="button"
-          onClick={finishIntro}
+          onClick={() => finishIntro(true)}
           className="text-[#00d2ff] hover:text-[#38bdf8] transition-colors cursor-pointer underline underline-offset-4 font-mono text-xs"
         >
           {language === 'vi' ? 'Bỏ qua [ESC]' : 'Skip Intro [ESC]'} &rarr;

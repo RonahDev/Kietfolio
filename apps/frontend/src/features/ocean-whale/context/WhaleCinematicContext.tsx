@@ -62,19 +62,26 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (
+        e.key === 'Escape' ||
+        e.key === 'Esc' ||
+        e.code === 'Escape' ||
+        e.keyCode === 27
+      ) {
         skipWhaleCinematic()
       }
     }
 
     window.addEventListener('kietfolio:summon-whale', handleSummon)
     window.addEventListener('kietfolio:skip-whale', handleSkip)
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleKeyDown, true)
+    document.addEventListener('keydown', handleKeyDown, true)
 
     return () => {
       window.removeEventListener('kietfolio:summon-whale', handleSummon)
       window.removeEventListener('kietfolio:skip-whale', handleSkip)
-      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keydown', handleKeyDown, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
     }
   }, [triggerWhaleCinematic, skipWhaleCinematic])
 

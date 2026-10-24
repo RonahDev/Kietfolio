@@ -415,6 +415,8 @@ export const OceanWhaleScene: React.FC = () => {
 
     const endCinematicBreach = () => {
       currentSpeed = normalFlightSpeed
+      flightProgress = 0.72 // Immediately send whale back into distant background waters
+      whaleGroup.position.copy(flightCurve.getPointAt(0.72))
     }
 
     const handleSummonEvent = () => {
@@ -432,6 +434,7 @@ export const OceanWhaleScene: React.FC = () => {
     window.addEventListener('kietfolio:summon-whale', handleSummonEvent)
     window.addEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
     window.addEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
+    window.addEventListener('kietfolio:skip-whale', handleCinematicEnd)
 
     // Window Resize Handler
     const onResize = () => {
@@ -521,6 +524,7 @@ export const OceanWhaleScene: React.FC = () => {
       window.removeEventListener('kietfolio:summon-whale', handleSummonEvent)
       window.removeEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
       window.removeEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
+      window.removeEventListener('kietfolio:skip-whale', handleCinematicEnd)
 
       waveGeometry.dispose()
       waveMaterial.dispose()
