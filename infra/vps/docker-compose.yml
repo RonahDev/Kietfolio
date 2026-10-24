@@ -1,0 +1,144 @@
+version: '3.8'
+
+# =============================================================================
+# Production VPS Docker Compose Orchestration
+# Stack: Next.js (App Router) + Fastify v5 + Prisma + PostgreSQL 16 + Redis 7
+# Automated HTTPS / SSL via Caddy Reverse Proxy (Let's Encrypt, TLS 1.3, HTTP/3)
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Reverse Proxy & Automated HTTPS: Caddy 2 (Let's Encrypt / ZeroSSL)
+  # ---------------------------------------------------------------------------
+  reverse-proxy:
+    image: caddy:2-alpine
+    container_name: vps-reverse-proxy
+    restart: always
+    ports:
+      - "80:80"          # HTTP (Auto-redirects to HTTPS)
+      - "443:443"        # HTTPS (TLS 1.2 / TLS 1.3)
+      - "443:443/udp"    # HTTP/3 (QUIC protocol for mobile performance)
+    environment:
+      DOMAIN: ${DOMAIN:-yourdomain.com}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@yourdomain.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data       # Persists SSL certificates (Let's Encrypt)
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # 2. Frontend: Next.js (App Router) + TailwindCSS + shadcn/ui + TanStack Query
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: vps-frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-yourdomain.com}/api
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # 3. Backend: Node.js 22 LTS + Fastify v5 + TypeScript + Prisma ORM
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: vps-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-super_secure_db_pass_2026}@db:5432/${DB_NAME:-vps_production_db}?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD:-super_secure_redis_pass_2026}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_vps_2026}
+      CORS_ORIGIN: https://${DOMAIN:-yourdomain.com}
+    expose:
+      - "5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # 4. Database: PostgreSQL 16 Alpine
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: vps-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vps_production_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-super_secure_db_pass_2026}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-vps_production_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # ---------------------------------------------------------------------------
+  # 5. Cache & Session Store: Redis 7 Alpine
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: vps-redis
+    restart: always
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD:-super_secure_redis_pass_2026}
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-super_secure_redis_pass_2026}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+# -----------------------------------------------------------------------------
+# Storage Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  pg_data:
+    driver: local
+  redis_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+
+# -----------------------------------------------------------------------------
+# Isolated Private Network
+# -----------------------------------------------------------------------------
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,45 @@
+# =============================================================================
+# Caddy Configuration for Production VPS (Automated HTTPS / TLS 1.3 / HTTP/3)
+# =============================================================================
+
+{$DOMAIN:localhost} {
+    # Automatic SSL Email for Let's Encrypt renewal notifications
+    tls {$ACME_EMAIL:internal}
+
+    # Enable compression (Zstandard & Gzip) for ultra-fast mobile loading
+    encode zstd gzip
+
+    # Production Security Headers
+    header {
+        # HTTP Strict Transport Security (HSTS)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Prevent clickjacking attacks
+        X-Frame-Options "SAMEORIGIN"
+        # Referrer policy for privacy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Remove Server header disclosure
+        -Server
+    }
+
+    # Backend API Routing (Fastify v5 REST API)
+    handle /api/* {
+        reverse_proxy backend:5000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Frontend Routing (Next.js App Router)
+    handle {
+        reverse_proxy frontend:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+}
