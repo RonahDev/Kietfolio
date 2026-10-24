@@ -26,7 +26,7 @@ export const ContactSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
           {/* Left Column: Direct Communication Channels & Context */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="p-6 rounded-sm bg-[#0a1224] border border-[#172847] space-y-5">
+            <div className="p-6 rounded-sm bg-[#0a1224] border border-[#172847] space-y-5 card-reveal">
               <div className="flex items-center gap-2 pb-3 border-b border-[#172847]">
                 <Terminal className="w-4 h-4 text-[#00d2ff]" />
                 <h3 className="font-mono text-xs uppercase tracking-wider text-[#f1f5f9] font-bold">
@@ -87,7 +87,7 @@ export const ContactSection: React.FC = () => {
             </div>
 
             {/* Engineering Discipline Assurance Notice */}
-            <div className="p-4 rounded-sm bg-[#0a1224]/60 border border-[#172847] flex items-start gap-3">
+            <div className="p-4 rounded-sm bg-[#0a1224]/60 border border-[#172847] flex items-start gap-3 card-reveal">
               <Shield className="w-4 h-4 text-[#00d2ff] shrink-0 mt-0.5" />
               <p className="text-xs font-mono text-[#94a3b8] leading-relaxed">
                 {t.contact.responseGuarantee}
@@ -97,7 +97,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Contact Form with Validation */}
           <div className="lg:col-span-7">
-            <div className="p-6 sm:p-8 rounded-sm bg-[#0a1224] border border-[#172847]">
+            <div className="p-6 sm:p-8 rounded-sm bg-[#0a1224] border border-[#172847] card-reveal">
               <ContactForm />
             </div>
           </div>

@@ -40,23 +40,30 @@ export const Navbar: React.FC = () => {
   ]
 
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 30)
 
-      // Active section spy
-      const sections = ['hero', 'about', 'projects', 'experience', 'skills', 'principles', 'guestbook', 'contact']
-      const scrollPosition = window.scrollY + 200
+          // Active section spy
+          const sections = ['hero', 'about', 'projects', 'experience', 'skills', 'principles', 'guestbook', 'contact']
+          const scrollPosition = window.scrollY + 200
 
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId)
-        if (el) {
-          const top = el.offsetTop
-          const height = el.offsetHeight
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId)
-            break
+          for (const sectionId of sections) {
+            const el = document.getElementById(sectionId)
+            if (el) {
+              const top = el.offsetTop
+              const height = el.offsetHeight
+              if (scrollPosition >= top && scrollPosition < top + height) {
+                setActiveSection(sectionId)
+                break
+              }
+            }
           }
-        }
+          ticking = false
+        })
+        ticking = true
       }
     }
 

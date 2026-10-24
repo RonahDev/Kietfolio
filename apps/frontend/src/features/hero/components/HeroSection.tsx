@@ -288,6 +288,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
             )
           })}
         </div>
+
+        {/* Subtle & Eye-Pleasing Scroll Down Indicator */}
+        <div className="flex justify-center pt-8 pb-1">
+          <a
+            href="#about"
+            className="group inline-flex flex-col items-center gap-1.5 text-[#64748b] hover:text-[#00d2ff] transition-colors font-mono text-[11px] cursor-pointer"
+            aria-label={language === 'vi' ? 'Cuộn xuống để khám phá' : 'Scroll down to explore'}
+          >
+            <span className="tracking-widest uppercase text-[10px]">
+              {language === 'vi' ? 'CUỘN ĐỂ KHÁM PHÁ' : 'SCROLL TO EXPLORE'}
+            </span>
+            <ArrowDown className="w-4 h-4 animate-bounce text-[#00d2ff] opacity-80 group-hover:opacity-100" />
+          </a>
+        </div>
       </div>
     </section>
   )

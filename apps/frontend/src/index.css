@@ -31,6 +31,13 @@
   color-scheme: dark;
 }
 
+html {
+  /* Buttery smooth native scrolling */
+  scroll-behavior: smooth;
+  /* Comfort offset so fixed navbar doesn't cover section headers */
+  scroll-padding-top: 5rem;
+}
+
 body {
   margin: 0;
   padding: 0;

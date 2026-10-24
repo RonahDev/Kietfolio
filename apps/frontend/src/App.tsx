@@ -3,7 +3,7 @@ import { LanguageProvider, AuthProvider, WhaleCinematicProvider } from '@/contex
 import { useWhaleCinematic, useLanguage, useAuth } from '@/hooks'
 import { isReducedMotion } from '@/animations'
 import { Navbar, Footer } from '@/components/layout'
-import { LightningAtmosphere, PageIntroLoader, WhaleController } from '@/components/ui'
+import { LightningAtmosphere, PageIntroLoader, WhaleController, ScrollToTop } from '@/components/ui'
 import { AuthModal } from '@/components/auth'
 import { AdminDashboardModal } from '@/components/admin'
 import { OceanWhaleScene, GlobalParticleField } from '@/three'
@@ -109,6 +109,9 @@ export function AppContent() {
 
       {/* Floating Whale Controller HUD */}
       <WhaleController />
+
+      {/* Floating Smooth Scroll to Top Button */}
+      <ScrollToTop />
 
       {/* Oceanic Whale Cinematic Status & Skip HUD */}
       {isCinematicActive && (
