@@ -205,5 +205,5 @@ npm run build
 - **Tên:** Mai Anh Kiệt
 - **Trường:** Đại học FPT TP.HCM (Kỹ thuật Phần mềm)
 - **Kinh nghiệm:** 2 năm Trưởng Ca Điều Phối & Senior Analyst tại Hub SPX Express Thủ Dầu Một (Mã trạm: 63BDG02)
-- **Email:** `kiet.maianh@gmail.com`
+- **Email:** `kietteve22102005@gmail.com`
 - **GitHub:** [https://github.com/RonahDev/Kietfolio](https://github.com/RonahDev/Kietfolio)
