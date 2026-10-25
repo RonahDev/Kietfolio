@@ -87,10 +87,22 @@ export const DonateModal: React.FC<DonateModalProps> = ({
     currency: 'VND',
   }).format(amount)
 
-  // Standardized transfer note
-  const sanitizedDonor = donorName.trim()
-    ? donorName.trim().toUpperCase().replace(/[^A-Z0-9]/g, ' ').substring(0, 20)
-    : 'BAN TOT'
+  // Standardized transfer note with Vietnamese diacritic removal (e.g. 'Kiệt' -> 'KIET')
+  const removeVietnameseTones = (str: string) =>
+    str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, (m) => (m === 'Đ' ? 'D' : 'd'))
+
+  const rawSanitized = donorName.trim()
+    ? removeVietnameseTones(donorName)
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .substring(0, 20)
+    : ''
+  const sanitizedDonor = rawSanitized || 'BAN TOT'
   const transferContent = `KIETFOLIO ${sanitizedDonor}`.trim()
 
   // Dynamic QR Code URLs
