@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { AuthController } from '../controllers/auth.controller'
-import { verifyToken } from '../middlewares/auth.middleware'
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware'
 import { authLimiter } from '../middlewares/rateLimiter.middleware'
 import { validateBody } from '../middlewares/validator.middleware'
 
@@ -22,4 +22,5 @@ authRouter.post('/register', authLimiter, validateBody(registerSchema), AuthCont
 authRouter.post('/login', authLimiter, validateBody(loginSchema), AuthController.login)
 authRouter.post('/google', authLimiter, AuthController.googleAuth)
 authRouter.get('/me', verifyToken, AuthController.getMe)
+authRouter.get('/users', verifyToken, requireAdmin, AuthController.listUsers)
 

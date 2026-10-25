@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth, useLanguage } from '@/hooks'
 import { ADMIN_EMAIL, type ContactMessage } from '@/features/auth'
 import {
@@ -10,7 +10,18 @@ import {
   Clock,
   Send,
   Sparkles,
+  Users,
 } from 'lucide-react'
+
+interface RegisteredUserItem {
+  uid: string
+  email: string
+  displayName: string
+  photoURL?: string
+  role: string
+  provider: string
+  createdAt?: string
+}
 
 const MESSAGES_STORAGE_KEY = 'kietfolio_inbox_messages'
 
@@ -53,7 +64,57 @@ export const AdminDashboardModal: React.FC = () => {
     }
     return defaultSeedMessages
   })
-  const [activeTab, setActiveTab] = useState<'inbox' | 'telemetry'>('inbox')
+  const [activeTab, setActiveTab] = useState<'inbox' | 'users' | 'telemetry'>('inbox')
+  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUserItem[]>([])
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+
+  useEffect(() => {
+    if (!isAdminModalOpen || !isAdmin) return
+    let isCancelled = false
+    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+
+    fetch('/api/auth/users', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (isCancelled) return
+        if (data?.success && Array.isArray(data.data?.users)) {
+          setRegisteredUsers(data.data.users)
+        } else {
+          loadLocalUsers()
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) loadLocalUsers()
+      })
+      .finally(() => {
+        if (!isCancelled) setIsLoadingUsers(false)
+      })
+
+    function loadLocalUsers() {
+      try {
+        const local = JSON.parse(localStorage.getItem('kietfolio_registered_users_db') || '[]')
+        setRegisteredUsers(
+          local.map((u: Record<string, string | undefined>) => ({
+            uid: u.uid || '',
+            email: u.email || '',
+            displayName: u.name || u.displayName || u.email || 'User',
+            photoURL: u.avatarUrl || u.photoURL,
+            role: u.role || 'member',
+            provider: u.provider || 'email',
+            createdAt: u.createdAt,
+          }))
+        )
+      } catch {
+        setRegisteredUsers([])
+      }
+    }
+
+    return () => {
+      isCancelled = true
+    }
+  }, [isAdminModalOpen, isAdmin])
 
   if (!isAdminModalOpen || !isAdmin) return null
 
@@ -155,9 +216,14 @@ export const AdminDashboardModal: React.FC = () => {
 
             <div className="p-3.5 rounded-sm bg-[#0f1b33] border border-[#172847]">
               <div className="text-[10px] font-mono text-[#94a3b8] uppercase mb-1">
-                Đội Ngũ Tài Xế
+                Tài Khoản Đăng Ký
               </div>
-              <div className="text-xl font-bold font-mono text-[#f1f5f9]">~50 Drivers</div>
+              <div className="text-xl font-bold font-mono text-[#00d2ff] flex items-center justify-between">
+                <span>{registeredUsers.length}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] font-bold">
+                  USERS
+                </span>
+              </div>
             </div>
 
             <div className="p-3.5 rounded-sm bg-[#0f1b33] border border-[#172847]">
@@ -188,6 +254,19 @@ export const AdminDashboardModal: React.FC = () => {
             >
               <Mail className="w-3.5 h-3.5" />
               <span>Hộp Thư Tin Nhắn ({messages.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('users')}
+              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
+                activeTab === 'users'
+                  ? 'bg-[#00d2ff] text-[#050a14] font-bold'
+                  : 'text-[#94a3b8] hover:text-[#f1f5f9]'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Tài Khoản Users ({registeredUsers.length})</span>
             </button>
 
             <button
@@ -281,6 +360,72 @@ export const AdminDashboardModal: React.FC = () => {
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Xóa</span>
                         </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Tab Content: Registered Users */}
+          {activeTab === 'users' && (
+            <div className="space-y-3">
+              {isLoadingUsers ? (
+                <div className="p-8 text-center rounded-sm bg-[#0f1b33]/40 border border-[#172847] text-[#00d2ff] text-xs font-mono">
+                  Đang tải danh sách tài khoản từ cơ sở dữ liệu...
+                </div>
+              ) : registeredUsers.length === 0 ? (
+                <div className="p-8 text-center rounded-sm bg-[#0f1b33]/40 border border-[#172847] text-[#94a3b8] text-xs font-mono">
+                  Chưa có tài khoản nào được đăng ký trong hệ thống.
+                </div>
+              ) : (
+                registeredUsers.map((regUser) => (
+                  <div
+                    key={regUser.uid}
+                    className="p-4 rounded-sm bg-[#0d182e] border border-[#172847] hover:border-[#00d2ff]/40 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={
+                            regUser.photoURL ||
+                            `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+                              regUser.email
+                            )}`
+                          }
+                          alt={regUser.displayName}
+                          className="w-9 h-9 rounded-sm border border-[#00d2ff]/50 bg-[#070d1a]"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-sm text-[#f1f5f9]">
+                              {regUser.displayName}
+                            </span>
+                            {regUser.role === 'admin' ? (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/30 font-bold">
+                                ROOT_ADMIN
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-slate-800 text-slate-300 border border-slate-700">
+                                MEMBER
+                              </span>
+                            )}
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] border border-[#34a853]/30 uppercase">
+                              {regUser.provider}
+                            </span>
+                          </div>
+                          <span className="text-xs text-[#00d2ff] font-mono">{regUser.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-[11px] font-mono text-[#64748b]">
+                        <Clock className="w-3 h-3" />
+                        <span>
+                          {regUser.createdAt
+                            ? new Date(regUser.createdAt).toLocaleString()
+                            : 'Mới tạo'}
+                        </span>
                       </div>
                     </div>
                   </div>

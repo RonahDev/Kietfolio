@@ -202,5 +202,41 @@ export class AuthService {
       return { user, token: this.generateToken(user) }
     }
   }
+
+  public static async getAllUsers(): Promise<Array<{
+    uid: string
+    email: string
+    displayName: string
+    photoURL?: string
+    role: string
+    provider: string
+    createdAt?: string
+  }>> {
+    try {
+      const res = await pool.query(
+        `SELECT id, email, display_name, photo_url, role, provider, created_at
+         FROM users
+         ORDER BY created_at DESC`
+      )
+      return res.rows.map((row) => ({
+        uid: row.id,
+        email: row.email,
+        displayName: row.display_name,
+        photoURL: row.photo_url,
+        role: row.role,
+        provider: row.provider,
+        createdAt: row.created_at,
+      }))
+    } catch {
+      return Array.from(memoryUsers.values()).map((u) => ({
+        uid: u.uid,
+        email: u.email,
+        displayName: u.displayName,
+        photoURL: u.photoURL,
+        role: u.role,
+        provider: u.provider,
+      }))
+    }
+  }
 }
 

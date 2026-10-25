@@ -44,5 +44,14 @@ export class AuthController {
     }
     res.status(200).json({ success: true, data: { user: req.user } })
   }
+
+  public static async listUsers(_req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const users = await AuthService.getAllUsers()
+      res.status(200).json({ success: true, data: { users } })
+    } catch (error) {
+      res.status(500).json({ success: false, error: (error as Error).message })
+    }
+  }
 }
 
