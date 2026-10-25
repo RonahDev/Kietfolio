@@ -28,5 +28,18 @@ export const SITE_CONFIG = {
     toastDismissMs: 3000,
     clipboardFeedbackMs: 2500,
   },
+  donation: {
+    recipientName: 'MAI ANH KIET',
+    momo: {
+      phone: '0963463831',
+      name: 'MAI ANH KIET',
+    },
+    vietcombank: {
+      accountNumber: '1034777451',
+      bankName: 'Vietcombank',
+      bankCode: 'vietcombank',
+      name: 'MAI ANH KIET',
+    },
+  },
 } as const
 
