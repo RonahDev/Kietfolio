@@ -393,6 +393,7 @@ export const OceanWhaleScene: React.FC = () => {
 
     // Natural majestic scale
     whaleGroup.scale.set(1.3, 1.3, 1.3)
+    whaleGroup.visible = false // Initially hidden until single entrance breach triggers
     scene.add(whaleGroup)
 
     // ==========================================
@@ -412,23 +413,23 @@ export const OceanWhaleScene: React.FC = () => {
 
     const flightCurve = new THREE.CatmullRomCurve3(flightPoints, true)
 
-    let flightProgress = 0.32
-    const normalFlightSpeed = 0.022
-    let currentSpeed = normalFlightSpeed
+    let flightProgress = 0.12
+    const breachSpeed = 0.14
     let isBreaching = false
+    let hasCompletedOneTime = false
 
-    // Cinematic breach trigger
+    // Single entrance cinematic breach trigger (Appears only once per page load)
     const startCinematicBreach = () => {
+      if (hasCompletedOneTime) return
       isBreaching = true
+      whaleGroup.visible = true
       flightProgress = 0.12 // Just below water surface, ready to breach
-      currentSpeed = 0.14 // Fast, majestic breach curve (travels ~0.63 in 4.5s)
     }
 
     const endCinematicBreach = () => {
       isBreaching = false
-      currentSpeed = normalFlightSpeed
-      flightProgress = 0.72 // Immediately send whale back into distant background waters
-      whaleGroup.position.copy(flightCurve.getPointAt(0.72))
+      hasCompletedOneTime = true
+      whaleGroup.visible = false
     }
 
     window.addEventListener('kietfolio:summon-whale', startCinematicBreach)
@@ -475,48 +476,55 @@ export const OceanWhaleScene: React.FC = () => {
       // 4A. Update GPU shader time uniform (0 CPU cost!)
       waveUniforms.uTime.value = time
 
-      // 4B. Advance Whale along flight path
-      flightProgress = (flightProgress + currentSpeed * delta) % 1.0
+      // 4B. Advance Whale along flight path ONLY during its one-time entrance breach
+      if (isBreaching && !hasCompletedOneTime) {
+        flightProgress += breachSpeed * delta
 
-      const positionOnCurve = flightCurve.getPointAt(flightProgress)
-      const lookAtTarget = flightCurve.getPointAt((flightProgress + 0.03) % 1.0)
+        if (flightProgress >= 0.72) {
+          // One-time breach finished: submerge into depths and never repeat unless reload
+          endCinematicBreach()
+        } else {
+          const positionOnCurve = flightCurve.getPointAt(flightProgress)
+          const lookAtTarget = flightCurve.getPointAt((flightProgress + 0.03) % 1.0)
 
-      whaleGroup.position.copy(positionOnCurve)
+          whaleGroup.position.copy(positionOnCurve)
 
-      // Smooth orientation banking along trajectory
-      const lookMatrix = new THREE.Matrix4().lookAt(
-        lookAtTarget,
-        whaleGroup.position,
-        new THREE.Vector3(0, 1, 0)
-      )
-      const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix)
-      whaleGroup.quaternion.slerp(targetQuat, 0.1)
+          // Smooth orientation banking along trajectory
+          const lookMatrix = new THREE.Matrix4().lookAt(
+            lookAtTarget,
+            whaleGroup.position,
+            new THREE.Vector3(0, 1, 0)
+          )
+          const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix)
+          whaleGroup.quaternion.slerp(targetQuat, 0.1)
 
-      // 4C. Organic Whale Swimming Articulation
-      const swimCycle = time * 3.4
+          // 4C. Organic Whale Swimming Articulation
+          const swimCycle = time * 3.4
 
-      // Caudal tail peduncle vertical oscillation
-      tailPedunclePivot.rotation.x = Math.sin(swimCycle) * 0.24
-      flukeMesh.rotation.x = Math.sin(swimCycle - 0.6) * 0.32
+          // Caudal tail peduncle vertical oscillation
+          tailPedunclePivot.rotation.x = Math.sin(swimCycle) * 0.24
+          flukeMesh.rotation.x = Math.sin(swimCycle - 0.6) * 0.32
 
-      // Pectoral flippers wave
-      leftFlipperPivot.rotation.z = Math.sin(swimCycle * 0.7) * 0.14
-      rightFlipperPivot.rotation.z = -Math.sin(swimCycle * 0.7) * 0.14
-      leftFlipperPivot.rotation.x = Math.cos(swimCycle * 0.7) * 0.1
-      rightFlipperPivot.rotation.x = Math.cos(swimCycle * 0.7) * 0.1
+          // Pectoral flippers wave
+          leftFlipperPivot.rotation.z = Math.sin(swimCycle * 0.7) * 0.14
+          rightFlipperPivot.rotation.z = -Math.sin(swimCycle * 0.7) * 0.14
+          leftFlipperPivot.rotation.x = Math.cos(swimCycle * 0.7) * 0.1
+          rightFlipperPivot.rotation.x = Math.cos(swimCycle * 0.7) * 0.1
 
-      // Gentle body pitch & roll
-      bodyMesh.rotation.z = Math.sin(swimCycle * 0.4) * 0.04
+          // Gentle body pitch & roll
+          bodyMesh.rotation.z = Math.sin(swimCycle * 0.4) * 0.04
 
-      // 4D. Gentle Particle Wake drift
-      const wakePos = wakeGeometry.attributes.position
-      for (let j = 0; j < wakeCount; j++) {
-        let pz = wakePos.getZ(j)
-        pz -= 0.12
-        if (pz < -14) pz = -6
-        wakePos.setZ(j, pz)
+          // 4D. Gentle Particle Wake drift
+          const wakePos = wakeGeometry.attributes.position
+          for (let j = 0; j < wakeCount; j++) {
+            let pz = wakePos.getZ(j)
+            pz -= 0.12
+            if (pz < -14) pz = -6
+            wakePos.setZ(j, pz)
+          }
+          wakePos.needsUpdate = true
+        }
       }
-      wakePos.needsUpdate = true
 
       renderer.render(scene, camera)
     }

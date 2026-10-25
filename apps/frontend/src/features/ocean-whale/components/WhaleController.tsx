@@ -5,9 +5,9 @@ import { Sparkles, Compass } from 'lucide-react'
 
 export const WhaleController: React.FC = React.memo(() => {
   const { language } = useLanguage()
-  const { isCinematicActive, triggerWhaleCinematic } = useWhaleCinematic()
+  const { isCinematicActive, hasPlayed, triggerWhaleCinematic } = useWhaleCinematic()
 
-  if (isCinematicActive) {
+  if (isCinematicActive || hasPlayed) {
     return null
   }
 

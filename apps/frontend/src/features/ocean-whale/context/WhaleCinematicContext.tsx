@@ -6,6 +6,7 @@ const CINEMATIC_DURATION_MS = 4500
 
 export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isCinematicActive, setIsCinematicActive] = useState(false)
+  const [hasPlayed, setHasPlayed] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const skipWhaleCinematic = useCallback(() => {
@@ -14,19 +15,22 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
       timerRef.current = null
     }
     setIsCinematicActive(false)
+    setHasPlayed(true)
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('kietfolio:whale-cinematic-end'))
     }
   }, [])
 
   const triggerWhaleCinematic = useCallback(() => {
-    if (typeof window === 'undefined' || isReducedMotion()) return
+    // Only runs ONCE per page load; does not repeat unless reloaded
+    if (typeof window === 'undefined' || isReducedMotion() || hasPlayed) return
 
     if (timerRef.current) {
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
 
+    setHasPlayed(true)
     setIsCinematicActive(true)
     window.dispatchEvent(
       new CustomEvent('kietfolio:whale-cinematic-start', {
@@ -37,7 +41,7 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
     timerRef.current = setTimeout(() => {
       skipWhaleCinematic()
     }, CINEMATIC_DURATION_MS)
-  }, [skipWhaleCinematic])
+  }, [hasPlayed, skipWhaleCinematic])
 
   // Clean up timer on unmount only
   useEffect(() => {
@@ -87,6 +91,7 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
 
   const contextValue: WhaleCinematicContextType = {
     isCinematicActive,
+    hasPlayed,
     triggerWhaleCinematic,
     skipWhaleCinematic,
   }
