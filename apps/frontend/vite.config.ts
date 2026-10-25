@@ -55,6 +55,6 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
-    pool: 'threads',
+    pool: 'forks',
   },
 })

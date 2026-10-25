@@ -8,9 +8,11 @@ export const pool = new Pool({
   user: config.db.user,
   password: config.db.password,
   ssl: config.db.ssl,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  min: 2, // Pre-warm 2 active connections to eliminate cold-start TCP/TLS latency
+  max: 20, // Max concurrent database connections per container instance
+  idleTimeoutMillis: 30000, // Disconnect idle clients after 30 seconds
+  connectionTimeoutMillis: 3000, // Fast-fail connection timeout
+  allowExitOnIdle: true, // Allow Node process to gracefully exit when no queries pending
 })
 
 pool.on('error', (err) => {
@@ -33,4 +35,3 @@ export async function testDbConnection(): Promise<boolean> {
     return false
   }
 }
-

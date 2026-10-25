@@ -2,19 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { ArrowUp } from 'lucide-react'
 import { useLanguage } from '@/hooks'
 
-export const ScrollToTop: React.FC = () => {
+export const ScrollToTop: React.FC = React.memo(() => {
   const [isVisible, setIsVisible] = useState(false)
   const { language } = useLanguage()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    let ticking = false
     const handleScroll = () => {
-      // Show when scrolled down more than 400px
-      if (window.scrollY > 400) {
-        setIsVisible(true)
-      } else {
-        setIsVisible(false)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsVisible(window.scrollY > 400)
+          ticking = false
+        })
+        ticking = true
       }
     }
 
@@ -42,5 +44,4 @@ export const ScrollToTop: React.FC = () => {
       <ArrowUp className="w-4 h-4" />
     </button>
   )
-}
-
+})

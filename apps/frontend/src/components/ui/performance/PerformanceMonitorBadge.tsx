@@ -3,7 +3,7 @@ import { usePerformance, useLanguage } from '@/hooks'
 import { Activity, Cpu, Sparkles, ChevronUp, ChevronDown, Check } from 'lucide-react'
 import type { QualityMode } from '@/context/performanceTypes'
 
-export const PerformanceMonitorBadge: React.FC = () => {
+export const PerformanceMonitorBadge: React.FC = React.memo(() => {
   const { fps, tier, qualityMode, setQualityMode, device } = usePerformance()
   const { language } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
@@ -148,5 +148,5 @@ export const PerformanceMonitorBadge: React.FC = () => {
       </button>
     </div>
   )
-}
+})
 

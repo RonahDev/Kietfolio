@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from '../types'
 export class GuestbookController {
   public static async getAll(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=45')
       const messages = await GuestbookService.getAll()
       res.status(200).json({ success: true, data: messages })
     } catch (error) {
@@ -42,4 +43,3 @@ export class GuestbookController {
     }
   }
 }
-

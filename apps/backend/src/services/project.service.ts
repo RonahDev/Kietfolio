@@ -70,8 +70,17 @@ const defaultProjects: ProjectRecord[] = [
   },
 ]
 
+let cachedProjects: ProjectRecord[] | null = null
+let cacheExpiresAt = 0
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes cache
+
 export class ProjectService {
-  public static async getAll(): Promise<ProjectRecord[]> {
+  public static async getAll(forceRefresh = false): Promise<ProjectRecord[]> {
+    const now = Date.now()
+    if (!forceRefresh && cachedProjects && now < cacheExpiresAt) {
+      return cachedProjects
+    }
+
     try {
       const res = await pool.query(
         `SELECT id, title, subtitle, category, status_badge as "statusBadge", 
@@ -83,8 +92,12 @@ export class ProjectService {
          ORDER BY is_featured DESC, created_at DESC`
       )
       if (res.rows.length > 0) {
-        return res.rows
+        cachedProjects = res.rows
+        cacheExpiresAt = now + CACHE_TTL_MS
+        return cachedProjects
       }
+      cachedProjects = defaultProjects
+      cacheExpiresAt = now + CACHE_TTL_MS
       return defaultProjects
     } catch {
       return defaultProjects
@@ -95,5 +108,9 @@ export class ProjectService {
     const list = await this.getAll()
     return list.find((p) => p.id === id) || null
   }
-}
 
+  public static invalidateCache(): void {
+    cachedProjects = null
+    cacheExpiresAt = 0
+  }
+}

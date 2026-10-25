@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { LanguageProvider, AuthProvider, WhaleCinematicProvider, PerformanceProvider } from '@/context'
 import { useWhaleCinematic, useLanguage, useAuth } from '@/hooks'
 import { isReducedMotion } from '@/animations'
@@ -11,21 +11,33 @@ import {
   PerformanceMonitorBadge,
 } from '@/components/ui'
 import { AuthModal } from '@/components/auth'
-import { AdminDashboardModal } from '@/components/admin'
 import { OceanWhaleScene, GlobalParticleField } from '@/three'
-import {
-  HeroSection,
-  AboutSection,
-  ProjectsSection,
-  ExperienceSection,
-  SkillsSection,
-  PrinciplesSection,
-  GuestbookSection,
-  ContactSection,
-  DonateModal,
-  PaymentResultModal,
-  usePayment,
-} from '@/features'
+import { HeroSection } from '@/features/hero'
+import { AboutSection } from '@/features/about'
+import { ProjectsSection } from '@/features/projects'
+import { ExperienceSection } from '@/features/experience'
+import { SkillsSection } from '@/features/skills'
+import { PrinciplesSection } from '@/features/principles'
+import { GuestbookSection } from '@/features/guestbook'
+import { ContactSection } from '@/features/contact'
+import { usePayment } from '@/features/payment/hooks/usePayment'
+
+// Code splitting & dynamic lazy loading for heavy on-demand modal features
+const AdminDashboardModal = lazy(() =>
+  import('@/features/admin/components/AdminDashboardModal').then((m) => ({
+    default: m.AdminDashboardModal,
+  }))
+)
+const DonateModal = lazy(() =>
+  import('@/features/payment/components/DonateModal').then((m) => ({
+    default: m.DonateModal,
+  }))
+)
+const PaymentResultModal = lazy(() =>
+  import('@/features/payment/components/PaymentResultModal').then((m) => ({
+    default: m.PaymentResultModal,
+  }))
+)
 
 export function AppContent() {
   const { language } = useLanguage()
@@ -183,31 +195,34 @@ export function AppContent() {
       {/* Google Authentication Gateway Modal */}
       <AuthModal />
 
-      {/* Exclusive Admin Command Center Modal for Mai Anh Kiệt */}
-      <AdminDashboardModal />
+      {/* On-demand lazy-loaded modals wrapped with lightweight Suspense fallback */}
+      <Suspense fallback={null}>
+        {/* Exclusive Admin Command Center Modal for Mai Anh Kiệt */}
+        <AdminDashboardModal />
 
-      {/* VNPay QR Donation & Mentorship Checkout Modal */}
-      <DonateModal
-        isOpen={isDonateOpen}
-        onClose={closeDonateModal}
-        selectedTier={selectedTier}
-        customAmount={customAmount}
-        setCustomAmount={setCustomAmount}
-        handleSelectTier={handleSelectTier}
-        orderType={orderType}
-        setOrderType={setOrderType}
-        donorName={donorName}
-        setDonorName={setDonorName}
-        donorMessage={donorMessage}
-        setDonorMessage={setDonorMessage}
-        isLoading={isPaymentLoading}
-        errorMessage={paymentError}
-        calculateAmount={calculateAmount}
-        onPayWithVnpay={handlePayWithVnpay}
-      />
+        {/* VNPay QR Donation & Mentorship Checkout Modal */}
+        <DonateModal
+          isOpen={isDonateOpen}
+          onClose={closeDonateModal}
+          selectedTier={selectedTier}
+          customAmount={customAmount}
+          setCustomAmount={setCustomAmount}
+          handleSelectTier={handleSelectTier}
+          orderType={orderType}
+          setOrderType={setOrderType}
+          donorName={donorName}
+          setDonorName={setDonorName}
+          donorMessage={donorMessage}
+          setDonorMessage={setDonorMessage}
+          isLoading={isPaymentLoading}
+          errorMessage={paymentError}
+          calculateAmount={calculateAmount}
+          onPayWithVnpay={handlePayWithVnpay}
+        />
 
-      {/* VNPay Payment Return & Receipt Modal */}
-      <PaymentResultModal />
+        {/* VNPay Payment Return & Receipt Modal */}
+        <PaymentResultModal />
+      </Suspense>
     </div>
   )
 }

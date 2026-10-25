@@ -6,7 +6,7 @@ import { GithubIcon, LinkedinIcon } from '@/components/ui'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC = React.memo(() => {
   const { t, language } = useLanguage()
 
   const scrollToTop = () => {
@@ -124,4 +124,4 @@ export const Footer: React.FC = () => {
       </div>
     </footer>
   )
-}
+})

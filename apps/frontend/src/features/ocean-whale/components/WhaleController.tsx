@@ -3,7 +3,7 @@ import { useLanguage } from '@/hooks'
 import { useWhaleCinematic } from '../hooks/useWhaleCinematic'
 import { Sparkles, Compass } from 'lucide-react'
 
-export const WhaleController: React.FC = () => {
+export const WhaleController: React.FC = React.memo(() => {
   const { language } = useLanguage()
   const { isCinematicActive, triggerWhaleCinematic } = useWhaleCinematic()
 
@@ -42,5 +42,4 @@ export const WhaleController: React.FC = () => {
       </div>
     </div>
   )
-}
-
+})

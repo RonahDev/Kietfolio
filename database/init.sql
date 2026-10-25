@@ -17,6 +17,9 @@
 \echo 'Executing Migration 005: Payments Table...'
 \i /docker-entrypoint-initdb.d/migrations/005_create_payments_table.sql
 
+\echo 'Executing Migration 006: High-Performance Composite & Partial Indexes...'
+\i /docker-entrypoint-initdb.d/migrations/006_optimize_composite_indexes.sql
+
 \echo 'Executing Seeds: Initial Database Content...'
 \i /docker-entrypoint-initdb.d/seeds/001_seed_initial_data.sql
 
