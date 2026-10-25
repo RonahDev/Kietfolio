@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import React from 'react'
 import { DonateModal } from './DonateModal'
 import { LanguageProvider } from '@/context'
 import { SITE_CONFIG } from '@/config/site'
