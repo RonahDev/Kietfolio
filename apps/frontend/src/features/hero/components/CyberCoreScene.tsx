@@ -248,7 +248,9 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       observer.disconnect()
 
-      if (container && renderer.domElement) {
+      scene.clear()
+
+      if (container && renderer?.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }
 

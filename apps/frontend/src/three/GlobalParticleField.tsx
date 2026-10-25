@@ -138,7 +138,9 @@ export const GlobalParticleField: React.FC = () => {
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVisibilityChange)
 
-      if (container && renderer.domElement) {
+      scene.clear()
+
+      if (container && renderer?.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }
 

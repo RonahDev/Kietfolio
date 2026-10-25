@@ -60,3 +60,4 @@ describe('Backend Auth & Identity Management Unit & Security Tests', () => {
     expect(decoded.role).toBe('admin')
   })
 })
+

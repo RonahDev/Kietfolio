@@ -1,3 +1,2 @@
-export * from './OceanWhaleScene'
+export { OceanWhaleScene } from '@/features/ocean-whale'
 export * from './GlobalParticleField'
-export * from './useThreePerformance'

@@ -431,22 +431,10 @@ export const OceanWhaleScene: React.FC = () => {
       whaleGroup.position.copy(flightCurve.getPointAt(0.72))
     }
 
-    const handleSummonEvent = () => {
-      startCinematicBreach()
-    }
-
-    const handleCinematicStart = () => {
-      startCinematicBreach()
-    }
-
-    const handleCinematicEnd = () => {
-      endCinematicBreach()
-    }
-
-    window.addEventListener('kietfolio:summon-whale', handleSummonEvent)
-    window.addEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
-    window.addEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
-    window.addEventListener('kietfolio:skip-whale', handleCinematicEnd)
+    window.addEventListener('kietfolio:summon-whale', startCinematicBreach)
+    window.addEventListener('kietfolio:whale-cinematic-start', startCinematicBreach)
+    window.addEventListener('kietfolio:whale-cinematic-end', endCinematicBreach)
+    window.addEventListener('kietfolio:skip-whale', endCinematicBreach)
 
     // Window Resize Handler
     const onResize = () => {
@@ -539,11 +527,13 @@ export const OceanWhaleScene: React.FC = () => {
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', onResize)
-      window.removeEventListener('visibilitychange', onVisibilityChange)
-      window.removeEventListener('kietfolio:summon-whale', handleSummonEvent)
-      window.removeEventListener('kietfolio:whale-cinematic-start', handleCinematicStart)
-      window.removeEventListener('kietfolio:whale-cinematic-end', handleCinematicEnd)
-      window.removeEventListener('kietfolio:skip-whale', handleCinematicEnd)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('kietfolio:summon-whale', startCinematicBreach)
+      window.removeEventListener('kietfolio:whale-cinematic-start', startCinematicBreach)
+      window.removeEventListener('kietfolio:whale-cinematic-end', endCinematicBreach)
+      window.removeEventListener('kietfolio:skip-whale', endCinematicBreach)
+
+      scene.clear()
 
       waveGeometry.dispose()
       waveMaterial.dispose()
@@ -562,7 +552,7 @@ export const OceanWhaleScene: React.FC = () => {
       wakeMaterial.dispose()
 
       renderer.dispose()
-      if (container.contains(renderer.domElement)) {
+      if (container && renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }
     }
