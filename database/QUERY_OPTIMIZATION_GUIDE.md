@@ -142,3 +142,4 @@ await withTransaction(async (client) => {
 })
 ```
 Nếu bước 2 xảy ra sự cố, toàn bộ bước 1 sẽ tự động `ROLLBACK` an toàn, không để lại dữ liệu "mồ côi" trong database.
+
