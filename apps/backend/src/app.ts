@@ -6,10 +6,14 @@ import { config } from './config/env'
 import { apiRouter } from './routes'
 import { apiLimiter } from './middlewares/rateLimiter.middleware'
 import { errorHandler } from './middlewares/errorHandler.middleware'
+import { requestContextMiddleware, idempotencyMiddleware } from './resilience'
 
 export const app = express()
 
-// 1. Security & Hygiene Middlewares
+// 1. Request Context & Distributed Tracing (X-Request-Id)
+app.use(requestContextMiddleware)
+
+// 2. Security & Hygiene Middlewares
 app.use(
   helmet({
     contentSecurityPolicy: false, // Allows flexible integration with Vite frontend
@@ -26,24 +30,27 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Idempotency-Key', 'X-Idempotency-Key'],
   })
 )
 
-// 2. Request Logging & Body Parsing
+// 3. Request Logging & Body Parsing
 if (config.env !== 'test') {
   app.use(morgan('dev'))
 }
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true, limit: '1mb' }))
 
-// 3. Global API Rate Limiter
+// 4. Global API Rate Limiter
 app.use('/api', apiLimiter)
 
-// 4. Mount API Routes
+// 5. Idempotency Guard on API Mutations
+app.use('/api', idempotencyMiddleware)
+
+// 6. Mount API Routes
 app.use('/api', apiRouter)
 
-// 5. Root Welcome Route
+// 7. Root Welcome Route
 app.get('/', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'online',
@@ -53,7 +60,7 @@ app.get('/', (_req: Request, res: Response) => {
   })
 })
 
-// 6. 404 Not Found Handler
+// 8. 404 Not Found Handler
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -61,6 +68,5 @@ app.use((_req: Request, res: Response) => {
   })
 })
 
-// 7. Central Error Handling Middleware
+// 9. Central Error Handling Middleware
 app.use(errorHandler)
-

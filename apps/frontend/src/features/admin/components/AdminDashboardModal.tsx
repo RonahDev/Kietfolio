@@ -67,6 +67,7 @@ export const AdminDashboardModal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'inbox' | 'users' | 'telemetry'>('inbox')
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUserItem[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+  const [visibleUserCount, setVisibleUserCount] = useState(6)
 
   useEffect(() => {
     if (!isAdminModalOpen || !isAdmin) return
@@ -380,56 +381,70 @@ export const AdminDashboardModal: React.FC = () => {
                   Chưa có tài khoản nào được đăng ký trong hệ thống.
                 </div>
               ) : (
-                registeredUsers.map((regUser) => (
-                  <div
-                    key={regUser.uid}
-                    className="p-4 rounded-sm bg-[#0d182e] border border-[#172847] hover:border-[#00d2ff]/40 transition-colors"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            regUser.photoURL ||
-                            `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
-                              regUser.email
-                            )}`
-                          }
-                          alt={regUser.displayName}
-                          className="w-9 h-9 rounded-sm border border-[#00d2ff]/50 bg-[#070d1a]"
-                        />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-sm text-[#f1f5f9]">
-                              {regUser.displayName}
-                            </span>
-                            {regUser.role === 'admin' ? (
-                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/30 font-bold">
-                                ROOT_ADMIN
+                <>
+                  {registeredUsers.slice(0, visibleUserCount).map((regUser) => (
+                    <div
+                      key={regUser.uid}
+                      className="p-4 rounded-sm bg-[#0d182e] border border-[#172847] hover:border-[#00d2ff]/40 transition-colors"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={
+                              regUser.photoURL ||
+                              `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+                                regUser.email
+                              )}`
+                            }
+                            alt={regUser.displayName}
+                            className="w-9 h-9 rounded-sm border border-[#00d2ff]/50 bg-[#070d1a]"
+                          />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-sm text-[#f1f5f9]">
+                                {regUser.displayName}
                               </span>
-                            ) : (
-                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-slate-800 text-slate-300 border border-slate-700">
-                                MEMBER
+                              {regUser.role === 'admin' ? (
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/30 font-bold">
+                                  ROOT_ADMIN
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-slate-800 text-slate-300 border border-slate-700">
+                                  MEMBER
+                                </span>
+                              )}
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] border border-[#34a853]/30 uppercase">
+                                {regUser.provider}
                               </span>
-                            )}
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] border border-[#34a853]/30 uppercase">
-                              {regUser.provider}
-                            </span>
+                            </div>
+                            <span className="text-xs text-[#00d2ff] font-mono">{regUser.email}</span>
                           </div>
-                          <span className="text-xs text-[#00d2ff] font-mono">{regUser.email}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[11px] font-mono text-[#64748b]">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {regUser.createdAt
+                              ? new Date(regUser.createdAt).toLocaleString()
+                              : 'Mới tạo'}
+                          </span>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2 text-[11px] font-mono text-[#64748b]">
-                        <Clock className="w-3 h-3" />
-                        <span>
-                          {regUser.createdAt
-                            ? new Date(regUser.createdAt).toLocaleString()
-                            : 'Mới tạo'}
-                        </span>
-                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {registeredUsers.length > visibleUserCount && (
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleUserCount((prev) => prev + 6)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm border border-[#172847] bg-[#0f1b33] hover:border-[#00d2ff] text-xs font-mono text-[#94a3b8] hover:text-[#00d2ff] transition-all cursor-pointer"
+                      >
+                        <span>Xem thêm ({registeredUsers.length - visibleUserCount} tài khoản còn lại)</span>
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

@@ -18,3 +18,4 @@ ON payments (status, created_at DESC);
 -- 3. Users role & provider composite query optimization:
 CREATE INDEX IF NOT EXISTS idx_users_provider_role 
 ON users (provider, role);
+

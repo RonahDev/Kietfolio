@@ -7,4 +7,4 @@ export * from './useContactForm'
 export * from './useScrollReveal'
 export * from './useTerminal'
 export * from './usePerformance'
-
+export * from './useDebounce'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useLanguage, useAuth, useScrollReveal } from '@/hooks'
 import { SectionHeader, Card, Button, GoogleIcon } from '@/components/ui'
 import { useGuestbook } from '../hooks/useGuestbook'
@@ -28,6 +28,11 @@ export const GuestbookSection: React.FC = () => {
   } = useGuestbook()
 
   const [newMessage, setNewMessage] = useState('')
+  const [visibleCount, setVisibleCount] = useState(5)
+
+  // Virtual pagination slice to limit initial DOM nodes and prevent long list rendering penalties
+  const visibleEntries = useMemo(() => entries.slice(0, visibleCount), [entries, visibleCount])
+  const hasMore = visibleCount < entries.length
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -240,7 +245,7 @@ export const GuestbookSection: React.FC = () => {
             )}
 
             {!isLoading &&
-              entries.map((entry) => (
+              visibleEntries.map((entry) => (
                 <div
                   key={entry.id}
                   className="p-5 rounded-sm bg-[#0a1224] border border-[#172847] hover:border-[#00d2ff]/40 transition-all shadow-sm group"
@@ -301,6 +306,24 @@ export const GuestbookSection: React.FC = () => {
                   </p>
                 </div>
               ))}
+
+            {/* Pagination Controls / Load More */}
+            {!isLoading && hasMore && (
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + 5)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-xs font-mono text-[#94a3b8] hover:text-[#00d2ff] transition-all cursor-pointer shadow-sm hover:shadow-[0_0_12px_rgba(0,210,255,0.2)]"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#00d2ff]" />
+                  <span>
+                    {language === 'vi'
+                      ? `Xem thêm (${entries.length - visibleCount} lời nhắn còn lại)`
+                      : `Load more (${entries.length - visibleCount} remaining)`}
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
