@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react'
-import { LanguageProvider, AuthProvider, WhaleCinematicProvider } from '@/context'
+import { LanguageProvider, AuthProvider, WhaleCinematicProvider, PerformanceProvider } from '@/context'
 import { useWhaleCinematic, useLanguage, useAuth } from '@/hooks'
 import { isReducedMotion } from '@/animations'
 import { Navbar, Footer } from '@/components/layout'
-import { LightningAtmosphere, PageIntroLoader, WhaleController, ScrollToTop } from '@/components/ui'
+import {
+  LightningAtmosphere,
+  PageIntroLoader,
+  WhaleController,
+  ScrollToTop,
+  PerformanceMonitorBadge,
+} from '@/components/ui'
 import { AuthModal } from '@/components/auth'
 import { AdminDashboardModal } from '@/components/admin'
 import { OceanWhaleScene, GlobalParticleField } from '@/three'
@@ -112,6 +118,7 @@ export function AppContent() {
 
       {/* Floating Smooth Scroll to Top Button */}
       <ScrollToTop />
+      <PerformanceMonitorBadge />
 
       {/* Oceanic Whale Cinematic Status & Skip HUD */}
       {isCinematicActive && (
@@ -210,7 +217,9 @@ export default function App() {
     <LanguageProvider>
       <AuthProvider>
         <WhaleCinematicProvider>
-          <AppContent />
+          <PerformanceProvider>
+            <AppContent />
+          </PerformanceProvider>
         </WhaleCinematicProvider>
       </AuthProvider>
     </LanguageProvider>

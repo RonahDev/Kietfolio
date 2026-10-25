@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { isReducedMotion } from '@/animations'
+import { usePerformance } from '@/hooks'
 
 export const GlobalParticleField: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { tier } = usePerformance()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -26,14 +28,14 @@ export const GlobalParticleField: React.FC = () => {
         powerPreference: 'low-power',
       })
       renderer.setSize(window.innerWidth, window.innerHeight)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+      renderer.setPixelRatio(tier === 'high' ? Math.min(window.devicePixelRatio, 1.5) : 1.0)
       container.appendChild(renderer.domElement)
     } catch {
       return
     }
 
-    // 120 Cosmic Dust Particles (Celestial Constellation Starfield)
-    const particleCount = 120
+    // Adaptive particle density according to measured device FPS tier
+    const particleCount = tier === 'high' ? 120 : tier === 'medium' ? 60 : 30
     const positions = new Float32Array(particleCount * 3)
     const speeds = new Float32Array(particleCount)
 
@@ -97,11 +99,18 @@ export const GlobalParticleField: React.FC = () => {
 
     // Autonomous slow cosmic drift loop (Zero Mouse Tracking)
     let animId: number
+    let frameSkip = 0
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
       if (!isVisible) return
+
+      // Throttling for low-end / battery saver devices
+      if (tier === 'low') {
+        frameSkip++
+        if (frameSkip % 2 !== 0) return
+      }
 
       const time = clock.getElapsedTime()
 
@@ -138,7 +147,7 @@ export const GlobalParticleField: React.FC = () => {
       particleTexture.dispose()
       renderer.dispose()
     }
-  }, [])
+  }, [tier])
 
   return (
     <div

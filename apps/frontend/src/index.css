@@ -172,3 +172,38 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   Adaptive Hardware & FPS Performance Tier Overrides
+   ========================================================================== */
+
+/* Low-Power Tier (Mobile phones, battery saving mode, or FPS < 32) */
+.perf-low .glass-panel {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+.perf-low .animate-aurora-1,
+.perf-low .animate-aurora-2 {
+  animation: none !important;
+  opacity: 0.35 !important;
+}
+
+.perf-low * {
+  text-shadow: none !important;
+}
+
+/* Medium-Power Tier (Balanced 35-54 FPS) */
+.perf-medium .glass-panel {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.perf-medium .animate-aurora-1 {
+  animation-duration: 22s !important;
+}
+
+.perf-medium .animate-aurora-2 {
+  animation-duration: 28s !important;
+}

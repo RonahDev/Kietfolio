@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { usePerformance } from '@/hooks'
 
 /**
  * Procedural Anatomical Whale Geometry Builder
@@ -211,6 +212,7 @@ const waveFragmentShader = `
 
 export const OceanWhaleScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { tier } = usePerformance()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -237,7 +239,13 @@ export const OceanWhaleScene: React.FC = () => {
       })
       renderer.setClearColor(0x000000, 0)
       renderer.setSize(window.innerWidth, window.innerHeight)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+      const targetPixelRatio =
+        tier === 'high'
+          ? Math.min(window.devicePixelRatio, 1.5)
+          : tier === 'medium'
+          ? Math.min(window.devicePixelRatio, 1.2)
+          : 1.0
+      renderer.setPixelRatio(targetPixelRatio)
       renderer.domElement.style.position = 'absolute'
       renderer.domElement.style.top = '0'
       renderer.domElement.style.left = '0'
@@ -262,9 +270,10 @@ export const OceanWhaleScene: React.FC = () => {
     scene.add(cyanRimLight)
 
     // ==========================================
-    // 1. GPU OCEAN WAVE SHADER MESH (0 CPU lag)
+    // 1. GPU OCEAN WAVE SHADER MESH (Adaptive resolution per tier)
     // ==========================================
-    const waveGeometry = new THREE.PlaneGeometry(160, 160, 48, 48)
+    const waveSegments = tier === 'high' ? 48 : tier === 'medium' ? 32 : 16
+    const waveGeometry = new THREE.PlaneGeometry(160, 160, waveSegments, waveSegments)
     waveGeometry.rotateX(-Math.PI / 2.3)
 
     const waveUniforms = {
@@ -361,8 +370,8 @@ export const OceanWhaleScene: React.FC = () => {
     tailPedunclePivot.add(flukeMesh)
     whaleGroup.add(tailPedunclePivot)
 
-    // Gentle soft particle stardust wake (only 30 delicate particles)
-    const wakeCount = 30
+    // Gentle soft particle stardust wake (Adaptive density per tier)
+    const wakeCount = tier === 'high' ? 36 : tier === 'medium' ? 20 : 10
     const wakePositions = new Float32Array(wakeCount * 3)
     for (let i = 0; i < wakeCount; i++) {
       wakePositions[i * 3] = (Math.random() - 0.5) * 1.2
@@ -406,14 +415,17 @@ export const OceanWhaleScene: React.FC = () => {
     let flightProgress = 0.32
     const normalFlightSpeed = 0.022
     let currentSpeed = normalFlightSpeed
+    let isBreaching = false
 
     // Cinematic breach trigger
     const startCinematicBreach = () => {
+      isBreaching = true
       flightProgress = 0.12 // Just below water surface, ready to breach
       currentSpeed = 0.14 // Fast, majestic breach curve (travels ~0.63 in 4.5s)
     }
 
     const endCinematicBreach = () => {
+      isBreaching = false
       currentSpeed = normalFlightSpeed
       flightProgress = 0.72 // Immediately send whale back into distant background waters
       whaleGroup.position.copy(flightCurve.getPointAt(0.72))
@@ -456,11 +468,18 @@ export const OceanWhaleScene: React.FC = () => {
     // 4. ANIMATION LOOP (Butter smooth 60 FPS)
     // ==========================================
     let animId: number
+    let frameSkip = 0
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
       if (!isVisible) return
+
+      // Throttling for low tier devices when not in active breach
+      if (tier === 'low' && !isBreaching) {
+        frameSkip++
+        if (frameSkip % 2 !== 0) return
+      }
 
       const delta = Math.min(clock.getDelta(), 0.1)
       const time = clock.getElapsedTime()
@@ -547,7 +566,7 @@ export const OceanWhaleScene: React.FC = () => {
         container.removeChild(renderer.domElement)
       }
     }
-  }, [])
+  }, [tier])
 
   return (
     <div

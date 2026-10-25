@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { isReducedMotion } from '@/animations'
+import { usePerformance } from '@/hooks'
 
 interface CyberCoreSceneProps {
   className?: string
@@ -19,6 +20,7 @@ function checkWebGlSupport(): boolean {
 export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hasWebGlError] = useState(() => !checkWebGlSupport())
+  const { tier } = usePerformance()
 
   useEffect(() => {
     if (hasWebGlError) return
@@ -46,7 +48,13 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
         powerPreference: 'high-performance',
       })
       renderer.setSize(container.clientWidth, container.clientHeight)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
+      const targetPixelRatio =
+        tier === 'high'
+          ? Math.min(window.devicePixelRatio, 1.75)
+          : tier === 'medium'
+          ? Math.min(window.devicePixelRatio, 1.25)
+          : 1.0
+      renderer.setPixelRatio(targetPixelRatio)
       container.appendChild(renderer.domElement)
     } catch {
       return
@@ -109,8 +117,8 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     ring2Mesh.rotation.y = Math.PI / 4
     systemGroup.add(ring2Mesh)
 
-    // E. Constellation Satellite Nodes & Lines
-    const nodeCount = 42
+    // E. Constellation Satellite Nodes & Lines (Adaptive count according to FPS tier)
+    const nodeCount = tier === 'high' ? 42 : tier === 'medium' ? 24 : 12
     const nodePositions: THREE.Vector3[] = []
     const nodeGeo = new THREE.SphereGeometry(0.12, 8, 8)
     const nodeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff })
@@ -190,12 +198,19 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
 
     // 5. Cinematic Autonomous Orbiting Animation Loop (Zero Mouse Tugging)
     let animId: number
+    let frameSkip = 0
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
 
       if (!isIntersecting || !isDocumentVisible) return
+
+      // Throttling for low-end / battery saver devices to save 50% GPU fillrate
+      if (tier === 'low') {
+        frameSkip++
+        if (frameSkip % 2 !== 0) return
+      }
 
       if (!reducedMotion) {
         const time = clock.getElapsedTime()
@@ -253,7 +268,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
       linesMat.dispose()
       renderer.dispose()
     }
-  }, [hasWebGlError])
+  }, [hasWebGlError, tier])
 
   if (hasWebGlError) {
     return (
@@ -291,8 +306,8 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
         <span>CYBER_CORE // AUTONOMOUS_SIM</span>
       </div>
 
-      <div className="absolute bottom-3 right-3 pointer-events-none font-mono text-[9px] text-[#64748b] tracking-wider">
-        STATUS: 60FPS_ORBIT
+      <div className="absolute bottom-3 right-3 pointer-events-none font-mono text-[9px] text-[#64748b] tracking-wider uppercase">
+        STATUS: ADAPTIVE_{tier}_TIER
       </div>
 
       {/* Corner crosshair accents */}
