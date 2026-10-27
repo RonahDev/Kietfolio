@@ -105,10 +105,10 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     window.dispatchEvent(
       new CustomEvent('kietfolio:perf-tier-changed', {
-        detail: { tier, fps },
+        detail: { tier },
       })
     )
-  }, [tier, fps])
+  }, [tier])
 
   // 2. High-Resolution FPS Measurement Engine (Zero Overkill, Lightweight)
   useEffect(() => {

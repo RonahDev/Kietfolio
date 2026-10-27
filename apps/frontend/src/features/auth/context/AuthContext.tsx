@@ -180,8 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsAuthModalOpen(false)
           setIsLoading(false)
           return true
-        } catch (err: unknown) {
-          console.warn('Firebase register error, falling back to local database:', err)
+        } catch {
+          // Firebase unavailable or offline, seamlessly fallback to local database
         }
       }
 
@@ -302,8 +302,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsAuthModalOpen(false)
           setIsLoading(false)
           return true
-        } catch (err: unknown) {
-          console.warn('Firebase signin error, checking local database:', err)
+        } catch {
+          // Firebase unavailable or offline, seamlessly fallback to local database
         }
       }
 

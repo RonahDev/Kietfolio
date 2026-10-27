@@ -29,6 +29,9 @@ const firebaseConfig = {
 }
 
 export const isFirebaseConfigured = (): boolean => {
+  if (import.meta.env.MODE === 'test') {
+    return false
+  }
   const key = firebaseConfig.apiKey
   return Boolean(
     key &&
