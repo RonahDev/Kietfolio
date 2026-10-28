@@ -102,6 +102,9 @@ export class TaskQueue {
           error: errMsg,
         }
         this.deadLetterQueue.push(deadLetterEntry)
+        if (this.deadLetterQueue.length > 100) {
+          this.deadLetterQueue.shift()
+        }
         logger.error(
           `[Dead-Letter Queue]: Job ${job.name} [${job.id}] permanently failed after ${job.retries} attempts and routed to DLQ`,
           error,

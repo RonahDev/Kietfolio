@@ -13,7 +13,7 @@ interface IdempotentRecord {
 const idempotencyStore = new Map<string, IdempotentRecord>()
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000
 
-// Periodic garbage collection for expired keys
+// Periodic garbage collection for expired keys (unreferenced to allow clean test shutdown)
 setInterval(() => {
   const now = Date.now()
   for (const [key, record] of idempotencyStore.entries()) {
@@ -21,7 +21,7 @@ setInterval(() => {
       idempotencyStore.delete(key)
     }
   }
-}, 60 * 60 * 1000)
+}, 60 * 60 * 1000).unref()
 
 /**
  * Idempotency Middleware for mutation endpoints (POST, PUT, PATCH).

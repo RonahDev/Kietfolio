@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import type { Language } from '../types'
 import { translations } from '../data/translations'
 import { LanguageContext, type LanguageContextType } from './languageTypes'
@@ -27,20 +27,23 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     document.documentElement.lang = language
   }, [language])
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang)
-  }
+  }, [])
 
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     setLanguageState((prev) => (prev === 'en' ? 'vi' : 'en'))
-  }
+  }, [])
 
-  const value: LanguageContextType = {
-    language,
-    setLanguage,
-    toggleLanguage,
-    t: translations[language],
-  }
+  const value = useMemo<LanguageContextType>(
+    () => ({
+      language,
+      setLanguage,
+      toggleLanguage,
+      t: translations[language],
+    }),
+    [language, setLanguage, toggleLanguage]
+  )
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
 }

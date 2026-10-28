@@ -8,10 +8,11 @@ export const LightningAtmosphere: React.FC = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    let animId = 0
     let ticking = false
     const handleScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        animId = window.requestAnimationFrame(() => {
           const totalScroll = document.documentElement.scrollHeight - window.innerHeight
           if (totalScroll > 0) {
             setScrollProgress((window.scrollY / totalScroll) * 100)
@@ -23,7 +24,10 @@ export const LightningAtmosphere: React.FC = () => {
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (animId) cancelAnimationFrame(animId)
+    }
   }, [])
 
   return (

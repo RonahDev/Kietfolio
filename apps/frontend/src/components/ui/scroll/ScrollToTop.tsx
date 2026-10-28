@@ -9,10 +9,11 @@ export const ScrollToTop: React.FC = React.memo(() => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    let animId = 0
     let ticking = false
     const handleScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        animId = window.requestAnimationFrame(() => {
           setIsVisible(window.scrollY > 400)
           ticking = false
         })
@@ -21,7 +22,10 @@ export const ScrollToTop: React.FC = React.memo(() => {
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (animId) cancelAnimationFrame(animId)
+    }
   }, [])
 
   const scrollToTop = () => {

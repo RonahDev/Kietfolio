@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { isReducedMotion } from '@/animations'
 import { WhaleCinematicContext, type WhaleCinematicContextType } from './whaleCinematicTypes'
 
@@ -89,12 +89,15 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
     }
   }, [triggerWhaleCinematic, skipWhaleCinematic])
 
-  const contextValue: WhaleCinematicContextType = {
-    isCinematicActive,
-    hasPlayed,
-    triggerWhaleCinematic,
-    skipWhaleCinematic,
-  }
+  const contextValue: WhaleCinematicContextType = useMemo(
+    () => ({
+      isCinematicActive,
+      hasPlayed,
+      triggerWhaleCinematic,
+      skipWhaleCinematic,
+    }),
+    [isCinematicActive, hasPlayed, triggerWhaleCinematic, skipWhaleCinematic]
+  )
 
   return (
     <WhaleCinematicContext.Provider value={contextValue}>

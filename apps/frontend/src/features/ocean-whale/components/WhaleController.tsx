@@ -16,7 +16,7 @@ export const WhaleController: React.FC = React.memo(() => {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-30 flex items-center gap-2 font-mono text-xs pointer-events-auto">
+    <div className="fixed bottom-14 left-4 z-30 flex items-center gap-2 font-mono text-xs pointer-events-auto">
       <button
         type="button"
         onClick={handleSummon}

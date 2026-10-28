@@ -145,7 +145,20 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const measuredFps = Math.round((frameCount * 1000) / elapsedSinceCalculation)
         const clampedFps = Math.min(Math.max(measuredFps, 1), 144)
 
-        setFps(clampedFps)
+        // Only trigger state update when FPS delta is noticeable (>= 3 FPS)
+        // or transitions past critical performance boundaries (30 FPS or 60 FPS).
+        // This eliminates continuous 800ms re-render storms across the component tree!
+        setFps((prev) => {
+          if (
+            Math.abs(prev - clampedFps) >= 3 ||
+            (prev >= 30 && clampedFps < 30) ||
+            (prev < 30 && clampedFps >= 30) ||
+            (prev >= 60 && clampedFps < 55)
+          ) {
+            return clampedFps
+          }
+          return prev
+        })
         frameCount = 0
         lastFpsCalculationTime = currentTime
 
