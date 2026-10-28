@@ -7,6 +7,8 @@ import {
   type PerformanceContextValue,
 } from './performanceTypes'
 
+export { PerformanceContext } from './performanceTypes'
+
 const STORAGE_QUALITY_KEY = 'kietfolio_perf_quality_mode'
 
 function getInitialDeviceProfile(): DeviceProfile {
@@ -212,4 +214,3 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   return <PerformanceContext.Provider value={contextValue}>{children}</PerformanceContext.Provider>
 }
-
