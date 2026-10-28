@@ -81,7 +81,11 @@ class ApiClient {
 
     const executeRequest = async (): Promise<ApiResponse<T>> => {
       try {
-        const url = `${this.baseUrl.replace(/\/$/, '')}/${normalizedEndpoint}`
+        const rawUrl = `${this.baseUrl.replace(/\/$/, '')}/${normalizedEndpoint}`
+        const url =
+          typeof window !== 'undefined' && window.location?.origin && rawUrl.startsWith('/')
+            ? `${window.location.origin}${rawUrl}`
+            : rawUrl
         const response = await fetch(url, {
           ...fetchOptions,
           signal: controller.signal,
