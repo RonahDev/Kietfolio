@@ -52,5 +52,12 @@ describe('PerformanceContext & Adaptive FPS Engine', () => {
 
     expect(localStorage.getItem('kietfolio_perf_quality_mode')).toBe('medium')
   })
+
+  it('returns fallback performance context safely when rendered outside PerformanceProvider without throwing', () => {
+    const { result } = renderHook(() => usePerformance())
+    expect(result.current.fps).toBe(60)
+    expect(result.current.tier).toBe('high')
+    expect(result.current.qualityMode).toBe('auto')
+  })
 })
 

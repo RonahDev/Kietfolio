@@ -7,8 +7,6 @@ import {
   type PerformanceContextValue,
 } from './performanceTypes'
 
-export { PerformanceContext } from './performanceTypes'
-
 const STORAGE_QUALITY_KEY = 'kietfolio_perf_quality_mode'
 
 function getInitialDeviceProfile(): DeviceProfile {

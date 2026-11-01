@@ -31,30 +31,14 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 800,
-    rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (id.includes('node_modules/three')) {
-            return 'three'
-          }
-          if (id.includes('node_modules/gsap')) {
-            return 'gsap'
-          }
-          if (id.includes('node_modules/firebase')) {
-            return 'firebase'
-          }
-          if (id.includes('node_modules/lucide-react')) {
-            return 'icons'
-          }
-        },
-      },
-    },
+    chunkSizeWarningLimit: 1200,
   },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
     fileParallelism: false,
+    maxWorkers: 1,
+    isolate: false,
   },
 })

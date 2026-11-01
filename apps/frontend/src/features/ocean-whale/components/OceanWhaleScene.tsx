@@ -212,7 +212,23 @@ const waveFragmentShader = `
 
 export const OceanWhaleScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const { tier } = usePerformance()
+  const tierRef = useRef(tier)
+
+  // Dynamically synchronize pixel ratio without destroying/recreating the 3D scene
+  useEffect(() => {
+    tierRef.current = tier
+    if (rendererRef.current) {
+      const targetPixelRatio =
+        tier === 'high'
+          ? Math.min(window.devicePixelRatio || 1, 1.5)
+          : tier === 'medium'
+          ? Math.min(window.devicePixelRatio || 1, 1.2)
+          : 1.0
+      rendererRef.current.setPixelRatio(targetPixelRatio)
+    }
+  }, [tier])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -237,13 +253,14 @@ export const OceanWhaleScene: React.FC = () => {
         alpha: true,
         powerPreference: 'high-performance',
       })
+      rendererRef.current = renderer
       renderer.setClearColor(0x000000, 0)
       renderer.setSize(window.innerWidth, window.innerHeight)
       const targetPixelRatio =
-        tier === 'high'
-          ? Math.min(window.devicePixelRatio, 1.5)
-          : tier === 'medium'
-          ? Math.min(window.devicePixelRatio, 1.2)
+        tierRef.current === 'high'
+          ? Math.min(window.devicePixelRatio || 1, 1.5)
+          : tierRef.current === 'medium'
+          ? Math.min(window.devicePixelRatio || 1, 1.2)
           : 1.0
       renderer.setPixelRatio(targetPixelRatio)
       renderer.domElement.style.position = 'absolute'
@@ -272,7 +289,7 @@ export const OceanWhaleScene: React.FC = () => {
     // ==========================================
     // 1. GPU OCEAN WAVE SHADER MESH (Adaptive resolution per tier)
     // ==========================================
-    const waveSegments = tier === 'high' ? 48 : tier === 'medium' ? 32 : 16
+    const waveSegments = tierRef.current === 'high' ? 48 : tierRef.current === 'medium' ? 32 : 16
     const waveGeometry = new THREE.PlaneGeometry(160, 160, waveSegments, waveSegments)
     waveGeometry.rotateX(-Math.PI / 2.3)
 
@@ -371,7 +388,7 @@ export const OceanWhaleScene: React.FC = () => {
     whaleGroup.add(tailPedunclePivot)
 
     // Gentle soft particle stardust wake (Adaptive density per tier)
-    const wakeCount = tier === 'high' ? 36 : tier === 'medium' ? 20 : 10
+    const wakeCount = tierRef.current === 'high' ? 36 : tierRef.current === 'medium' ? 20 : 10
     const wakePositions = new Float32Array(wakeCount * 3)
     for (let i = 0; i < wakeCount; i++) {
       wakePositions[i * 3] = (Math.random() - 0.5) * 1.2
@@ -397,30 +414,67 @@ export const OceanWhaleScene: React.FC = () => {
     scene.add(whaleGroup)
 
     // ==========================================
-    // 3. CINEMATIC FLIGHT PATH
+    // 3. RESPONSIVE CINEMATIC FLIGHT PATH & CAMERA
     // ==========================================
-    // Surfaces from ocean swell, breaches right into the center of the viewer's screen, and dives gracefully
-    const flightPoints = [
-      new THREE.Vector3(-34, -13, -46), // 0: Deep ocean swell
-      new THREE.Vector3(-20, -5, -26),  // 1: Surfacing through ocean waves
-      new THREE.Vector3(-8, 0.6, -6),   // 2: Climbing into atmosphere
-      new THREE.Vector3(0, 1.8, 5.5),   // 3: CENTER FOREGROUND OF VIEWER'S SCREEN
-      new THREE.Vector3(9, 2.0, 0.5),   // 4: Elegant banking turn
-      new THREE.Vector3(18, 2.2, -14),  // 5: Wide gliding arc
-      new THREE.Vector3(24, -5, -32),   // 6: Diving back into waves
-      new THREE.Vector3(0, -15, -48),   // 7: Deep ocean loop back
-    ]
+    const buildResponsiveFlightCurve = (width: number, height: number) => {
+      const isPortrait = width < height || width < 768
+      const scaleX = isPortrait ? 0.38 : 1.0
+      const scaleY = isPortrait ? 1.25 : 1.0
+      const scaleZ = isPortrait ? 0.72 : 1.0
 
-    const flightCurve = new THREE.CatmullRomCurve3(flightPoints, true)
+      const points = [
+        new THREE.Vector3(-32 * scaleX, -13 * scaleY, -44 * scaleZ), // 0: Deep ocean swell
+        new THREE.Vector3(-18 * scaleX, -4.8 * scaleY, -24 * scaleZ), // 1: Surfacing through ocean waves
+        new THREE.Vector3(-7 * scaleX, 0.8 * scaleY, -6 * scaleZ), // 2: Climbing into atmosphere
+        new THREE.Vector3(0, 2.6 * scaleY, 3.5 * scaleZ), // 3: CENTER FOREGROUND OF VIEWER'S SCREEN
+        new THREE.Vector3(8 * scaleX, 2.2 * scaleY, 0.5 * scaleZ), // 4: Elegant banking turn
+        new THREE.Vector3(16 * scaleX, 2.2 * scaleY, -14 * scaleZ), // 5: Wide gliding arc
+        new THREE.Vector3(22 * scaleX, -5 * scaleY, -30 * scaleZ), // 6: Diving back into waves
+        new THREE.Vector3(0, -15 * scaleY, -46 * scaleZ), // 7: Deep ocean loop back
+      ]
+
+      return new THREE.CatmullRomCurve3(points, true)
+    }
+
+    let flightCurve = buildResponsiveFlightCurve(window.innerWidth, window.innerHeight)
+
+    const updateCameraResponsive = () => {
+      if (!camera || !renderer) return
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const aspect = width / height
+      camera.aspect = aspect
+
+      if (aspect < 1 || width < 768) {
+        // Mobile portrait: pull camera back and lift slightly for panoramic ocean vantage
+        camera.position.set(0, 4.0, 34)
+        camera.fov = 60
+        whaleGroup.scale.set(1.1, 1.1, 1.1)
+      } else {
+        // Desktop landscape
+        camera.position.set(0, 2.5, 24)
+        camera.fov = 52
+        whaleGroup.scale.set(1.3, 1.3, 1.3)
+      }
+      camera.lookAt(0, 0, 0)
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height)
+      flightCurve = buildResponsiveFlightCurve(width, height)
+    }
+
+    updateCameraResponsive()
 
     let flightProgress = 0.12
-    const breachSpeed = 0.14
+    const breachSpeed = 0.13
     let isBreaching = false
     let hasCompletedOneTime = false
 
-    // Single entrance cinematic breach trigger (Appears only once per page load)
-    const startCinematicBreach = () => {
-      if (hasCompletedOneTime) return
+    // Single entrance cinematic breach trigger (Appears automatically on page load, or re-triggers on user login/summon)
+    const startCinematicBreach = (e?: Event) => {
+      const customEvent = e as CustomEvent<{ force?: boolean }> | undefined
+      const isForce = customEvent?.detail?.force
+      if (hasCompletedOneTime && !isForce) return
+
       isBreaching = true
       whaleGroup.visible = true
       flightProgress = 0.12 // Just below water surface, ready to breach
@@ -439,10 +493,15 @@ export const OceanWhaleScene: React.FC = () => {
 
     // Window Resize Handler
     const onResize = () => {
-      if (!renderer) return
-      camera.aspect = window.innerWidth / window.innerHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(window.innerWidth, window.innerHeight)
+      updateCameraResponsive()
+      const currentTier = tierRef.current
+      const targetPixelRatio =
+        currentTier === 'high'
+          ? Math.min(window.devicePixelRatio || 1, 1.5)
+          : currentTier === 'medium'
+          ? Math.min(window.devicePixelRatio || 1, 1.2)
+          : 1.0
+      renderer.setPixelRatio(targetPixelRatio)
     }
     window.addEventListener('resize', onResize)
 
@@ -465,7 +524,7 @@ export const OceanWhaleScene: React.FC = () => {
       if (!isVisible) return
 
       // Throttling for low tier devices when not in active breach
-      if (tier === 'low' && !isBreaching) {
+      if (tierRef.current === 'low' && !isBreaching) {
         frameSkip++
         if (frameSkip % 2 !== 0) return
       }
@@ -563,8 +622,11 @@ export const OceanWhaleScene: React.FC = () => {
       if (container && renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }
+      if (rendererRef.current === renderer) {
+        rendererRef.current = null
+      }
     }
-  }, [tier])
+  }, [])
 
   return (
     <div

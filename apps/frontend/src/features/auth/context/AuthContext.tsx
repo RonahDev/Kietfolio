@@ -32,6 +32,14 @@ const mapFirebaseUser = (firebaseUser: User): AuthUser => {
   }
 }
 
+function triggerCelebratoryWhale() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('kietfolio:summon-whale', { detail: { force: true } })
+    )
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // By default, new visitors are in Guest Mode (user = null) unless a session exists
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -157,6 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
           setIsAuthModalOpen(false)
           setIsLoading(false)
+          triggerCelebratoryWhale()
           return true
         } else if (!response.ok && resData?.error) {
           setError(resData.error)
@@ -179,6 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newUser))
           setIsAuthModalOpen(false)
           setIsLoading(false)
+          triggerCelebratoryWhale()
           return true
         } catch {
           // Firebase unavailable or offline, seamlessly fallback to local database
@@ -230,6 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
         setIsAuthModalOpen(false)
         setIsLoading(false)
+        triggerCelebratoryWhale()
         return true
       } catch {
         setError('Không thể hoàn tất đăng ký tài khoản. Vui lòng thử lại.')
@@ -282,6 +293,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
           setIsAuthModalOpen(false)
           setIsLoading(false)
+          triggerCelebratoryWhale()
           return true
         } else if (!response.ok && resData?.error) {
           setError(resData.error)
@@ -301,6 +313,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser))
           setIsAuthModalOpen(false)
           setIsLoading(false)
+          triggerCelebratoryWhale()
           return true
         } catch {
           // Firebase unavailable or offline, seamlessly fallback to local database
@@ -356,6 +369,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
         setIsAuthModalOpen(false)
         setIsLoading(false)
+        triggerCelebratoryWhale()
         return true
       } catch {
         setError('Có lỗi xảy ra khi xác thực tài khoản.')
@@ -392,6 +406,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(demoUser)
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(demoUser))
     setIsAuthModalOpen(false)
+    triggerCelebratoryWhale()
   }, [])
 
   // 4. Sign In with Google (Verified Google OAuth)
@@ -427,6 +442,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setIsAuthModalOpen(false)
         setIsLoading(false)
+        triggerCelebratoryWhale()
         return
       } catch (err: unknown) {
         console.warn('Firebase popup error:', err)
@@ -509,6 +525,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(customUser)
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(customUser))
     setIsAuthModalOpen(false)
+    triggerCelebratoryWhale()
   }, [])
 
   // 6. Sign Out User

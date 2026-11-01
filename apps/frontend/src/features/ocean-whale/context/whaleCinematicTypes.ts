@@ -3,7 +3,7 @@ import { createContext } from 'react'
 export interface WhaleCinematicContextType {
   isCinematicActive: boolean
   hasPlayed: boolean
-  triggerWhaleCinematic: () => void
+  triggerWhaleCinematic: (force?: boolean) => void
   skipWhaleCinematic: () => void
 }
 

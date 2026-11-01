@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { isReducedMotion } from '@/animations'
 import { WhaleCinematicContext, type WhaleCinematicContextType } from './whaleCinematicTypes'
 
 const CINEMATIC_DURATION_MS = 4500
@@ -21,9 +20,11 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
     }
   }, [])
 
-  const triggerWhaleCinematic = useCallback(() => {
-    // Only runs ONCE per page load; does not repeat unless reloaded
-    if (typeof window === 'undefined' || isReducedMotion() || hasPlayed) return
+  const triggerWhaleCinematic = useCallback((force: boolean | unknown = false) => {
+    const isForce = force === true
+    // Only runs ONCE automatically per page load; does not repeat unless reloaded or explicitly forced (e.g. login/summon)
+    if (typeof window === 'undefined') return
+    if (!isForce && hasPlayed) return
 
     if (timerRef.current) {
       clearTimeout(timerRef.current)
@@ -34,7 +35,7 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
     setIsCinematicActive(true)
     window.dispatchEvent(
       new CustomEvent('kietfolio:whale-cinematic-start', {
-        detail: { duration: CINEMATIC_DURATION_MS },
+        detail: { duration: CINEMATIC_DURATION_MS, force: isForce },
       })
     )
 
@@ -57,8 +58,9 @@ export const WhaleCinematicProvider: React.FC<{ children: React.ReactNode }> = (
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const handleSummon = () => {
-      triggerWhaleCinematic()
+    const handleSummon = (e: Event) => {
+      const customEvent = e as CustomEvent<{ force?: boolean }> | undefined
+      triggerWhaleCinematic(customEvent?.detail?.force === true)
     }
 
     const handleSkip = () => {

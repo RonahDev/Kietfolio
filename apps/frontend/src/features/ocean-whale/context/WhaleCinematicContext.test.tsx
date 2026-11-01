@@ -121,10 +121,16 @@ describe('WhaleCinematicContext', () => {
     })
     expect(screen.getByTestId('cinematic-status').textContent).toBe('IDLE')
 
-    // Global summon event attempt: MUST also be ignored
+    // Global summon event attempt without force: MUST also be ignored
     act(() => {
       window.dispatchEvent(new CustomEvent('kietfolio:summon-whale'))
     })
     expect(screen.getByTestId('cinematic-status').textContent).toBe('IDLE')
+
+    // Force summon event (e.g. from user login or controller button): MUST activate even if played
+    act(() => {
+      window.dispatchEvent(new CustomEvent('kietfolio:summon-whale', { detail: { force: true } }))
+    })
+    expect(screen.getByTestId('cinematic-status').textContent).toBe('ACTIVE')
   })
 })

@@ -2,13 +2,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { isReducedMotion } from '@/animations'
 import { useLanguage, useAuth } from '@/hooks'
-import { Button } from '@/components/ui'
 import {
   Menu,
   X,
   Globe,
   Terminal,
-  ArrowUpRight,
   Shield,
   LogOut,
   ChevronDown,
@@ -29,13 +27,11 @@ export const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const navLinks = [
-    { id: 'hero', label: t.nav.home },
     { id: 'about', label: t.nav.about },
-    { id: 'projects', label: language === 'vi' ? 'Dự án' : 'Projects' },
+    { id: 'projects', label: t.nav.projects },
     { id: 'experience', label: t.nav.experience },
     { id: 'skills', label: t.nav.skills },
-    { id: 'principles', label: t.nav.principles },
-    { id: 'guestbook', label: language === 'vi' ? 'Sổ lưu bút' : 'Guestbook' },
+    { id: 'guestbook', label: language === 'vi' ? 'Lưu bút' : 'Guestbook' },
     { id: 'contact', label: t.nav.contact },
   ]
 
@@ -46,8 +42,7 @@ export const Navbar: React.FC = () => {
         window.requestAnimationFrame(() => {
           setIsScrolled(window.scrollY > 30)
 
-          // Active section spy
-          const sections = ['hero', 'about', 'projects', 'experience', 'skills', 'principles', 'guestbook', 'contact']
+          const sections = ['hero', 'about', 'projects', 'experience', 'skills', 'guestbook', 'contact']
           const scrollPosition = window.scrollY + 200
 
           for (const sectionId of sections) {
@@ -112,35 +107,36 @@ export const Navbar: React.FC = () => {
       ref={headerRef}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[#050a14]/90 backdrop-blur-md border-b border-[#172847] shadow-lg shadow-[#02050a]/40 py-3'
-          : 'bg-transparent py-5 border-b border-transparent'
+          ? 'bg-[#050a14]/85 backdrop-blur-md border-b border-[#172847]/80 shadow-lg shadow-[#02050a]/40 py-2.5'
+          : 'bg-transparent py-4 border-b border-transparent'
       }`}
       role="banner"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           {/* Logo / Monogram */}
           <a
             href="#hero"
-            className="group flex items-center gap-2.5 text-[#f1f5f9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+            className="group flex items-center gap-2.5 text-[#f1f5f9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] shrink-0"
             aria-label="Mai Anh Kiệt — Home"
           >
             <div className="w-8 h-8 rounded-sm bg-[#0a1224] border border-[#172847] flex items-center justify-center text-[#00d2ff] group-hover:border-[#00d2ff] transition-colors shadow-[0_0_10px_rgba(0,210,255,0.15)]">
               <Terminal className="w-4 h-4" />
             </div>
             <div className="flex flex-col">
-              <span className="font-mono text-sm font-bold tracking-tight text-[#f1f5f9] group-hover:text-[#00d2ff] transition-colors">
+              <span className="font-mono text-sm font-bold tracking-tight text-[#f1f5f9] group-hover:text-[#00d2ff] transition-colors flex items-center gap-1.5">
                 KIỆT.DEV
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00d2ff] animate-pulse" />
               </span>
-              <span className="font-mono text-[10px] text-[#64748b] tracking-widest uppercase">
+              <span className="font-mono text-[9px] text-[#64748b] tracking-wider uppercase">
                 FPT.SE // 2005
               </span>
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links (Clean Floating Pill) */}
           <nav
-            className="hidden lg:flex items-center gap-1 bg-[#0a1224]/85 border border-[#172847] px-3 py-1.5 rounded-full backdrop-blur-md shadow-inner shadow-[#00d2ff]/5"
+            className="hidden lg:flex items-center gap-0.5 bg-[#0a1224]/80 border border-[#172847] px-2.5 py-1 rounded-full backdrop-blur-md shadow-inner shadow-[#00d2ff]/5"
             aria-label="Main Navigation"
           >
             {navLinks.map((link) => {
@@ -149,10 +145,10 @@ export const Navbar: React.FC = () => {
                 <a
                   key={link.id}
                   href={`#${link.id}`}
-                  className={`px-3.5 py-1 text-xs font-mono tracking-wider transition-all rounded-full relative ${
+                  className={`px-3 py-1 text-xs font-mono tracking-wide transition-all rounded-full ${
                     isActive
-                      ? 'text-[#050a14] bg-[#00d2ff] font-bold shadow-[0_0_14px_rgba(0,210,255,0.4)]'
-                      : 'text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0f1b33]'
+                      ? 'text-[#050a14] bg-[#00d2ff] font-bold shadow-[0_0_12px_rgba(0,210,255,0.35)]'
+                      : 'text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0f1b33]/60'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -162,40 +158,25 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Actions: Google Auth, Language Switch & Contact CTA */}
-          <div className="hidden sm:flex items-center gap-3">
+          {/* Right Actions for Desktop / Tablet: Auth, Donate, Language */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             {/* Google Authentication Button / User Profile Menu */}
             {!user ? (
-              <div className="flex items-center gap-2">
-                <span className="hidden xl:inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono rounded-xs bg-[#0a1224] border border-[#172847] text-[#64748b]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse" />
-                  <span>{t.nav.guest}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('signin')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm transition-all shadow-[0_0_12px_rgba(0,210,255,0.08)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
-                  title={t.nav.signIn}
-                >
-                  <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span className="font-bold">{t.nav.signIn}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('signup')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#00d2ff]/60 bg-[#0c182e] hover:bg-[#00d2ff] text-[#00d2ff] hover:text-[#050a14] rounded-sm transition-all shadow-[0_0_15px_rgba(0,210,255,0.2)] cursor-pointer font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
-                  title={t.nav.signUp}
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>{t.nav.signUp}</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => openAuthModal('signin')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224]/80 hover:border-[#00d2ff]/60 text-[#f1f5f9] hover:text-[#00d2ff] rounded-full transition-all cursor-pointer shadow-sm hover:shadow-[0_0_12px_rgba(0,210,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff]"
+                title={t.nav.signIn}
+              >
+                <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
+                <span className="font-semibold">{t.nav.signIn}</span>
+              </button>
             ) : (
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-mono border rounded-sm transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-mono border rounded-full transition-all cursor-pointer ${
                     isAdmin
                       ? 'border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.25)]'
                       : 'border-[#172847] bg-[#0a1224] text-[#f1f5f9] hover:border-[#00d2ff]/40'
@@ -206,22 +187,15 @@ export const Navbar: React.FC = () => {
                     alt={user.displayName || 'User'}
                     className="w-5 h-5 rounded-full border border-[#00d2ff]/40 shrink-0 object-cover"
                   />
-                  <span className="font-bold max-w-[90px] truncate">
+                  <span className="font-semibold max-w-[80px] truncate">
                     {user.displayName?.split(' ')[0] || 'User'}
-                  </span>
-                  <span
-                    className={`text-[9px] px-1 rounded-xs font-bold ${
-                      isAdmin ? 'bg-[#00d2ff] text-[#050a14]' : 'bg-[#172847] text-[#94a3b8]'
-                    }`}
-                  >
-                    {isAdmin ? 'ADMIN' : 'USER'}
                   </span>
                   <ChevronDown className="w-3 h-3 text-[#94a3b8]" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-sm bg-[#0a1224] border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs">
+                  <div className="absolute right-0 mt-2 w-60 rounded-lg bg-[#0a1224]/95 border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs backdrop-blur-md">
                     <div className="p-2 border-b border-[#172847] mb-1">
                       <div className="font-bold text-[#f1f5f9] truncate">
                         {user.displayName}
@@ -264,18 +238,6 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Language Switch Button */}
-            <button
-              onClick={toggleLanguage}
-              type="button"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224] hover:border-[#00d2ff] text-[#94a3b8] hover:text-[#00d2ff] rounded-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] cursor-pointer"
-              aria-label={`Switch language. Current: ${language.toUpperCase()}`}
-              title="Toggle English / Vietnamese"
-            >
-              <Globe className="w-3.5 h-3.5 text-[#00d2ff]" />
-              <span className="font-bold">{language.toUpperCase()}</span>
-            </button>
-
             {/* Donate VNPay QR Button */}
             <button
               type="button"
@@ -284,73 +246,57 @@ export const Navbar: React.FC = () => {
                   new CustomEvent('kietfolio:open-donate-modal', { detail: { type: 'coffee' } })
                 )
               }
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-sm transition-all shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
-              title={language === 'vi' ? 'Ủng hộ tách cà phê qua VNPay QR' : 'Buy me a coffee via VNPay QR'}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-full transition-all shadow-sm hover:shadow-[0_0_12px_rgba(245,158,11,0.2)] cursor-pointer"
+              title={language === 'vi' ? 'Ủng hộ tách cà phê (VietQR / MoMo)' : 'Donate / Buy me a coffee'}
             >
               <Coffee className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-bold">{language === 'vi' ? 'Ủng Hộ' : 'Donate'}</span>
+              <span className="hidden xl:inline font-semibold">{language === 'vi' ? 'Ủng Hộ' : 'Donate'}</span>
             </button>
 
-            {/* Contact CTA */}
-            <Button
-              href="#contact"
-              variant="primary"
-              size="sm"
-              className="font-mono text-xs uppercase tracking-wider"
-            >
-              <span>{t.nav.contact}</span>
-              <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex sm:hidden items-center gap-2">
-            {!user ? (
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('signin')}
-                  className="px-2 py-1 border border-[#172847] bg-[#0a1224] text-[11px] font-mono text-[#f1f5f9] hover:text-[#00d2ff] rounded-sm cursor-pointer"
-                  title={t.nav.signIn}
-                >
-                  {t.nav.signIn}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('signup')}
-                  className="px-2 py-1 border border-[#00d2ff]/50 bg-[#0c182e] text-[11px] font-mono text-[#00d2ff] rounded-sm cursor-pointer font-bold"
-                  title={t.nav.signUp}
-                >
-                  {t.nav.signUp}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={isAdmin ? openAdminModal : () => openAuthModal('signin')}
-                className="p-1 border border-[#00d2ff]/40 bg-[#0a1224] rounded-sm cursor-pointer"
-              >
-                <img
-                  src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
-                  alt="User"
-                  className="w-5 h-5 rounded-full"
-                />
-              </button>
-            )}
-
+            {/* Language Switch Button */}
             <button
               onClick={toggleLanguage}
               type="button"
-              className="p-2 border border-[#172847] bg-[#0a1224] text-xs font-mono text-[#00d2ff] rounded-sm cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-mono border border-[#172847] bg-[#0a1224]/80 hover:border-[#00d2ff]/50 text-[#94a3b8] hover:text-[#00d2ff] rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] cursor-pointer"
+              aria-label={`Switch language. Current: ${language.toUpperCase()}`}
+              title="Chuyển đổi Ngôn ngữ / Toggle Language"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#00d2ff]" />
+              <span className="font-bold text-[11px]">{language.toUpperCase()}</span>
+            </button>
+          </div>
+
+          {/* Mobile & Small Screen Action Bar (< md) */}
+          <div className="flex md:hidden items-center gap-2">
+            {/* Quick Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              type="button"
+              className="px-2.5 py-1 border border-[#172847] bg-[#0a1224] text-xs font-mono text-[#00d2ff] rounded-full cursor-pointer"
               aria-label="Toggle language"
             >
               {language.toUpperCase()}
             </button>
 
+            {/* Quick Donate Icon */}
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:open-donate-modal', { detail: { type: 'coffee' } })
+                )
+              }
+              className="p-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 cursor-pointer"
+              title={language === 'vi' ? 'Ủng hộ cà phê' : 'Donate'}
+            >
+              <Coffee className="w-4 h-4 text-amber-400" />
+            </button>
+
+            {/* Hamburger Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               type="button"
-              className="p-2 rounded-sm border border-[#172847] bg-[#0a1224] text-[#f1f5f9] hover:text-[#00d2ff] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] cursor-pointer"
+              className="p-1.5 rounded-full border border-[#172847] bg-[#0a1224] text-[#f1f5f9] hover:text-[#00d2ff] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d2ff] cursor-pointer"
               aria-label={mobileMenuOpen ? t.nav.close : t.nav.menu}
               aria-expanded={mobileMenuOpen}
             >
@@ -360,10 +306,10 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile Drawer Navigation (Slide-down with generous spacing) */}
       {mobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-x-0 top-[60px] bg-[#050a14]/98 border-b border-[#172847] backdrop-blur-xl px-6 py-6 transition-all shadow-2xl"
+          className="lg:hidden fixed inset-x-0 top-[54px] bg-[#050a14]/98 border-b border-[#172847] backdrop-blur-xl px-6 py-6 transition-all shadow-2xl z-50 max-h-[calc(100vh-60px)] overflow-y-auto"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation Drawer"
@@ -371,12 +317,12 @@ export const Navbar: React.FC = () => {
           <div className="flex flex-col space-y-3 font-mono">
             {/* User status card in mobile drawer */}
             {user ? (
-              <div className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#172847] flex items-center justify-between">
+              <div className="p-3 mb-2 rounded-lg bg-[#0a1224] border border-[#172847] flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <img
                     src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
                     alt="User"
-                    className="w-7 h-7 rounded-full border border-[#00d2ff]"
+                    className="w-8 h-8 rounded-full border border-[#00d2ff]"
                   />
                   <div>
                     <div className="text-xs font-bold text-[#f1f5f9]">{user.displayName}</div>
@@ -411,7 +357,7 @@ export const Navbar: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="p-3 mb-2 rounded-sm bg-[#0a1224] border border-[#172847] space-y-2.5">
+              <div className="p-3 mb-2 rounded-lg bg-[#0a1224] border border-[#172847] space-y-2.5">
                 <div className="flex items-center justify-between text-xs text-[#94a3b8]">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
@@ -428,7 +374,7 @@ export const Navbar: React.FC = () => {
                       setMobileMenuOpen(false)
                       openAuthModal('signin')
                     }}
-                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-sm border border-[#172847] bg-[#070d18] text-[#f1f5f9] text-xs font-mono font-bold cursor-pointer hover:border-[#00d2ff]"
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#172847] bg-[#070d18] text-[#f1f5f9] text-xs font-mono font-bold cursor-pointer hover:border-[#00d2ff]"
                   >
                     <LogIn className="w-3.5 h-3.5 text-[#00d2ff]" />
                     <span>{t.nav.signIn}</span>
@@ -439,7 +385,7 @@ export const Navbar: React.FC = () => {
                       setMobileMenuOpen(false)
                       openAuthModal('signup')
                     }}
-                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-sm border border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] text-xs font-mono font-bold cursor-pointer hover:bg-[#00d2ff] hover:text-[#050a14]"
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] text-xs font-mono font-bold cursor-pointer hover:bg-[#00d2ff] hover:text-[#050a14]"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     <span>{t.nav.signUp}</span>
@@ -455,7 +401,7 @@ export const Navbar: React.FC = () => {
                   key={link.id}
                   href={`#${link.id}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2.5 text-sm rounded-sm transition-colors ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 text-sm rounded-lg transition-colors ${
                     isActive
                       ? 'text-[#050a14] bg-[#00d2ff] font-bold shadow-[0_0_12px_rgba(0,210,255,0.3)]'
                       : 'text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0a1224]'
@@ -467,7 +413,7 @@ export const Navbar: React.FC = () => {
               )
             })}
 
-            <div className="pt-4 border-t border-[#172847] flex flex-col gap-3">
+            <div className="pt-3 border-t border-[#172847] flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -476,25 +422,11 @@ export const Navbar: React.FC = () => {
                     new CustomEvent('kietfolio:open-donate-modal', { detail: { type: 'coffee' } })
                   )
                 }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-sm border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs font-bold transition-all shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
               >
                 <Coffee className="w-4 h-4 text-amber-400" />
-                <span>{language === 'vi' ? '☕ Ủng hộ tác giả (VNPay QR)' : '☕ Donate / Buy Coffee (VNPay QR)'}</span>
+                <span>{language === 'vi' ? 'Ủng hộ tách cà phê (VietQR / MoMo)' : 'Donate / Buy Coffee'}</span>
               </button>
-
-              <div className="flex items-center justify-between text-xs text-[#64748b] px-3">
-                <span>{t.nav.statusAvailable}</span>
-              </div>
-              <Button
-                href="#contact"
-                variant="primary"
-                size="md"
-                className="w-full justify-center"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span>{t.nav.contact}</span>
-                <ArrowUpRight className="w-4 h-4 ml-1.5" />
-              </Button>
             </div>
           </div>
         </div>

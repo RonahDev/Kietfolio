@@ -106,7 +106,7 @@ export function AppContent() {
 
   const handleIntroComplete = (skipped = false) => {
     setIsIntroReady(true)
-    if (!skipped && !isReducedMotion()) {
+    if (!skipped) {
       triggerWhaleCinematic()
     }
   }
