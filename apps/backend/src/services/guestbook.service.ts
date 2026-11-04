@@ -25,8 +25,23 @@ const initialGuestbookEntries: GuestbookEntry[] = [
 
 let memoryGuestbook: GuestbookEntry[] = [...initialGuestbookEntries]
 
+// High-concurrency enterprise in-memory cache with instantaneous invalidation
+let cachedEntries: GuestbookEntry[] | null = null
+let cacheExpiresAt = 0
+const CACHE_TTL_MS = 30_000 // 30 seconds
+
 export class GuestbookService {
+  public static invalidateCache(): void {
+    cachedEntries = null
+    cacheExpiresAt = 0
+  }
+
   public static async getAll(): Promise<GuestbookEntry[]> {
+    const now = Date.now()
+    if (cachedEntries && now < cacheExpiresAt) {
+      return cachedEntries
+    }
+
     try {
       const res = await pool.query(
         `SELECT id, name, avatar, role_title as "roleTitle", message, 
@@ -36,8 +51,12 @@ export class GuestbookService {
          ORDER BY is_pinned DESC, created_at DESC`
       )
       if (res.rows.length > 0) {
+        cachedEntries = res.rows
+        cacheExpiresAt = now + CACHE_TTL_MS
         return res.rows
       }
+      cachedEntries = memoryGuestbook
+      cacheExpiresAt = now + CACHE_TTL_MS
       return memoryGuestbook
     } catch {
       return memoryGuestbook
@@ -76,6 +95,7 @@ export class GuestbookService {
     }
 
     memoryGuestbook = [newEntry, ...memoryGuestbook]
+    this.invalidateCache()
     return newEntry
   }
 
@@ -86,6 +106,7 @@ export class GuestbookService {
       // Memory fallback
     }
     memoryGuestbook = memoryGuestbook.filter((e) => e.id !== id)
+    this.invalidateCache()
     return true
   }
 }

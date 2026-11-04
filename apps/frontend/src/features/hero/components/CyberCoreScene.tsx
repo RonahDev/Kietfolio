@@ -21,6 +21,22 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
   const containerRef = useRef<HTMLDivElement>(null)
   const [hasWebGlError] = useState(() => !checkWebGlSupport())
   const { tier } = usePerformance()
+  const tierRef = useRef(tier)
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+
+  // Keep tierRef updated and adapt pixel ratio without tearing down Three.js scene
+  useEffect(() => {
+    tierRef.current = tier
+    if (rendererRef.current) {
+      const targetPixelRatio =
+        tier === 'high'
+          ? Math.min(window.devicePixelRatio, 1.75)
+          : tier === 'medium'
+          ? Math.min(window.devicePixelRatio, 1.25)
+          : 1.0
+      rendererRef.current.setPixelRatio(targetPixelRatio)
+    }
+  }, [tier])
 
   useEffect(() => {
     if (hasWebGlError) return
@@ -28,6 +44,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     if (!container) return
 
     const reducedMotion = isReducedMotion()
+    const isLowTier = tierRef.current === 'low'
 
     // 1. Scene, Camera & Setup
     const scene = new THREE.Scene()
@@ -43,18 +60,19 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     let renderer: THREE.WebGLRenderer
     try {
       renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: !isLowTier,
         alpha: true,
-        powerPreference: 'high-performance',
+        powerPreference: isLowTier ? 'low-power' : 'high-performance',
       })
       renderer.setSize(container.clientWidth, container.clientHeight)
       const targetPixelRatio =
-        tier === 'high'
+        tierRef.current === 'high'
           ? Math.min(window.devicePixelRatio, 1.75)
-          : tier === 'medium'
+          : tierRef.current === 'medium'
           ? Math.min(window.devicePixelRatio, 1.25)
           : 1.0
       renderer.setPixelRatio(targetPixelRatio)
+      rendererRef.current = renderer
       container.appendChild(renderer.domElement)
     } catch {
       return
@@ -87,7 +105,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     systemGroup.add(innerMesh)
 
     // C. Glowing Center Nucleus Point
-    const nucleusGeo = new THREE.SphereGeometry(0.65, 16, 16)
+    const nucleusGeo = new THREE.SphereGeometry(0.65, isLowTier ? 8 : 16, isLowTier ? 8 : 16)
     const nucleusMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -97,7 +115,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     systemGroup.add(nucleusMesh)
 
     // D. Orbiting Gyroscope Hologram Rings
-    const ring1Geo = new THREE.TorusGeometry(6.8, 0.035, 16, 100)
+    const ring1Geo = new THREE.TorusGeometry(6.8, 0.035, isLowTier ? 8 : 16, isLowTier ? 36 : 100)
     const ring1Mat = new THREE.MeshBasicMaterial({
       color: 0x00d2ff,
       transparent: true,
@@ -107,7 +125,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     ring1Mesh.rotation.x = Math.PI / 3
     systemGroup.add(ring1Mesh)
 
-    const ring2Geo = new THREE.TorusGeometry(8.4, 0.025, 16, 100)
+    const ring2Geo = new THREE.TorusGeometry(8.4, 0.025, isLowTier ? 8 : 16, isLowTier ? 36 : 100)
     const ring2Mat = new THREE.MeshBasicMaterial({
       color: 0x0284c7,
       transparent: true,
@@ -118,7 +136,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
     systemGroup.add(ring2Mesh)
 
     // E. Constellation Satellite Nodes & Lines (Adaptive count according to FPS tier)
-    const nodeCount = tier === 'high' ? 42 : tier === 'medium' ? 24 : 12
+    const nodeCount = tierRef.current === 'high' ? 42 : tierRef.current === 'medium' ? 24 : 8
     const nodePositions: THREE.Vector3[] = []
     const nodeGeo = new THREE.SphereGeometry(0.12, 8, 8)
     const nodeMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff })
@@ -207,7 +225,7 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
       if (!isIntersecting || !isDocumentVisible) return
 
       // Throttling for low-end / battery saver devices to save 50% GPU fillrate
-      if (tier === 'low') {
+      if (tierRef.current === 'low') {
         frameSkip++
         if (frameSkip % 2 !== 0) return
       }
@@ -269,8 +287,9 @@ export const CyberCoreScene: React.FC<CyberCoreSceneProps> = ({ className = '' }
       linesGeo.dispose()
       linesMat.dispose()
       renderer.dispose()
+      rendererRef.current = null
     }
-  }, [hasWebGlError, tier])
+  }, [hasWebGlError])
 
   if (hasWebGlError) {
     return (

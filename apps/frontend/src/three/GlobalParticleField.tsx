@@ -8,7 +8,8 @@ export const GlobalParticleField: React.FC = () => {
   const { tier } = usePerformance()
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    // Enterprise Low-Spec Optimization: completely bypass WebGL context on low-end hardware
+    if (typeof window === 'undefined' || tier === 'low') return
     const container = containerRef.current
     if (!container) return
 
@@ -97,20 +98,20 @@ export const GlobalParticleField: React.FC = () => {
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
+    // Viewport Occlusion Culling: pause particle rendering when user scrolls deep into content
+    let isScrolledPast = false
+    const onScroll = () => {
+      isScrolledPast = window.scrollY > window.innerHeight * 1.5
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
     // Autonomous slow cosmic drift loop (Zero Mouse Tracking)
     let animId: number
-    let frameSkip = 0
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
-      if (!isVisible) return
-
-      // Throttling for low-end / battery saver devices
-      if (tier === 'low') {
-        frameSkip++
-        if (frameSkip % 2 !== 0) return
-      }
+      if (!isVisible || isScrolledPast) return
 
       const time = clock.getElapsedTime()
 
@@ -137,6 +138,7 @@ export const GlobalParticleField: React.FC = () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('scroll', onScroll)
 
       scene.clear()
 
@@ -150,6 +152,10 @@ export const GlobalParticleField: React.FC = () => {
       renderer.dispose()
     }
   }, [tier])
+
+  if (tier === 'low') {
+    return null
+  }
 
   return (
     <div

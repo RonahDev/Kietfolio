@@ -32,7 +32,7 @@ export const LightningAtmosphere: React.FC = () => {
 
   return (
     <>
-      {/* Top Cybernetic Scroll Progress Bar */}
+      {/* Top Cybernetic Scroll Progress Bar (GPU Compositor ScaleX - Zero Reflow) */}
       <div
         className={`fixed top-0 left-0 right-0 h-[2px] z-50 pointer-events-none bg-transparent transition-opacity duration-500 ${
           isCinematicActive ? 'opacity-0' : 'opacity-100'
@@ -40,8 +40,11 @@ export const LightningAtmosphere: React.FC = () => {
         aria-hidden="true"
       >
         <div
-          className="h-full bg-gradient-to-r from-[#0284c7] via-[#00d2ff] to-[#38bdf8] shadow-[0_0_12px_#00d2ff] transition-all duration-75"
-          style={{ width: `${scrollProgress}%` }}
+          className="h-full w-full bg-gradient-to-r from-[#0284c7] via-[#00d2ff] to-[#38bdf8] shadow-[0_0_12px_#00d2ff] will-change-transform"
+          style={{
+            transform: `scaleX(${scrollProgress / 100})`,
+            transformOrigin: 'left',
+          }}
         />
       </div>
 

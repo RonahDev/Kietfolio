@@ -12,6 +12,8 @@ export const pool = new Pool({
   max: 20, // Max concurrent database connections per container instance
   idleTimeoutMillis: 30000, // Disconnect idle clients after 30 seconds
   connectionTimeoutMillis: 3000, // Fast-fail connection timeout
+  statement_timeout: 4000, // Fast-fail runaway SQL statements after 4s to prevent pool starvation
+  query_timeout: 4000, // Node-pg query timeout limit
   allowExitOnIdle: true, // Allow Node process to gracefully exit when no queries pending
 })
 

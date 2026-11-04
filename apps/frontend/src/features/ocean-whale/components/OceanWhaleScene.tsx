@@ -512,6 +512,13 @@ export const OceanWhaleScene: React.FC = () => {
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
+    // Viewport Occlusion Culling: pause rendering when scrolled past hero section
+    let isPastHero = false
+    const onScroll = () => {
+      isPastHero = window.scrollY > window.innerHeight * 1.15
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
     // ==========================================
     // 4. ANIMATION LOOP (Butter smooth 60 FPS)
     // ==========================================
@@ -522,6 +529,9 @@ export const OceanWhaleScene: React.FC = () => {
     const animate = () => {
       animId = requestAnimationFrame(animate)
       if (!isVisible) return
+
+      // Occlusion culling: when user scrolled down to content, skip GPU wave rendering
+      if (isPastHero && !isBreaching) return
 
       // Throttling for low tier devices when not in active breach
       if (tierRef.current === 'low' && !isBreaching) {
@@ -594,6 +604,7 @@ export const OceanWhaleScene: React.FC = () => {
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', onResize)
+      window.removeEventListener('scroll', onScroll)
       document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('kietfolio:summon-whale', startCinematicBreach)
       window.removeEventListener('kietfolio:whale-cinematic-start', startCinematicBreach)

@@ -49,10 +49,18 @@ function getInitialDeviceProfile(): DeviceProfile {
 }
 
 function calculateInitialTier(profile: DeviceProfile): PerformanceTier {
-  if (!profile.supportsWebGl || profile.saveData || profile.cores <= 2) {
+  if (
+    !profile.supportsWebGl ||
+    profile.saveData ||
+    profile.cores <= 2 ||
+    (profile.memoryGb && profile.memoryGb <= 2)
+  ) {
     return 'low'
   }
   if (profile.isMobile && (profile.cores <= 4 || (profile.memoryGb && profile.memoryGb <= 4))) {
+    return 'low'
+  }
+  if (!profile.isMobile && (profile.cores <= 4 || (profile.memoryGb && profile.memoryGb <= 4))) {
     return 'medium'
   }
   return 'high'

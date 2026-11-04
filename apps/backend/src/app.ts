@@ -6,11 +6,19 @@ import { config } from './config/env'
 import { apiRouter } from './routes'
 import { apiLimiter } from './middlewares/rateLimiter.middleware'
 import { errorHandler } from './middlewares/errorHandler.middleware'
+import { compressionMiddleware } from './middlewares/compression.middleware'
+import { overloadProtectionMiddleware } from './middlewares/overloadProtection.middleware'
 import { requestContextMiddleware, idempotencyMiddleware } from './resilience'
 
 export const app = express()
 
-// 1. Request Context & Distributed Tracing (X-Request-Id)
+// 1. Enterprise Resilience: Concurrency Overload & Lag Backpressure Guard
+app.use(overloadProtectionMiddleware)
+
+// 2. High-Performance Gzip/Deflate Compression (Zero Third-Party Dependency)
+app.use(compressionMiddleware)
+
+// 3. Request Context & Distributed Tracing (X-Request-Id)
 app.use(requestContextMiddleware)
 
 // 2. Security & Hygiene Middlewares
