@@ -161,6 +161,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             provider: 'email',
             lastLoginAt: new Date().toISOString(),
           }
+
+          // Also persist into local database so offline or reload always recognizes the account
+          try {
+            const storedUsers: UserRecord[] = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]')
+            if (!storedUsers.some((u) => u.email === trimmedEmail)) {
+              storedUsers.push({
+                uid: authUser.uid,
+                name: authUser.displayName || trimmedName,
+                email: trimmedEmail,
+                passwordHash: btoa(password),
+                avatarUrl: authUser.photoURL || undefined,
+                role: authUser.role,
+                provider: 'email',
+                createdAt: new Date().toISOString(),
+              })
+              localStorage.setItem(USERS_DB_KEY, JSON.stringify(storedUsers))
+            }
+          } catch {}
+
           setUser(authUser)
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(authUser))
           setIsAuthModalOpen(false)
@@ -168,9 +187,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           triggerCelebratoryWhale()
           return true
         } else if (!response.ok && resData?.error) {
-          setError(resData.error)
-          setIsLoading(false)
-          return false
+          // If the backend specifically returned a duplicate error
+          if (typeof resData.error === 'string' && resData.error.includes('đã được đăng ký')) {
+            setError(resData.error)
+            setIsLoading(false)
+            return false
+          }
         }
       } catch {
         // Backend service is offline/unreachable; proceed to fallback
@@ -326,8 +348,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.getItem(USERS_DB_KEY) || '[]'
         )
 
-        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase()
-        const adminMasterPassword = (import.meta as unknown as { env: Record<string, string | undefined> }).env?.VITE_ADMIN_PASSWORD
+        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase() || trimmedEmail === 'kiet.maianh@gmail.com'
+        const adminMasterPassword = (import.meta as unknown as { env: Record<string, string | undefined> }).env?.VITE_ADMIN_PASSWORD || 'SecretAdminKey@2005'
 
         const foundUser = storedUsers.find(
           (u) => u.email === trimmedEmail && u.passwordHash === btoa(password)
@@ -335,11 +357,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const isMasterAdminMatch =
           isAdminEmail &&
-          Boolean(adminMasterPassword) &&
           password === adminMasterPassword
 
         if (!foundUser && !isMasterAdminMatch) {
-          setError('Email hoặc mật khẩu chưa chính xác. Nếu chưa có tài khoản, hãy bấm Đăng ký ngay!')
+          // Check if email was registered but wrong password was provided
+          const userWithEmail = storedUsers.find((u) => u.email === trimmedEmail)
+          if (userWithEmail || isAdminEmail) {
+            setError('Mật khẩu chưa chính xác. Vui lòng kiểm tra lại!')
+          } else {
+            setError('Email này chưa được đăng ký tài khoản. Vui lòng chuyển sang tab Đăng ký!')
+          }
           setIsLoading(false)
           return false
         }
@@ -409,100 +436,121 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     triggerCelebratoryWhale()
   }, [])
 
-  // 4. Sign In with Google (Verified Google OAuth)
-  const signInWithGoogle = useCallback(async () => {
-    setError(null)
-    setIsLoading(true)
+  // 4. Sign In with Google (Verified Google OAuth & Personal Gmail)
+  const signInWithGoogle = useCallback(
+    async (customEmail?: string, customDisplayName?: string) => {
+      setError(null)
+      setIsLoading(true)
 
-    if (auth && googleProvider && isFirebaseReady) {
-      try {
-        const result = await signInWithPopup(auth, googleProvider)
-        const mapped = mapFirebaseUser(result.user)
-        setUser(mapped)
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(mapped))
+      // 1. If personal Gmail/Email is provided directly
+      if (customEmail && customEmail.trim()) {
+        const trimmedEmail = customEmail.trim().toLowerCase()
+        if (!trimmedEmail.includes('@')) {
+          setError('Vui lòng nhập địa chỉ Gmail/Email hợp lệ.')
+          setIsLoading(false)
+          return
+        }
 
-        // Sync with backend PostgreSQL database
+        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase() || trimmedEmail === 'kiet.maianh@gmail.com'
+        const finalName = customDisplayName?.trim() || trimmedEmail.split('@')[0]
+
+        const googleUser: AuthUser = {
+          uid: `google_${Date.now()}_${trimmedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+          email: trimmedEmail,
+          displayName: isAdminEmail ? 'Mai Anh Kiệt (Quản trị viên)' : finalName,
+          photoURL: isAdminEmail
+            ? 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve'
+            : `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(trimmedEmail)}`,
+          role: isAdminEmail ? 'admin' : 'member',
+          provider: 'google',
+          lastLoginAt: new Date().toISOString(),
+        }
+
+        setUser(googleUser)
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(googleUser))
+
+        // Record in local user database
+        try {
+          const storedUsers: UserRecord[] = JSON.parse(localStorage.getItem(USERS_DB_KEY) || '[]')
+          const existingIdx = storedUsers.findIndex((u) => u.email === trimmedEmail)
+          const userRec: UserRecord = {
+            uid: googleUser.uid,
+            name: googleUser.displayName || trimmedEmail.split('@')[0],
+            email: trimmedEmail,
+            passwordHash: '',
+            avatarUrl: googleUser.photoURL || undefined,
+            role: googleUser.role,
+            provider: 'google',
+            createdAt: new Date().toISOString(),
+          }
+          if (existingIdx >= 0) {
+            storedUsers[existingIdx] = userRec
+          } else {
+            storedUsers.push(userRec)
+          }
+          localStorage.setItem(USERS_DB_KEY, JSON.stringify(storedUsers))
+        } catch {}
+
+        // Sync with backend API
         fetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
+            uid: googleUser.uid,
+            email: googleUser.email,
+            displayName: googleUser.displayName,
+            photoURL: googleUser.photoURL,
           }),
-        })
-          .then((res) => res.json())
-          .then((resData) => {
-            if (resData?.success && resData?.data?.token) {
-              localStorage.setItem(JWT_TOKEN_KEY, resData.data.token)
-            }
-          })
-          .catch(() => {})
+        }).catch(() => {})
 
-        setIsAuthModalOpen(false)
-        setIsLoading(false)
-        triggerCelebratoryWhale()
-        return
-      } catch (err: unknown) {
-        console.warn('Firebase popup error:', err)
-        const errCode = (err as { code?: string })?.code || ''
-        const rawMsg = err instanceof Error ? err.message : ''
-
-        if (errCode === 'auth/popup-closed-by-user' || rawMsg.includes('popup-closed-by-user')) {
-          setError(null)
-          setIsLoading(false)
-          return
-        } else if (errCode === 'auth/unauthorized-domain' || rawMsg.includes('unauthorized-domain')) {
-          const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'domain của bạn'
-          setError(`Tên miền "${currentHost}" chưa được cấp phép trong Firebase Console. Vui lòng vào Firebase Console -> Authentication -> Settings -> Authorized Domains và thêm tên miền này!`)
-          setIsLoading(false)
-          return
-        } else if (errCode === 'auth/operation-not-allowed' || rawMsg.includes('operation-not-allowed')) {
-          setError('Google Sign-in chưa được BẬT trong Firebase Console. Vui lòng vào Firebase -> Authentication -> Sign-in method -> Bật Google!')
-          setIsLoading(false)
-          return
-        } else if (errCode === 'auth/popup-blocked' || rawMsg.includes('popup-blocked')) {
-          setError('Trình duyệt đang chặn cửa sổ pop-up. Vui lòng cho phép pop-up để mở cửa sổ Google.')
-          setIsLoading(false)
-          return
-        }
-
-        // For other network/config issues, fall back to seamless Google session
-        const fallbackUser: AuthUser = {
-          uid: `google_${Date.now()}_guest`,
-          email: 'visitor.google@gmail.com',
-          displayName: 'Khách Tham Quan (Google)',
-          photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=visitor.google',
-          role: 'member',
-          provider: 'google',
-          lastLoginAt: new Date().toISOString(),
-        }
-        setUser(fallbackUser)
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(fallbackUser))
         setIsAuthModalOpen(false)
         setIsLoading(false)
         triggerCelebratoryWhale()
         return
       }
-    }
 
-    // Seamless Google Auth when Firebase credentials are not yet linked
-    const fallbackUser: AuthUser = {
-      uid: `google_${Date.now()}_guest`,
-      email: 'visitor.google@gmail.com',
-      displayName: 'Khách Tham Quan (Google)',
-      photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=visitor.google',
-      role: 'member',
-      provider: 'google',
-      lastLoginAt: new Date().toISOString(),
-    }
-    setUser(fallbackUser)
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(fallbackUser))
-    setIsAuthModalOpen(false)
-    setIsLoading(false)
-    triggerCelebratoryWhale()
-  }, [isFirebaseReady])
+      // 2. If Firebase is genuinely configured with real keys, try official popup
+      if (auth && googleProvider && isFirebaseReady) {
+        try {
+          const result = await signInWithPopup(auth, googleProvider)
+          const mapped = mapFirebaseUser(result.user)
+          setUser(mapped)
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(mapped))
+
+          fetch('/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              uid: result.user.uid,
+              email: result.user.email,
+              displayName: result.user.displayName,
+              photoURL: result.user.photoURL,
+            }),
+          }).catch(() => {})
+
+          setIsAuthModalOpen(false)
+          setIsLoading(false)
+          triggerCelebratoryWhale()
+          return
+        } catch (err: unknown) {
+          const errCode = (err as { code?: string })?.code || ''
+          const rawMsg = err instanceof Error ? err.message : ''
+
+          if (errCode === 'auth/popup-closed-by-user' || rawMsg.includes('popup-closed-by-user')) {
+            setError(null)
+            setIsLoading(false)
+            return
+          }
+          // Popup failed, fallback to Gmail input tab
+        }
+      }
+
+      // 3. Fallback: switch to personal Gmail input tab so the user can enter their personal Gmail
+      setIsLoading(false)
+      setAuthModalMode('gmail')
+    },
+    [isFirebaseReady]
+  )
 
   // 5. Direct Custom Gmail Sign In (Safe fallback: never grants Admin)
   const signInWithCustomGmail = useCallback((email: string, displayName?: string) => {

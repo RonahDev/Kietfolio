@@ -27,7 +27,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@kietfolio/shared-types': path.resolve(__dirname, '../../packages/shared-types/src/index.ts'),
+      '@kietfolio/shared-types': path.resolve(__dirname, './src/types/errorLog.ts'),
     },
   },
   build: {

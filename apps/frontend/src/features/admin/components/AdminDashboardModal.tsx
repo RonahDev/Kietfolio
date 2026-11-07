@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth, useLanguage } from '@/hooks'
 import { ADMIN_EMAIL, type ContactMessage } from '@/features/auth'
-import type { ErrorLogItem } from '@kietfolio/shared-types'
+import type { ErrorLogItem } from '@/types/errorLog'
 import { clientLogger } from '@/services/logger/clientLogger'
 import {
   X,

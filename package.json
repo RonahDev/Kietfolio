@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "description": "Fullstack 3D Cybernetic Portfolio Monorepo for Mai Anh Kiệt",
   "engines": {
-    "node": ">=22.12.0",
-    "npm": ">=10.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
   },
   "workspaces": [
     "apps/frontend",

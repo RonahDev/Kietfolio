@@ -19,13 +19,13 @@ const cleanEnv = (val?: string): string => {
 
 // Official Firebase web configuration for Kietfolio
 const firebaseConfig = {
-  apiKey: cleanEnv(import.meta.env.VITE_FIREBASE_API_KEY) || 'AIzaSyAa3EAMNqInR8dUigbpLxrNzf5j2Ae1JD4',
-  authDomain: cleanEnv(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN) || 'kietfolio-75531.firebaseapp.com',
-  projectId: cleanEnv(import.meta.env.VITE_FIREBASE_PROJECT_ID) || 'kietfolio-75531',
-  storageBucket: cleanEnv(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET) || 'kietfolio-75531.firebasestorage.app',
-  messagingSenderId: cleanEnv(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID) || '457896302361',
-  appId: cleanEnv(import.meta.env.VITE_FIREBASE_APP_ID) || '1:457896302361:web:37228694a461190d581788',
-  measurementId: 'G-53Q5JZHW12',
+  apiKey: cleanEnv(import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: cleanEnv(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: cleanEnv(import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: cleanEnv(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: cleanEnv(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: cleanEnv(import.meta.env.VITE_FIREBASE_APP_ID),
+  measurementId: cleanEnv(import.meta.env.VITE_FIREBASE_MEASUREMENT_ID),
 }
 
 export const isFirebaseConfigured = (): boolean => {
@@ -38,7 +38,8 @@ export const isFirebaseConfigured = (): boolean => {
       key.startsWith('AIza') &&
       key.length >= 25 &&
       firebaseConfig.authDomain &&
-      firebaseConfig.projectId
+      firebaseConfig.projectId &&
+      !key.includes('your-')
   )
 }
 

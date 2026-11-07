@@ -34,7 +34,7 @@ export const AuthModal: React.FC = () => {
   } = useAuth()
   const { language } = useLanguage()
 
-  const [userTab, setUserTab] = useState<'signin' | 'signup' | null>(null)
+  const [userTab, setUserTab] = useState<'signin' | 'signup' | 'gmail' | null>(null)
   const [prevModalKey, setPrevModalKey] = useState<string | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -46,8 +46,12 @@ export const AuthModal: React.FC = () => {
     setLocalError(null)
   }
 
-  const activeTab: 'signin' | 'signup' =
-    userTab ?? (authModalMode === 'signup' ? 'signup' : 'signin')
+  const activeTab: 'signin' | 'signup' | 'gmail' =
+    userTab ?? (authModalMode === 'signup' ? 'signup' : authModalMode === 'gmail' ? 'gmail' : 'signin')
+
+  // Direct Personal Gmail form fields
+  const [gmailInput, setGmailInput] = useState('')
+  const [gmailNameInput, setGmailNameInput] = useState('')
 
   // Sign In form fields
   const [signInEmail, setSignInEmail] = useState('')
@@ -66,10 +70,36 @@ export const AuthModal: React.FC = () => {
 
   if (!isAuthModalOpen) return null
 
-  const handleTabChange = (tab: 'signin' | 'signup') => {
+  const handleTabChange = (tab: 'signin' | 'signup' | 'gmail') => {
     setUserTab(tab)
     setLocalError(null)
     clearError()
+  }
+
+  const handleGoogleClick = async () => {
+    setLocalError(null)
+    clearError()
+    if (isFirebaseReady) {
+      await signInWithGoogle()
+    } else {
+      setUserTab('gmail')
+    }
+  }
+
+  const handleGmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLocalError(null)
+    const trimmed = gmailInput.trim().toLowerCase()
+    if (!trimmed || !trimmed.includes('@')) {
+      setLocalError(
+        language === 'vi'
+          ? 'Vui lòng nhập địa chỉ Gmail/Email hợp lệ (ví dụ: yourname@gmail.com).'
+          : 'Please enter a valid personal Gmail/Email address.'
+      )
+      return
+    }
+
+    await signInWithGoogle(trimmed, gmailNameInput.trim() || undefined)
   }
 
   const handleSignInSubmit = async (e: React.FormEvent) => {
@@ -83,7 +113,11 @@ export const AuthModal: React.FC = () => {
       )
       return
     }
-    await signInWithEmail(signInEmail.trim(), signInPassword)
+    const success = await signInWithEmail(signInEmail.trim(), signInPassword)
+    if (success) {
+      setSignInEmail('')
+      setSignInPassword('')
+    }
   }
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
@@ -118,7 +152,13 @@ export const AuthModal: React.FC = () => {
       return
     }
 
-    await registerWithEmail(signUpName.trim(), signUpEmail.trim(), signUpPassword)
+    const success = await registerWithEmail(signUpName.trim(), signUpEmail.trim(), signUpPassword)
+    if (success) {
+      setSignUpName('')
+      setSignUpEmail('')
+      setSignUpPassword('')
+      setSignUpConfirmPassword('')
+    }
   }
 
   const displayedError = localError || authError
@@ -138,14 +178,24 @@ export const AuthModal: React.FC = () => {
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#172847] bg-[#070d1a]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-sm bg-[#0f1b33] border border-[#00d2ff]/40 flex items-center justify-center text-[#00d2ff] shadow-[0_0_10px_rgba(0,210,255,0.2)]">
-              {activeTab === 'signin' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+              {activeTab === 'gmail' ? (
+                <GoogleIcon className="w-4 h-4" />
+              ) : activeTab === 'signin' ? (
+                <LogIn className="w-4 h-4" />
+              ) : (
+                <UserPlus className="w-4 h-4" />
+              )}
             </div>
             <div>
               <span className="text-[10px] font-mono text-[#00d2ff] tracking-widest block uppercase">
-                AUTHENTICATION // GOOGLE_OAUTH
+                AUTHENTICATION // {activeTab === 'gmail' ? 'GOOGLE_OAUTH' : activeTab === 'signin' ? 'MEMBER_SIGNIN' : 'MEMBER_SIGNUP'}
               </span>
               <h2 id="auth-modal-title" className="text-base sm:text-lg font-bold font-mono text-[#f1f5f9]">
-                {activeTab === 'signin'
+                {activeTab === 'gmail'
+                  ? language === 'vi'
+                    ? 'Đăng Nhập Google / Gmail'
+                    : 'Google / Gmail Sign In'
+                  : activeTab === 'signin'
                   ? language === 'vi'
                     ? 'Đăng Nhập Tài Khoản'
                     : 'Sign In to Your Account'
@@ -166,12 +216,25 @@ export const AuthModal: React.FC = () => {
           </button>
         </div>
 
-        {/* 2 Standard Tabs: ĐĂNG NHẬP vs ĐĂNG KÝ */}
+        {/* 3 Standard Tabs: GOOGLE / GMAIL vs ĐĂNG NHẬP vs ĐĂNG KÝ */}
         <div className="flex items-center border-b border-[#172847] bg-[#081020] text-xs font-mono">
           <button
             type="button"
+            onClick={() => handleTabChange('gmail')}
+            className={`flex-1 py-3 px-2 text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-1.5 ${
+              activeTab === 'gmail'
+                ? 'border-[#00d2ff] text-[#00d2ff] bg-[#0c182e] font-bold shadow-inner'
+                : 'border-transparent text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0c1527]'
+            }`}
+          >
+            <GoogleIcon className="w-3.5 h-3.5" />
+            <span className="truncate">GOOGLE / GMAIL</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => handleTabChange('signin')}
-            className={`flex-1 py-3 px-3 text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
+            className={`flex-1 py-3 px-2 text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-1.5 ${
               activeTab === 'signin'
                 ? 'border-[#00d2ff] text-[#00d2ff] bg-[#0c182e] font-bold shadow-inner'
                 : 'border-transparent text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0c1527]'
@@ -184,7 +247,7 @@ export const AuthModal: React.FC = () => {
           <button
             type="button"
             onClick={() => handleTabChange('signup')}
-            className={`flex-1 py-3 px-3 text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
+            className={`flex-1 py-3 px-2 text-center transition-all cursor-pointer border-b-2 flex items-center justify-center gap-1.5 ${
               activeTab === 'signup'
                 ? 'border-[#00d2ff] text-[#00d2ff] bg-[#0c182e] font-bold shadow-inner'
                 : 'border-transparent text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0c1527]'
@@ -205,223 +268,354 @@ export const AuthModal: React.FC = () => {
             </div>
           )}
 
-          {/* 🌟 GOOGLE OAUTH BUTTON (CỬA SỔ LIÊN KẾT TÀI KHOẢN GMAIL CỦA GOOGLE) */}
-          <div className="space-y-2">
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => signInWithGoogle()}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
-            >
-              <GoogleIcon className="w-4 h-4 shrink-0" />
-              <span>
-                {isLoading
-                  ? language === 'vi'
-                    ? 'Đang kết nối Google...'
-                    : 'Connecting to Google...'
-                  : activeTab === 'signin'
-                  ? language === 'vi'
-                    ? 'Tiếp tục với Google / Gmail'
-                    : 'Continue with Google Account'
-                  : language === 'vi'
-                  ? 'Đăng ký nhanh bằng Google'
-                  : 'Fast Sign Up with Google'}
-              </span>
-            </button>
-            <p className="text-[11px] font-mono text-center text-[#64748b]">
-              {language === 'vi'
-                ? 'Mở cửa sổ chính thức của Google để liên kết tài khoản Gmail cá nhân của bạn'
-                : 'Opens official Google window to link your personal Gmail account'}
-            </p>
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 py-1">
-            <div className="flex-1 h-[1px] bg-[#172847]" />
-            <span className="text-[10px] font-mono text-[#64748b] uppercase tracking-wider">
-              {language === 'vi' ? 'HOẶC VỚI EMAIL & MẬT KHẨU' : 'OR WITH EMAIL & PASSWORD'}
-            </span>
-            <div className="flex-1 h-[1px] bg-[#172847]" />
-          </div>
-
-          {/* TAB 1: FORM ĐĂNG NHẬP (Sign In) */}
-          {activeTab === 'signin' && (
-            <form onSubmit={handleSignInSubmit} className="space-y-3.5 font-mono text-xs animate-in fade-in">
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Địa chỉ Email' : 'Email Address'}</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={signInEmail}
-                  onChange={(e) => setSignInEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Mật khẩu' : 'Password'}</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showSignInPassword ? 'text' : 'password'}
-                    required
-                    value={signInPassword}
-                    onChange={(e) => setSignInPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowSignInPassword(!showSignInPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f1f5f9] cursor-pointer"
-                    aria-label="Toggle password visibility"
-                  >
-                    {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+          {/* TAB 1: GOOGLE / GMAIL CÁ NHÂN */}
+          {activeTab === 'gmail' && (
+            <div className="space-y-4 font-mono text-xs animate-in fade-in">
+              {/* Informational Banner */}
+              <div className="p-3 rounded-sm bg-[#070d18] border border-[#172847] flex items-start gap-3">
+                <GoogleIcon className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="space-y-1 text-[#cbd5e1] leading-relaxed text-[11px]">
+                  <p className="font-bold text-[#f1f5f9]">
+                    {language === 'vi'
+                      ? 'Đăng nhập bằng tài khoản Google / Gmail cá nhân'
+                      : 'Sign in with your personal Google / Gmail account'}
+                  </p>
+                  <p className="text-[#94a3b8]">
+                    {language === 'vi'
+                      ? 'Nhập địa chỉ Gmail của bạn để xác thực phiên làm việc, tạo avatar cá nhân và kích hoạt hiệu ứng đặc biệt.'
+                      : 'Enter your personal Gmail to authenticate, generate your custom avatar, and sync profile.'}
+                  </p>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] cursor-pointer mt-2 disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>
-                  {isLoading
-                    ? language === 'vi'
-                      ? 'Đang xác thực...'
-                      : 'Verifying...'
-                    : language === 'vi'
-                    ? 'ĐĂNG NHẬP'
-                    : 'SIGN IN'}
-                </span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              {/* Official Google OAuth Popup button if Firebase is configured */}
+              {isFirebaseReady && (
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => signInWithGoogle()}
+                    className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+                  >
+                    <GoogleIcon className="w-4 h-4 shrink-0" />
+                    <span>
+                      {isLoading
+                        ? language === 'vi' ? 'Đang kết nối Google...' : 'Connecting...'
+                        : language === 'vi' ? 'Mở cửa sổ đăng nhập Google chính thức' : 'Open Official Google OAuth Popup'}
+                    </span>
+                  </button>
+                  <p className="text-[10px] text-center text-[#64748b]">
+                    {language === 'vi' ? 'Hoặc nhập trực tiếp địa chỉ Gmail cá nhân bên dưới:' : 'Or enter personal Gmail directly below:'}
+                  </p>
+                </div>
+              )}
 
-              <div className="pt-2 text-center text-xs font-['Be_Vietnam_Pro',sans-serif] text-[#94a3b8]">
-                <span>{language === 'vi' ? 'Chưa có tài khoản? ' : "Don't have an account? "}</span>
+              {/* Direct Personal Gmail Form */}
+              <form onSubmit={handleGmailSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Địa chỉ Gmail cá nhân *' : 'Personal Gmail Address *'}</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={gmailInput}
+                    onChange={(e) => setGmailInput(e.target.value)}
+                    placeholder="yourname@gmail.com"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Họ và tên hiển thị (tùy chọn)' : 'Display Name (Optional)'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={gmailNameInput}
+                    onChange={(e) => setGmailNameInput(e.target.value)}
+                    placeholder={language === 'vi' ? 'Ví dụ: Nguyễn Văn A' : 'e.g. John Doe'}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                  />
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => handleTabChange('signup')}
-                  className="font-mono text-[#00d2ff] font-bold hover:underline cursor-pointer ml-1"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] cursor-pointer mt-2 disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  {language === 'vi' ? 'Đăng ký ngay' : 'Sign Up now'}
+                  <GoogleIcon className="w-4 h-4 shrink-0" />
+                  <span>
+                    {isLoading
+                      ? language === 'vi' ? 'Đang xác thực...' : 'Verifying...'
+                      : language === 'vi' ? 'TIẾP TỤC VỚI GMAIL NÀY' : 'CONTINUE WITH THIS GMAIL'}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
+              </form>
+
+              {/* Quick 1-click accounts */}
+              <div className="pt-2 border-t border-[#172847] space-y-2">
+                <span className="text-[10px] text-[#64748b] uppercase tracking-wider block text-center">
+                  {language === 'vi' ? 'HOẶC CHỌN TÀI KHOẢN MẪU (1-CLICK)' : 'OR SELECT PRESET ACCOUNT (1-CLICK)'}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => signInDemo(true)}
+                    className="p-2.5 rounded-sm bg-[#070d18] hover:bg-[#0c182e] border border-[#172847] hover:border-[#00d2ff]/60 text-left transition-all cursor-pointer group"
+                  >
+                    <div className="text-[11px] font-bold text-[#00d2ff] flex items-center gap-1.5">
+                      <span>👑 Mai Anh Kiệt</span>
+                      <span className="text-[9px] px-1 py-0.2 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/40">ADMIN</span>
+                    </div>
+                    <div className="text-[10px] text-[#94a3b8] truncate font-mono mt-0.5">
+                      {ADMIN_EMAIL}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => signInWithGoogle('visitor@gmail.com', 'Khách Tham Quan')}
+                    className="p-2.5 rounded-sm bg-[#070d18] hover:bg-[#0c182e] border border-[#172847] hover:border-[#38bdf8]/60 text-left transition-all cursor-pointer group"
+                  >
+                    <div className="text-[11px] font-bold text-[#f1f5f9] flex items-center gap-1.5">
+                      <span>👤 Khách Tham Quan</span>
+                      <span className="text-[9px] px-1 py-0.2 rounded-xs bg-slate-800 text-slate-300">MEMBER</span>
+                    </div>
+                    <div className="text-[10px] text-[#94a3b8] truncate font-mono mt-0.5">
+                      visitor@gmail.com
+                    </div>
+                  </button>
+                </div>
               </div>
-            </form>
+            </div>
           )}
 
-          {/* TAB 2: FORM ĐĂNG KÝ (Sign Up) */}
+          {/* TAB 2: FORM ĐĂNG NHẬP (Sign In) */}
+          {activeTab === 'signin' && (
+            <div className="space-y-4 font-mono text-xs animate-in fade-in">
+              {/* Google fast button */}
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={handleGoogleClick}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <GoogleIcon className="w-4 h-4 shrink-0" />
+                <span>
+                  {isLoading
+                    ? language === 'vi' ? 'Đang kết nối...' : 'Connecting...'
+                    : language === 'vi' ? 'Tiếp tục với Google / Gmail' : 'Continue with Google Account'}
+                </span>
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 py-1">
+                <div className="flex-1 h-[1px] bg-[#172847]" />
+                <span className="text-[10px] font-mono text-[#64748b] uppercase tracking-wider">
+                  {language === 'vi' ? 'HOẶC ĐĂNG NHẬP VỚI EMAIL CÁ NHÂN' : 'OR SIGN IN WITH PERSONAL EMAIL'}
+                </span>
+                <div className="flex-1 h-[1px] bg-[#172847]" />
+              </div>
+
+              <form onSubmit={handleSignInSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Địa chỉ Email cá nhân *' : 'Personal Email Address *'}</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Mật khẩu *' : 'Password *'}</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showSignInPassword ? 'text' : 'password'}
+                      required
+                      value={signInPassword}
+                      onChange={(e) => setSignInPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignInPassword(!showSignInPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f1f5f9] cursor-pointer"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showSignInPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] cursor-pointer mt-2 disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>
+                    {isLoading
+                      ? language === 'vi' ? 'Đang xác thực...' : 'Verifying...'
+                      : language === 'vi' ? 'ĐĂNG NHẬP' : 'SIGN IN'}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="pt-2 text-center text-xs font-['Be_Vietnam_Pro',sans-serif] text-[#94a3b8]">
+                  <span>{language === 'vi' ? 'Chưa có tài khoản? ' : "Don't have an account? "}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleTabChange('signup')}
+                    className="font-mono text-[#00d2ff] font-bold hover:underline cursor-pointer ml-1"
+                  >
+                    {language === 'vi' ? 'Đăng ký ngay' : 'Sign Up now'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* TAB 3: FORM ĐĂNG KÝ (Sign Up) */}
           {activeTab === 'signup' && (
-            <form onSubmit={handleSignUpSubmit} className="space-y-3.5 font-mono text-xs animate-in fade-in">
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Họ và tên hiển thị *' : 'Full Name *'}</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={signUpName}
-                  onChange={(e) => setSignUpName(e.target.value)}
-                  placeholder={language === 'vi' ? 'Ví dụ: Nguyễn Văn A' : 'e.g. John Doe'}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
-                />
+            <div className="space-y-4 font-mono text-xs animate-in fade-in">
+              {/* Google fast button */}
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={handleGoogleClick}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-sm bg-white hover:bg-slate-100 text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <GoogleIcon className="w-4 h-4 shrink-0" />
+                <span>
+                  {isLoading
+                    ? language === 'vi' ? 'Đang kết nối...' : 'Connecting...'
+                    : language === 'vi' ? 'Đăng ký nhanh bằng Google' : 'Fast Sign Up with Google'}
+                </span>
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 py-1">
+                <div className="flex-1 h-[1px] bg-[#172847]" />
+                <span className="text-[10px] font-mono text-[#64748b] uppercase tracking-wider">
+                  {language === 'vi' ? 'HOẶC ĐĂNG KÝ BẰNG EMAIL CÁ NHÂN MỚI' : 'OR REGISTER WITH NEW EMAIL'}
+                </span>
+                <div className="flex-1 h-[1px] bg-[#172847]" />
               </div>
 
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Địa chỉ Email *' : 'Email Address *'}</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={signUpEmail}
-                  onChange={(e) => setSignUpEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
-                />
-              </div>
+              <form onSubmit={handleSignUpSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Họ và tên hiển thị *' : 'Full Name *'}</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={signUpName}
+                    onChange={(e) => setSignUpName(e.target.value)}
+                    placeholder={language === 'vi' ? 'Ví dụ: Nguyễn Văn A' : 'e.g. John Doe'}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Mật khẩu (tối thiểu 6 ký tự) *' : 'Password (min 6 chars) *'}</span>
-                </label>
-                <div className="relative">
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Địa chỉ Email cá nhân *' : 'Personal Email Address *'}</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Mật khẩu (tối thiểu 6 ký tự) *' : 'Password (min 6 chars) *'}</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showSignUpPassword ? 'text' : 'password'}
+                      required
+                      minLength={6}
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f1f5f9] cursor-pointer"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
+                    <span>{language === 'vi' ? 'Nhập lại mật khẩu *' : 'Confirm Password *'}</span>
+                  </label>
                   <input
                     type={showSignUpPassword ? 'text' : 'password'}
                     required
                     minLength={6}
-                    value={signUpPassword}
-                    onChange={(e) => setSignUpPassword(e.target.value)}
+                    value={signUpConfirmPassword}
+                    onChange={(e) => setSignUpConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
                   />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] cursor-pointer mt-2 disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>
+                    {isLoading
+                      ? language === 'vi' ? 'Đang tạo tài khoản...' : 'Creating account...'
+                      : language === 'vi' ? 'TẠO TÀI KHOẢN' : 'CREATE ACCOUNT'}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="pt-2 text-center text-xs font-['Be_Vietnam_Pro',sans-serif] text-[#94a3b8]">
+                  <span>{language === 'vi' ? 'Đã có tài khoản? ' : 'Already have an account? '}</span>
                   <button
                     type="button"
-                    onClick={() => setShowSignUpPassword(!showSignUpPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#f1f5f9] cursor-pointer"
-                    aria-label="Toggle password visibility"
+                    onClick={() => handleTabChange('signin')}
+                    className="font-mono text-[#00d2ff] font-bold hover:underline cursor-pointer ml-1"
                   >
-                    {showSignUpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {language === 'vi' ? 'Đăng nhập ngay' : 'Sign In now'}
                   </button>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] uppercase text-[#94a3b8] mb-1.5 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-[#00d2ff]" />
-                  <span>{language === 'vi' ? 'Nhập lại mật khẩu *' : 'Confirm Password *'}</span>
-                </label>
-                <input
-                  type={showSignUpPassword ? 'text' : 'password'}
-                  required
-                  minLength={6}
-                  value={signUpConfirmPassword}
-                  onChange={(e) => setSignUpConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-sm bg-[#070d18] border border-[#172847] focus:border-[#00d2ff] focus:ring-1 focus:ring-[#00d2ff] text-[#f1f5f9] placeholder-[#64748b] transition-all outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-sm bg-[#00d2ff] hover:bg-[#38bdf8] text-[#050a14] font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] cursor-pointer mt-2 disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>
-                  {isLoading
-                    ? language === 'vi'
-                      ? 'Đang tạo tài khoản...'
-                      : 'Creating account...'
-                    : language === 'vi'
-                    ? 'TẠO TÀI KHOẢN'
-                    : 'CREATE ACCOUNT'}
-                </span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-
-              <div className="pt-2 text-center text-xs font-['Be_Vietnam_Pro',sans-serif] text-[#94a3b8]">
-                <span>{language === 'vi' ? 'Đã có tài khoản? ' : 'Already have an account? '}</span>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('signin')}
-                  className="font-mono text-[#00d2ff] font-bold hover:underline cursor-pointer ml-1"
-                >
-                  {language === 'vi' ? 'Đăng nhập ngay' : 'Sign In now'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           )}
 
           {/* Firebase API Key Guide Accordion */}

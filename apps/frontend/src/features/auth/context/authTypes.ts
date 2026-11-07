@@ -19,7 +19,7 @@ export interface AuthContextType {
   closeAdminModal: () => void
   registerWithEmail: (name: string, email: string, password: string) => Promise<boolean>
   signInWithEmail: (email: string, password: string) => Promise<boolean>
-  signInWithGoogle: () => Promise<void>
+  signInWithGoogle: (customEmail?: string, customDisplayName?: string) => Promise<void>
   signInWithCustomGmail: (email: string, displayName?: string) => void
   signInDemo: (asAdmin?: boolean) => void
   signOutUser: () => Promise<void>

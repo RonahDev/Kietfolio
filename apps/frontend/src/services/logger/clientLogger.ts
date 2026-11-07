@@ -1,4 +1,4 @@
-import type { ErrorLogItem, ErrorLogLevel, ClientDeviceContext } from '@kietfolio/shared-types'
+import type { ErrorLogItem, ErrorLogLevel, ClientDeviceContext } from '@/types/errorLog'
 
 const LOCAL_LOGS_KEY = 'kietfolio_client_error_logs'
 const MAX_LOCAL_LOGS = 50
