@@ -1,1 +1,2 @@
-export * from '@/features/projects'
+export * from '@/features/projects/data/projects'
+
