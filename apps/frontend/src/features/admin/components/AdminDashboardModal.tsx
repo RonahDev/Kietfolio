@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth, useLanguage } from '@/hooks'
 import { ADMIN_EMAIL, type ContactMessage } from '@/features/auth'
+import type { ErrorLogItem } from '@kietfolio/shared-types'
+import { clientLogger } from '@/services/logger/clientLogger'
 import {
   X,
   Shield,
@@ -11,6 +13,13 @@ import {
   Send,
   Sparkles,
   Users,
+  AlertTriangle,
+  Download,
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  Server,
+  Laptop,
 } from 'lucide-react'
 
 interface RegisteredUserItem {
@@ -64,10 +73,49 @@ export const AdminDashboardModal: React.FC = () => {
     }
     return defaultSeedMessages
   })
-  const [activeTab, setActiveTab] = useState<'inbox' | 'users' | 'telemetry'>('inbox')
+  const [activeTab, setActiveTab] = useState<'inbox' | 'users' | 'logs' | 'telemetry'>('inbox')
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredUserItem[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(false)
   const [visibleUserCount, setVisibleUserCount] = useState(6)
+  const [errorLogs, setErrorLogs] = useState<ErrorLogItem[]>([])
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false)
+  const [logFilter, setLogFilter] = useState<'all' | 'system' | 'client' | 'critical'>('all')
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null)
+
+  const fetchLogs = useCallback(async () => {
+    setIsLoadingLogs(true)
+    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+    try {
+      const res = await fetch('/api/telemetry/errors', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      const data = await res.json()
+      if (data?.success && Array.isArray(data.data?.logs)) {
+        setErrorLogs(data.data.logs)
+        setIsLoadingLogs(false)
+        return
+      }
+    } catch {
+      // fallback
+    }
+    const localLogs = clientLogger.getLocalLogs()
+    setErrorLogs(localLogs)
+    setIsLoadingLogs(false)
+  }, [])
+
+  const clearAllLogs = useCallback(async () => {
+    clientLogger.clearLocalLogs()
+    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+    try {
+      await fetch('/api/telemetry/errors', {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+    } catch {
+      // ignore
+    }
+    setErrorLogs([])
+  }, [])
 
   useEffect(() => {
     if (!isAdminModalOpen || !isAdmin) return
@@ -229,9 +277,14 @@ export const AdminDashboardModal: React.FC = () => {
 
             <div className="p-3.5 rounded-sm bg-[#0f1b33] border border-[#172847]">
               <div className="text-[10px] font-mono text-[#94a3b8] uppercase mb-1">
-                Hạ Tầng Vite/React
+                Nhật Ký Lỗi & Logs
               </div>
-              <div className="text-xl font-bold font-mono text-[#34a853]">OPTIMAL</div>
+              <div className="text-xl font-bold font-mono text-amber-400 flex items-center justify-between">
+                <span>{errorLogs.length}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-amber-400/20 text-amber-300 font-bold">
+                  TELEMETRY
+                </span>
+              </div>
             </div>
 
             <div className="p-3.5 rounded-sm bg-[#0f1b33] border border-[#172847]">
@@ -243,11 +296,11 @@ export const AdminDashboardModal: React.FC = () => {
           </div>
 
           {/* Nav Tabs */}
-          <div className="flex items-center gap-2 border-b border-[#172847] pb-3 text-xs font-mono">
+          <div className="flex items-center gap-2 border-b border-[#172847] pb-3 text-xs font-mono overflow-x-auto">
             <button
               type="button"
               onClick={() => setActiveTab('inbox')}
-              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
                 activeTab === 'inbox'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
@@ -260,7 +313,7 @@ export const AdminDashboardModal: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('users')}
-              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
                 activeTab === 'users'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
@@ -272,8 +325,24 @@ export const AdminDashboardModal: React.FC = () => {
 
             <button
               type="button"
+              onClick={() => {
+                setActiveTab('logs')
+                fetchLogs()
+              }}
+              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+                activeTab === 'logs'
+                  ? 'bg-[#00d2ff] text-[#050a14] font-bold'
+                  : 'text-[#94a3b8] hover:text-[#f1f5f9]'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+              <span>Nhật Ký Lỗi ({errorLogs.length})</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveTab('telemetry')}
-              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-sm transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap ${
                 activeTab === 'telemetry'
                   ? 'bg-[#00d2ff] text-[#050a14] font-bold'
                   : 'text-[#94a3b8] hover:text-[#f1f5f9]'
@@ -445,6 +514,223 @@ export const AdminDashboardModal: React.FC = () => {
                     </div>
                   )}
                 </>
+              )}
+            </div>
+          )}
+
+          {/* Tab Content: Central Error Logging & Telemetry */}
+          {activeTab === 'logs' && (
+            <div className="space-y-4">
+              {/* Log Controls Header */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#0a1224] border border-[#172847] rounded-sm text-xs font-mono">
+                {/* Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setLogFilter('all')}
+                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
+                      logFilter === 'all'
+                        ? 'bg-[#00d2ff] text-[#050a14] font-bold'
+                        : 'bg-[#0f1b33] text-[#94a3b8] hover:text-[#f1f5f9]'
+                    }`}
+                  >
+                    Tất Cả ({errorLogs.length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLogFilter('system')}
+                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer flex items-center gap-1 ${
+                      logFilter === 'system'
+                        ? 'bg-[#00d2ff] text-[#050a14] font-bold'
+                        : 'bg-[#0f1b33] text-[#94a3b8] hover:text-[#f1f5f9]'
+                    }`}
+                  >
+                    <Server className="w-3 h-3" />
+                    <span>Hệ Thống ({errorLogs.filter((l) => l.source === 'system').length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLogFilter('client')}
+                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer flex items-center gap-1 ${
+                      logFilter === 'client'
+                        ? 'bg-[#00d2ff] text-[#050a14] font-bold'
+                        : 'bg-[#0f1b33] text-[#94a3b8] hover:text-[#f1f5f9]'
+                    }`}
+                  >
+                    <Laptop className="w-3 h-3" />
+                    <span>Người Dùng ({errorLogs.filter((l) => l.source === 'client').length})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLogFilter('critical')}
+                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer text-red-400 ${
+                      logFilter === 'critical'
+                        ? 'bg-red-500/20 border border-red-500/40 font-bold'
+                        : 'bg-[#0f1b33] hover:text-red-300'
+                    }`}
+                  >
+                    Nghiêm Trọng ({errorLogs.filter((l) => l.level === 'critical').length})
+                  </button>
+                </div>
+
+                {/* Operations */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={fetchLogs}
+                    disabled={isLoadingLogs}
+                    className="p-1.5 rounded-xs bg-[#0f1b33] border border-[#172847] text-[#94a3b8] hover:text-[#00d2ff] transition-colors cursor-pointer"
+                    title="Làm mới danh sách logs"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isLoadingLogs ? 'animate-spin' : ''}`} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => clientLogger.downloadLogsFile()}
+                    className="px-2.5 py-1 rounded-xs bg-[#0f1b33] border border-[#172847] text-[#00d2ff] hover:bg-[#172847] transition-colors cursor-pointer flex items-center gap-1"
+                    title="Tải toàn bộ file log dạng JSON"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Xuất JSON</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={clearAllLogs}
+                    className="px-2.5 py-1 rounded-xs bg-red-950/30 border border-red-500/30 text-red-300 hover:bg-red-900/40 transition-colors cursor-pointer flex items-center gap-1"
+                    title="Xóa toàn bộ nhật ký lỗi"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Xóa</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Log List */}
+              {isLoadingLogs ? (
+                <div className="p-8 text-center rounded-sm bg-[#0f1b33]/40 border border-[#172847] text-[#00d2ff] text-xs font-mono">
+                  Đang đồng bộ nhật ký lỗi từ hệ thống và client...
+                </div>
+              ) : errorLogs.length === 0 ? (
+                <div className="p-8 text-center rounded-sm bg-[#0f1b33]/40 border border-[#172847] text-[#34a853] text-xs font-mono space-y-1">
+                  <div className="font-bold">✓ HỆ THỐNG HOẠT ĐỘNG HOÀN HẢO</div>
+                  <p className="text-[#94a3b8]">Không có lỗi nào được ghi nhận từ cả máy chủ lẫn người dùng.</p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {errorLogs
+                    .filter((item) => {
+                      if (logFilter === 'system') return item.source === 'system'
+                      if (logFilter === 'client') return item.source === 'client'
+                      if (logFilter === 'critical') return item.level === 'critical'
+                      return true
+                    })
+                    .map((item) => {
+                      const isExpanded = expandedLogId === item.id
+                      const isSystem = item.source === 'system'
+                      const isCritical = item.level === 'critical'
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-3.5 rounded-sm border transition-all text-xs font-mono ${
+                            isCritical
+                              ? 'bg-[#180a0a] border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                              : 'bg-[#0d182e] border-[#172847] hover:border-[#00d2ff]/40'
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {/* Source Badge */}
+                              <span
+                                className={`text-[9px] px-1.5 py-0.5 rounded-xs font-bold border ${
+                                  isSystem
+                                    ? 'bg-[#00d2ff]/10 text-[#00d2ff] border-[#00d2ff]/30'
+                                    : 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/30'
+                                }`}
+                              >
+                                {isSystem ? 'HỆ THỐNG / SERVER' : 'NGƯỜI DÙNG / CLIENT'}
+                              </span>
+
+                              {/* Level Badge */}
+                              <span
+                                className={`text-[9px] px-1.5 py-0.5 rounded-xs font-bold ${
+                                  item.level === 'critical'
+                                    ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                                    : item.level === 'warn'
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                    : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                                }`}
+                              >
+                                {item.level.toUpperCase()}
+                              </span>
+
+                              {/* Error Name */}
+                              <span className="font-bold text-[#f1f5f9]">{item.name || 'Error'}</span>
+
+                              {/* Endpoint / Path */}
+                              {item.path && (
+                                <span className="text-[11px] text-slate-400">
+                                  [{item.method ? `${item.method} ` : ''}
+                                  {item.path}]
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Timestamp */}
+                            <div className="text-[10px] text-[#64748b] flex items-center gap-1.5">
+                              <Clock className="w-3 h-3" />
+                              <span>{new Date(item.timestamp).toLocaleString()}</span>
+                            </div>
+                          </div>
+
+                          {/* Message Body */}
+                          <div className="text-slate-300 text-xs mb-2 leading-relaxed break-words">
+                            {item.message}
+                          </div>
+
+                          {/* Context Details (User / Hardware) */}
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-[#94a3b8] pt-2 border-t border-[#172847]/70">
+                            {item.userEmail && (
+                              <span>
+                                User: <strong className="text-slate-200">{item.userEmail}</strong> ({item.userRole || 'visitor'})
+                              </span>
+                            )}
+                            {item.clientContext?.viewport && (
+                              <span>Màn hình: {item.clientContext.viewport}</span>
+                            )}
+                            {item.clientContext?.effectiveTier && (
+                              <span>Tier: {item.clientContext.effectiveTier.toUpperCase()}</span>
+                            )}
+                            {item.ip && <span>IP: {item.ip}</span>}
+
+                            {/* Stack Trace Toggle */}
+                            {item.stack && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedLogId(isExpanded ? null : item.id)}
+                                className="ml-auto text-[#00d2ff] hover:underline cursor-pointer flex items-center gap-1"
+                              >
+                                <span>{isExpanded ? 'Ẩn Stack Trace' : 'Chi tiết Stack Trace'}</span>
+                                {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Expandable Stack Trace */}
+                          {isExpanded && item.stack && (
+                            <div className="mt-2.5 p-2.5 bg-[#050a14] rounded-xs border border-[#172847] text-[10px] text-red-300 overflow-x-auto">
+                              <pre className="whitespace-pre-wrap leading-tight">{item.stack}</pre>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                </div>
               )}
             </div>
           )}

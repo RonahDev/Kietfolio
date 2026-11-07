@@ -39,6 +39,46 @@ async function bootstrap() {
 
   process.on('SIGTERM', () => shutdown('SIGTERM'))
   process.on('SIGINT', () => shutdown('SIGINT'))
+
+  // Central System Exception & Rejection Interceptors
+  process.on('uncaughtException', (err: Error) => {
+    // eslint-disable-next-line no-console
+    console.error('[System Uncaught Exception]:', err)
+    try {
+      // Dynamic import to avoid circular dependency
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ErrorLogService } = require('./services/errorLog.service')
+      ErrorLogService.record({
+        source: 'system',
+        level: 'critical',
+        name: err.name || 'UncaughtException',
+        message: err.message,
+        stack: err.stack,
+        path: 'process.uncaughtException',
+      })
+    } catch {
+      // ignore
+    }
+  })
+
+  process.on('unhandledRejection', (reason: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error('[System Unhandled Promise Rejection]:', reason)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ErrorLogService } = require('./services/errorLog.service')
+      ErrorLogService.record({
+        source: 'system',
+        level: 'error',
+        name: 'UnhandledRejection',
+        message: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined,
+        path: 'process.unhandledRejection',
+      })
+    } catch {
+      // ignore
+    }
+  })
 }
 
 bootstrap().catch((err) => {
