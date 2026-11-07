@@ -24,10 +24,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20 LTS
+      - name: Setup Node.js 22 LTS
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install Monorepo Dependencies
@@ -36,8 +36,8 @@ jobs:
       - name: Run Linters (Frontend oxlint & Backend tsc)
         run: npm run lint
 
-      - name: Run Frontend Vitest Test Suites
-        run: npm run test:frontend
+      - name: Run Frontend & Backend Automated Test Suites
+        run: npm run test
 
   build-and-deploy:
     name: Build & Deploy Pages
@@ -51,10 +51,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20 LTS
+      - name: Setup Node.js 22 LTS
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies

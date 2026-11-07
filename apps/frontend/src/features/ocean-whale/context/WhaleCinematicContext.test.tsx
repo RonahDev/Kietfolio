@@ -10,10 +10,10 @@ const TestConsumer: React.FC = () => {
     <div>
       <span data-testid="cinematic-status">{isCinematicActive ? 'ACTIVE' : 'IDLE'}</span>
       <span data-testid="has-played">{hasPlayed ? 'PLAYED' : 'UNPLAYED'}</span>
-      <button onClick={triggerWhaleCinematic} data-testid="trigger-btn">
+      <button onClick={() => triggerWhaleCinematic()} data-testid="trigger-btn">
         Trigger
       </button>
-      <button onClick={skipWhaleCinematic} data-testid="skip-btn">
+      <button onClick={() => skipWhaleCinematic()} data-testid="skip-btn">
         Skip
       </button>
     </div>

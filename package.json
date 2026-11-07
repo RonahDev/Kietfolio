@@ -3,15 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "description": "Fullstack 3D Cybernetic Portfolio Monorepo for Mai Anh Kiệt",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10.0.0"
+  },
   "workspaces": [
     "apps/frontend",
-    "apps/backend"
+    "apps/backend",
+    "packages/shared-types"
   ],
   "scripts": {
     "dev": "npm run dev:frontend",
     "dev:frontend": "npm --prefix apps/frontend run dev",
     "dev:backend": "npm --prefix apps/backend run dev",
-    "build:types": "tsc --project packages/shared-types/tsconfig.json",
+    "build:types": "npm --prefix packages/shared-types run build",
     "build:frontend": "npm --prefix apps/frontend run build",
     "build:backend": "npm --prefix apps/backend run build",
     "build": "npm run build:types && npm run build:backend && npm run build:frontend",
