@@ -14,8 +14,8 @@ export function createTheaterCurtainGeometry(
   side: 'left' | 'right',
   width = 11,
   height = 13,
-  segmentsX = 96,
-  segmentsY = 32
+  segmentsX = 64,
+  segmentsY = 24
 ): THREE.BufferGeometry {
   const geom = new THREE.BufferGeometry()
   const positions: number[] = []

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import type { MovieItem } from '../types/cinema'
 import { CinemaMovieCard } from './CinemaMovieCard'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -19,22 +19,37 @@ export const CinemaCarouselRow: React.FC<CinemaCarouselRowProps> = ({
   const rowRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
+  const rafIdRef = useRef<number | null>(null)
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (!rowRef.current) return
     const { scrollLeft, scrollWidth, clientWidth } = rowRef.current
-    setCanScrollLeft(scrollLeft > 10)
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10)
-  }
+    const newCanScrollLeft = scrollLeft > 10
+    const newCanScrollRight = scrollLeft + clientWidth < scrollWidth - 10
+
+    setCanScrollLeft((prev) => (prev !== newCanScrollLeft ? newCanScrollLeft : prev))
+    setCanScrollRight((prev) => (prev !== newCanScrollRight ? newCanScrollRight : prev))
+  }, [])
 
   useEffect(() => {
     checkScroll()
     const current = rowRef.current
-    if (current) {
-      current.addEventListener('scroll', checkScroll, { passive: true })
-      return () => current.removeEventListener('scroll', checkScroll)
+    if (!current) return
+
+    const handleScroll = () => {
+      if (rafIdRef.current) return
+      rafIdRef.current = requestAnimationFrame(() => {
+        checkScroll()
+        rafIdRef.current = null
+      })
     }
-  }, [movies])
+
+    current.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      current.removeEventListener('scroll', handleScroll)
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+    }
+  }, [checkScroll, movies])
 
   const scrollBy = (direction: 'left' | 'right') => {
     if (!rowRef.current) return
@@ -81,11 +96,16 @@ export const CinemaCarouselRow: React.FC<CinemaCarouselRowProps> = ({
           </button>
         )}
 
-        {/* Scrollable Track */}
+        {/* Scrollable Track with GPU Containment */}
         <div
           ref={rowRef}
-          className="flex items-center gap-3 sm:gap-4 overflow-x-auto scrollbar-none py-4 px-1"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex items-center gap-3 sm:gap-4 overflow-x-auto scrollbar-none py-4 px-1 overscroll-x-contain"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+            contain: 'content',
+          }}
         >
           {movies.map((movie) => (
             <CinemaMovieCard key={movie.id} movie={movie} />

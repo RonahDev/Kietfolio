@@ -42,7 +42,7 @@ export const CinemaHero: React.FC = () => {
           key={activeMovie.id}
           src={activeMovie.backdropUrl}
           alt={activeMovie.title}
-          className="w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate]"
+          className="w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate] will-change-transform transform-gpu"
         />
         {/* Cinematic Vignette Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#08090d] via-[#08090d]/60 to-transparent" />

@@ -14,7 +14,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
 
   return (
     <div
-      className="group relative flex-none w-[170px] sm:w-[220px] md:w-[250px] aspect-[2/3] rounded-sm overflow-hidden bg-[#11131a] border border-[#181b24] transition-all duration-300 hover:scale-105 hover:z-20 hover:border-[#a51d35]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(165,29,53,0.3)] cursor-pointer"
+      className="group relative flex-none w-[170px] sm:w-[220px] md:w-[250px] aspect-[2/3] rounded-sm overflow-hidden bg-[#11131a] border border-[#181b24] transition-transform duration-200 ease-out hover:scale-105 hover:z-20 hover:border-[#a51d35]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(165,29,53,0.3)] cursor-pointer will-change-transform transform-gpu"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openMovieDetail(movie)}
@@ -24,7 +24,8 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
         src={movie.posterUrl}
         alt={movie.title}
         loading="lazy"
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        decoding="async"
+        className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
       />
 
       {/* Top Badges (Quality & Rating) */}
@@ -66,7 +67,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
 
       {/* Rich Hover Overlay with Quick Action Buttons */}
       <div
-        className={`absolute inset-0 bg-[#0c0e14]/92 backdrop-blur-xs p-3.5 flex flex-col justify-between transition-all duration-200 z-20 ${
+        className={`absolute inset-0 bg-[#0c0e14]/92 backdrop-blur-xs p-3.5 flex flex-col justify-between transition-opacity duration-200 z-20 will-change-opacity ${
           isHovered ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
@@ -105,7 +106,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
               e.stopPropagation()
               playMovie(movie)
             }}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white shadow-[0_0_12px_rgba(165,29,53,0.6)] transition-all cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white shadow-[0_0_12px_rgba(165,29,53,0.6)] hover:scale-105 active:scale-95 transition-transform duration-150 cursor-pointer"
             title="Xem ngay"
           >
             <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
@@ -118,7 +119,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
                 e.stopPropagation()
                 toggleWatchlist(movie.id)
               }}
-              className={`flex items-center justify-center w-7 h-7 rounded-full border transition-all cursor-pointer ${
+              className={`flex items-center justify-center w-7 h-7 rounded-full border hover:scale-105 active:scale-95 transition-transform duration-150 cursor-pointer ${
                 isSaved
                   ? 'bg-[#d4af70]/20 border-[#d4af70] text-[#d4af70]'
                   : 'bg-[#181b24] border-[#2d3139] text-[#a1a1aa] hover:text-white hover:border-[#a1a1aa]'
@@ -134,7 +135,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
                 e.stopPropagation()
                 openMovieDetail(movie)
               }}
-              className="flex items-center justify-center w-7 h-7 rounded-full bg-[#181b24] border border-[#2d3139] text-[#a1a1aa] hover:text-white hover:border-[#a1a1aa] transition-all cursor-pointer"
+              className="flex items-center justify-center w-7 h-7 rounded-full bg-[#181b24] border border-[#2d3139] text-[#a1a1aa] hover:text-white hover:border-[#a1a1aa] hover:scale-105 active:scale-95 transition-transform duration-150 cursor-pointer"
               title="Thông tin chi tiết"
             >
               <Info className="w-3 h-3" />

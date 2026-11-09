@@ -1,9 +1,22 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-// Register plugins safely in client environments
+// Global High-Performance Animation Engine Configuration
+gsap.config({
+  autoSleep: 60,
+  force3D: 'auto',
+  nullTargetWarn: false,
+})
+
+// Register plugins safely in client environments and configure frame pacing
 if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
   gsap.registerPlugin(ScrollTrigger)
+  // Prevent stutter & frame jumps during GC pauses or minor main-thread locks
+  gsap.ticker.lagSmoothing(1000, 16)
+  ScrollTrigger.config({
+    limitCallbacks: true,
+    syncInterval: 100,
+  })
 }
 
 /**

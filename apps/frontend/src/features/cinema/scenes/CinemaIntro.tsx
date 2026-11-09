@@ -11,9 +11,10 @@ interface CinemaIntroProps {
 }
 
 export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress }) => {
-  const [openProgress, setOpenProgress] = useState(0)
-  const [lightIntensity, setLightIntensity] = useState(0.1)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const centerBadgeRef = useRef<HTMLDivElement>(null)
   const [useFallback, setUseFallback] = useState(false)
+  const [fallbackProgress, setFallbackProgress] = useState(0)
   const [isIntroFinished, setIsIntroFinished] = useState(() => isReducedMotion())
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
   const animStateRef = useRef({ progress: 0, light: 0.1 })
@@ -22,8 +23,8 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
     if (timelineRef.current) {
       timelineRef.current.kill()
     }
-    setOpenProgress(1)
-    setLightIntensity(1)
+    animStateRef.current.progress = 1
+    animStateRef.current.light = 1
     setIsIntroFinished(true)
     onProgress?.(1)
     onComplete()
@@ -41,7 +42,7 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSkip])
 
-  // GSAP Opening Sequence
+  // Zero-render GSAP Opening Sequence
   useEffect(() => {
     if (isReducedMotion()) {
       onProgress?.(1)
@@ -51,59 +52,82 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
 
     const state = animStateRef.current
     const tl = gsap.timeline({
+      defaults: { ease: 'power2.inOut' },
       onUpdate: () => {
-        setOpenProgress(state.progress)
-        setLightIntensity(state.light)
-        onProgress?.(state.progress)
+        // Only update fallback state if CSS fallback is active
+        if (useFallback) {
+          setFallbackProgress(state.progress)
+        }
       },
       onComplete: () => {
         setIsIntroFinished(true)
+        onProgress?.(1)
         onComplete()
       },
     })
     timelineRef.current = tl
 
+    // Fade out center monogram emblem quickly once curtains start opening
+    if (centerBadgeRef.current) {
+      tl.to(centerBadgeRef.current, {
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.6,
+        delay: 0.8,
+      }, 0)
+    }
+
     // STEP 1 — CINEMATIC INTRO: Spotlight illuminates velvet curtain
     tl.to(state, {
       light: 1.0,
-      duration: 1.2,
+      duration: 1.0,
       ease: 'power2.inOut',
-    })
+    }, 0)
 
-    // STEP 2 — CURTAIN OPENING: Left & right curtains draw open simultaneously with accordion bunching
+    // STEP 2 — CURTAIN OPENING: Left & right curtains draw open simultaneously
     tl.to(
       state,
       {
         progress: 1.0,
-        duration: 2.6,
+        duration: 2.3,
         ease: 'power3.inOut',
       },
-      '+=0.15'
+      0.9
     )
+
+    // Fade out the entire black mask container smoothly right before finishing
+    if (containerRef.current) {
+      tl.to(
+        containerRef.current,
+        {
+          opacity: 0,
+          duration: 0.45,
+          ease: 'power2.out',
+        },
+        '-=0.45'
+      )
+    }
 
     return () => {
       tl.kill()
     }
-  }, [handleSkip, onComplete, onProgress])
+  }, [handleSkip, onComplete, onProgress, useFallback])
 
   if (isIntroFinished) return null
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-hidden bg-[#050608] select-none transition-opacity duration-700 pointer-events-auto"
-      style={{
-        opacity: openProgress > 0.95 ? (1 - openProgress) / 0.05 : 1,
-      }}
+      ref={containerRef}
+      className="fixed inset-0 z-50 overflow-hidden bg-[#050608] select-none pointer-events-auto will-change-opacity"
       role="region"
       aria-label="Cinema Curtain Opening Sequence"
     >
-      {/* 3D WebGL Scene or High-Fidelity CSS Fallback */}
+      {/* 3D WebGL Scene with zero-render animStateRef or High-Fidelity CSS Fallback */}
       {useFallback ? (
-        <CinemaCurtainFallback openProgress={openProgress} />
+        <CinemaCurtainFallback openProgress={fallbackProgress} />
       ) : (
         <CurtainScene
-          openProgress={openProgress}
-          lightIntensity={lightIntensity}
+          animStateRef={animStateRef}
           onWebGLUnsupported={() => setUseFallback(true)}
         />
       )}
@@ -111,24 +135,25 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
       {/* Atmospheric Theater Ambient Vignette */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.85)_100%)]" />
 
-      {/* Center Cinema Monogram Seam Indicator (Subtle intro pulse) */}
-      {openProgress < 0.1 && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-3 text-center transition-opacity duration-500">
-          <div className="w-14 h-14 rounded-full border border-[#d4af70]/40 bg-black/60 backdrop-blur-md flex items-center justify-center text-[#d4af70] shadow-[0_0_25px_rgba(212,175,112,0.35)] animate-pulse">
-            <Film className="w-7 h-7" />
-          </div>
-          <span className="text-[11px] font-mono tracking-[0.25em] text-[#d4af70] uppercase font-bold drop-shadow-md">
-            KIET STREAM // THEATER SYSTEM
-          </span>
+      {/* Center Cinema Monogram Seam Indicator */}
+      <div
+        ref={centerBadgeRef}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-3 text-center transition-opacity duration-300 will-change-transform will-change-opacity"
+      >
+        <div className="w-14 h-14 rounded-full border border-[#d4af70]/40 bg-black/60 backdrop-blur-md flex items-center justify-center text-[#d4af70] shadow-[0_0_25px_rgba(212,175,112,0.35)] animate-pulse">
+          <Film className="w-7 h-7" />
         </div>
-      )}
+        <span className="text-[11px] font-mono tracking-[0.25em] text-[#d4af70] uppercase font-bold drop-shadow-md">
+          KIET STREAM // THEATER SYSTEM
+        </span>
+      </div>
 
       {/* Interactive Skip Button */}
       <div className="absolute bottom-8 right-8 z-50">
         <button
           type="button"
           onClick={handleSkip}
-          className="group flex items-center gap-2 px-4 py-2 rounded-full bg-[#11131a]/80 border border-[#a51d35]/50 text-xs font-mono font-bold text-[#f5f5f5] backdrop-blur-md hover:bg-[#a51d35] hover:border-[#d4af70] hover:text-white transition-all shadow-[0_0_20px_rgba(0,0,0,0.8)] cursor-pointer"
+          className="group flex items-center gap-2 px-4 py-2 rounded-full bg-[#11131a]/85 border border-[#a51d35]/50 text-xs font-mono font-bold text-[#f5f5f5] backdrop-blur-md hover:bg-[#a51d35] hover:border-[#d4af70] hover:text-white transition-all shadow-[0_0_20px_rgba(0,0,0,0.8)] cursor-pointer"
           title="Bỏ qua màn mở rạp (Phím ESC)"
         >
           <span>BỎ QUA MÀN MỞ RẠP [ESC]</span>
