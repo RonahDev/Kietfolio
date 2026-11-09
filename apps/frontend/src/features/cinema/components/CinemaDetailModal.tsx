@@ -66,7 +66,11 @@ export const CinemaDetailModal: React.FC = () => {
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2 text-xs font-mono">
                 <span className="px-2 py-0.5 rounded-xs bg-[#a51d35] text-white font-bold text-[10px]">
-                  {activeMovie.streamSource === 'kkphim' ? 'KKPHIM HLS' : activeMovie.quality}
+                  {activeMovie.isTheatrical
+                    ? 'CHIẾU RẠP'
+                    : activeMovie.streamSource === 'kkphim'
+                    ? 'KKPHIM HLS'
+                    : activeMovie.quality}
                 </span>
                 <span className="flex items-center gap-1 text-[#d4af70] font-bold">
                   <Star className="w-3.5 h-3.5 fill-[#d4af70]" />

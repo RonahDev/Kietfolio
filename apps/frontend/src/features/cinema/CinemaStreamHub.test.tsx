@@ -80,4 +80,14 @@ describe('CinemaStreamHub Component Suite', () => {
 
     expect(screen.getByText(/Danh Sách Phim Yêu Thích Của Tôi/i)).toBeDefined()
   })
+
+  it('switches to Theatrical view tab properly', () => {
+    const onBack = vi.fn()
+    renderWithProviders(<CinemaStreamHub onBackToPortfolio={onBack} />)
+
+    const theatricalTabs = screen.getAllByText(/Chiếu Rạp/i)
+    fireEvent.click(theatricalTabs[0])
+
+    expect(screen.getByText(/Tác Phẩm Điện Ảnh Chiếu Rạp Mới Nhất/i)).toBeDefined()
+  })
 })

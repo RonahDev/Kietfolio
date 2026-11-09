@@ -5,6 +5,8 @@ import {
   fetchTMDbTrendingMovies,
   fetchKKPhimVietnameseMovies,
   fetchKKPhimStreamDetails,
+  fetchTheatricalMovies,
+  fetchTMDbNowPlayingVietnam,
 } from '../services/cinemaService'
 import { SITE_CONFIG } from '@/config'
 
@@ -97,31 +99,45 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async function loadHybridMovieCatalog() {
       setIsLoadingRemoteMovies(true)
       try {
-        const [tmdbTrending, kkphimVietnamese] = await Promise.allSettled([
+        const [tmdbTrending, kkphimVietnamese, theatricalKk, tmdbTheatrical] = await Promise.allSettled([
           fetchTMDbTrendingMovies(),
           fetchKKPhimVietnameseMovies(),
+          fetchTheatricalMovies(),
+          fetchTMDbNowPlayingVietnam(),
         ])
 
         if (!isMounted) return
 
         const freshTmdbMovies = tmdbTrending.status === 'fulfilled' ? tmdbTrending.value : []
         const freshKkphimMovies = kkphimVietnamese.status === 'fulfilled' ? kkphimVietnamese.value : []
+        const freshTheatricalMovies = theatricalKk.status === 'fulfilled' ? theatricalKk.value : []
+        const freshTmdbTheatrical = tmdbTheatrical.status === 'fulfilled' ? tmdbTheatrical.value : []
 
         // Merge with deduplication based on ID and Title
         setMovies((prev) => {
           const map = new Map<string, MovieItem>()
 
-          // 1. Add TMDb movies (Priority for hero & trending)
+          // 1. Add Theatrical release movies (Hot cinema titles)
+          for (const m of freshTheatricalMovies) {
+            map.set(m.id, m)
+          }
+
+          // 2. Add TMDb Vietnam Now Playing (if API key active)
+          for (const m of freshTmdbTheatrical) {
+            map.set(m.id, m)
+          }
+
+          // 3. Add TMDb trending movies (Priority for hero & trending)
           for (const m of freshTmdbMovies) {
             map.set(m.id, m)
           }
 
-          // 2. Add KKPhim Vietnamese movies
+          // 4. Add KKPhim Vietnamese movies
           for (const m of freshKkphimMovies) {
             map.set(m.id, m)
           }
 
-          // 3. Keep existing curated showcase movies as rock-solid fallback
+          // 5. Keep existing curated showcase movies as rock-solid fallback
           for (const m of prev) {
             if (!map.has(m.id)) {
               map.set(m.id, m)

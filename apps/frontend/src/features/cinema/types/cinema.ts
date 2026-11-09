@@ -38,6 +38,7 @@ export interface MovieItem {
   slug?: string
   originTitle?: string
   isVietnamese?: boolean
+  isTheatrical?: boolean
   youtubeKey?: string
   streamSource?: 'hls' | 'youtube' | 'kkphim'
   episodes?: Array<{ name: string; slug: string; linkM3u8: string }>
@@ -50,7 +51,7 @@ export interface CinemaGenre {
   labelEn: string
 }
 
-export type CinemaViewTab = 'all' | 'movies' | 'series' | 'trending' | 'watchlist'
+export type CinemaViewTab = 'all' | 'movies' | 'series' | 'theatrical' | 'trending' | 'watchlist'
 
 export interface CinemaPlayerState {
   isPlaying: boolean

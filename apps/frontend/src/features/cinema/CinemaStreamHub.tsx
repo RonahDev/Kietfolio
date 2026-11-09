@@ -56,6 +56,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
         return matchesTitle || matchesSynopsis || matchesDirector || matchesCast
       }
       // Tab filter
+      if (activeTab === 'theatrical') return Boolean(movie.isTheatrical)
       if (activeTab === 'trending') return Boolean(movie.isTrending)
       if (activeTab === 'movies') return !movie.genres.includes('logistics')
       if (activeTab === 'series') return movie.genres.includes('logistics') || movie.genres.includes('cyberpunk')
@@ -66,6 +67,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
   }, [movies, selectedGenre, searchQuery, activeTab, watchlist])
 
   // Category subsets for 'all' tab
+  const theatricalMovies = useMemo(() => movies.filter((m) => m.isTheatrical), [movies])
   const trendingMovies = useMemo(() => movies.filter((m) => m.isTrending), [movies])
   const awardMovies = useMemo(() => movies.filter((m) => m.isAwardWinning), [movies])
   const cyberpunkMovies = useMemo(() => movies.filter((m) => m.genres.includes('cyberpunk')), [movies])
@@ -93,6 +95,16 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
         {isBrowsingAll ? (
           <>
             <CinemaHero />
+
+            {/* Theatrical Release Row (Phim Chiếu Rạp Mới Nhất Tại Việt Nam) */}
+            {theatricalMovies.length > 0 && (
+              <CinemaCarouselRow
+                title="Phim Chiếu Rạp Mới Nhất Tại Việt Nam"
+                subtitle="Tuyển tập các tác phẩm điện ảnh chiếu rạp hot nhất với chất lượng cao Full HD / Vietsub"
+                icon={<Film className="w-5 h-5 text-rose-500" />}
+                movies={theatricalMovies}
+              />
+            )}
 
             {/* Trending Now Row */}
             <CinemaCarouselRow
@@ -166,6 +178,8 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
                     ? `Kết quả tìm kiếm cho: "${searchQuery}"`
                     : activeTab === 'watchlist'
                     ? 'Danh Sách Phim Yêu Thích Của Tôi'
+                    : activeTab === 'theatrical'
+                    ? 'Tác Phẩm Điện Ảnh Chiếu Rạp Mới Nhất'
                     : activeTab === 'trending'
                     ? 'Phim Thịnh Hành Trên Toàn Cầu'
                     : activeTab === 'series'

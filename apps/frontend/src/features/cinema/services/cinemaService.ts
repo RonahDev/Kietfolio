@@ -30,6 +30,10 @@ interface KKPhimItemDto {
   poster_url: string
   thumb_url: string
   year?: number
+  time?: string
+  chieurap?: boolean
+  country?: Array<{ id?: string; name?: string; slug?: string }>
+  category?: Array<{ id?: string; name?: string; slug?: string }>
 }
 
 interface KKPhimEpisodeServerDto {
@@ -95,6 +99,154 @@ const TMDB_GENRES_MAP: Record<number, string> = {
 // Sample 4K Showcase HLS Stream for International Blockbusters
 const SHOWCASE_HLS_STREAM =
   'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8'
+
+// Helper to safely extract items array from various KKPhim response formats
+function extractKKPhimItems(data: unknown): KKPhimItemDto[] {
+  if (!data || typeof data !== 'object') return []
+  const obj = data as Record<string, unknown>
+  const dataField = obj.data as Record<string, unknown> | undefined
+
+  if (dataField && Array.isArray(dataField.items)) {
+    return dataField.items as KKPhimItemDto[]
+  }
+  if (Array.isArray(obj.items)) {
+    return obj.items as KKPhimItemDto[]
+  }
+  if (dataField && Array.isArray(dataField.item)) {
+    return dataField.item as KKPhimItemDto[]
+  }
+  return []
+}
+
+/**
+ * Fetch Theatrical Movies (Phim Chiếu Rạp) currently playing in Vietnam
+ * Integrates KKPhim's dedicated Theatrical release catalog (phim-chieu-rap)
+ * with direct .m3u8 streaming capabilities
+ */
+export async function fetchTheatricalMovies(): Promise<MovieItem[]> {
+  try {
+    const url = `${SITE_CONFIG.cinema.kkphimApiBaseUrl}/v1/api/danh-sach/phim-chieu-rap?page=1`
+    const res = await fetch(url)
+    if (!res.ok) {
+      throw new Error(`KKPhim Theatrical API returned status ${res.status}`)
+    }
+
+    const data = await res.json()
+    const items = extractKKPhimItems(data)
+    if (items.length === 0) {
+      return []
+    }
+
+    return items.slice(0, 15).map((item) => {
+      const posterUrl = item.poster_url?.startsWith('http')
+        ? item.poster_url
+        : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.poster_url}`
+
+      const backdropUrl = item.thumb_url?.startsWith('http')
+        ? item.thumb_url
+        : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.thumb_url}`
+
+      const isVn = item.country?.some(
+        (c) => c.slug === 'viet-nam' || c.name?.toLowerCase().includes('việt nam')
+      )
+
+      const categories = (item.category || []).map((c) => c.slug || 'action')
+
+      return {
+        id: `rap-${item.slug}`,
+        slug: item.slug,
+        title: item.name,
+        originTitle: item.origin_name || item.name,
+        tagline: 'Phim điện ảnh chiếu rạp mới nhất tại Việt Nam',
+        synopsis: `Phim chiếu rạp ${item.name} (${item.origin_name || item.year}). Tác phẩm điện ảnh chiếu rạp hấp dẫn với bản đẹp Full HD Vietsub độc quyền tại CinemaStreamHub.`,
+        backdropUrl: backdropUrl || posterUrl,
+        posterUrl,
+        trailerUrl: '',
+        videoStreamUrl: '',
+        year: item.year || 2026,
+        rating: 9.0,
+        matchPercentage: 97,
+        maturityRating: 'PG-13',
+        duration: item.time || '105 phút',
+        quality: '1080P FULL HD',
+        audio: 'DOLBY 5.1',
+        genres: categories.length > 0 ? categories : ['action', 'drama'],
+        director: 'Rạp chiếu toàn quốc',
+        cast: [{ name: 'Diễn viên điện ảnh', role: 'Diễn xuất chính' }],
+        isTheatrical: true,
+        isVietnamese: isVn,
+        streamSource: 'kkphim',
+      }
+    })
+  } catch (err) {
+    console.warn('[CinemaService]: KKPhim Theatrical fetch failed:', err)
+    return []
+  }
+}
+
+/**
+ * Fetch TMDb Theatrical Movies currently in Vietnamese Theaters (region=VN)
+ */
+export async function fetchTMDbNowPlayingVietnam(): Promise<MovieItem[]> {
+  const apiKey = SITE_CONFIG.cinema.tmdbApiKey
+  if (!apiKey || apiKey.trim().length === 0) return []
+
+  try {
+    const url = `${SITE_CONFIG.cinema.tmdbBaseUrl}/movie/now_playing?api_key=${apiKey}&region=VN&language=vi-VN`
+    const res = await fetch(url)
+    if (!res.ok) return []
+
+    const data: { results: TMDbMovieDto[] } = await res.json()
+    if (!data.results || data.results.length === 0) return []
+
+    return data.results.slice(0, 10).map((m) => {
+      const year = m.release_date ? new Date(m.release_date).getFullYear() : 2026
+      const rating = Number(m.vote_average.toFixed(1))
+      const matchPercentage = Math.min(99, Math.max(80, Math.round(rating * 10)))
+      const genres = (m.genre_ids || [])
+        .map((id) => TMDB_GENRES_MAP[id] || 'action')
+        .slice(0, 3)
+
+      const backdropUrl = m.backdrop_path
+        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/original${m.backdrop_path}`
+        : 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2400&q=95'
+
+      const posterUrl = m.poster_path
+        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w780${m.poster_path}`
+        : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=85'
+
+      return {
+        id: `tmdb-rap-${m.id}`,
+        tmdbId: m.id,
+        title: m.title || m.original_title || 'Phim Rạp Quốc Tế',
+        originTitle: m.original_title,
+        tagline: 'Khởi chiếu tại các cụm rạp CGV, Lotte, BHD, Galaxy Cinema Việt Nam',
+        synopsis: m.overview && m.overview.trim().length > 0
+          ? m.overview
+          : 'Tác phẩm điện ảnh bom tấn đang công chiếu tại các rạp chiếu phim trên toàn quốc.',
+        backdropUrl,
+        posterUrl,
+        trailerUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(m.title + ' trailer official')}`,
+        videoStreamUrl: SHOWCASE_HLS_STREAM,
+        year,
+        rating,
+        matchPercentage,
+        maturityRating: rating >= 8.0 ? 'R' : 'PG-13',
+        duration: '120 phút',
+        quality: '4K ULTRA HD',
+        audio: 'DOLBY ATMOS',
+        genres: genres.length > 0 ? genres : ['action'],
+        director: 'Đạo diễn Hollywood / Quốc Tế',
+        cast: [{ name: 'Dàn diễn viên rạp chiếu', role: 'Diễn viên chính' }],
+        isTheatrical: true,
+        streamSource: 'hls',
+      }
+    })
+  } catch (err) {
+    console.warn('[CinemaService]: TMDb now playing fetch failed:', err)
+    return []
+  }
+}
 
 /**
  * Fetch Trending Blockbusters from TMDb API

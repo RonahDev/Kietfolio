@@ -121,6 +121,22 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
 
             <button
               type="button"
+              onClick={() => handleTabClick('theatrical')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono tracking-wide transition-colors cursor-pointer ${
+                activeTab === 'theatrical'
+                  ? 'text-[#f5f5f5] font-bold border-b-2 border-[#a51d35]'
+                  : 'text-[#a1a1aa] hover:text-[#f5f5f5]'
+              }`}
+            >
+              <Film className="w-3.5 h-3.5 text-[#d4af70]" />
+              <span>Chiếu Rạp</span>
+              <span className="px-1 py-0.2 rounded-xs bg-[#a51d35] text-[9px] text-white font-bold animate-pulse">
+                HOT
+              </span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => handleTabClick('movies')}
               className={`px-3 py-1.5 rounded-sm text-xs font-mono tracking-wide transition-colors cursor-pointer ${
                 activeTab === 'movies'
@@ -128,7 +144,7 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
                   : 'text-[#a1a1aa] hover:text-[#f5f5f5]'
               }`}
             >
-              Phim Lẻ (Movies)
+              Phim Lẻ
             </button>
 
             <button
@@ -331,6 +347,18 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               }`}
             >
               Trang Chủ
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabClick('theatrical')}
+              className={`p-2 rounded-sm text-left flex items-center justify-between ${
+                activeTab === 'theatrical' ? 'bg-[#a51d35]/20 text-white font-bold' : 'text-[#a1a1aa]'
+              }`}
+            >
+              <span>Phim Chiếu Rạp</span>
+              <span className="px-1.5 py-0.2 rounded-xs bg-[#a51d35] text-[9px] text-white font-bold">
+                HOT
+              </span>
             </button>
             <button
               type="button"
