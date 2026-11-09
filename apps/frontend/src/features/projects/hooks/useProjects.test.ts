@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useProjects } from './useProjects'
 
 describe('useProjects Hook', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
   it('loads all projects by default', async () => {
     const { result } = renderHook(() => useProjects('all'))
 

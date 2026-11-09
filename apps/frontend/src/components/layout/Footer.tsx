@@ -49,22 +49,22 @@ export const Footer: React.FC = React.memo(() => {
             <ul className="space-y-2">
               <li>
                 <a href="#about" className="hover:text-[#00d2ff] transition-colors">
-                  // {t.nav.about}
+                  {'// '} {t.nav.about}
                 </a>
               </li>
               <li>
                 <a href="#experience" className="hover:text-[#00d2ff] transition-colors">
-                  // {t.nav.experience}
+                  {'// '} {t.nav.experience}
                 </a>
               </li>
               <li>
                 <a href="#skills" className="hover:text-[#00d2ff] transition-colors">
-                  // {t.nav.skills}
+                  {'// '} {t.nav.skills}
                 </a>
               </li>
               <li>
                 <a href="#principles" className="hover:text-[#00d2ff] transition-colors">
-                  // {t.nav.principles}
+                  {'// '} {t.nav.principles}
                 </a>
               </li>
             </ul>

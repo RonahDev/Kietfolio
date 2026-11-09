@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useGuestbook } from './useGuestbook'
 
 describe('useGuestbook Hook', () => {
   beforeEach(() => {
     localStorage.clear()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
 
   it('loads initial entries properly', async () => {

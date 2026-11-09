@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { DonateModal } from './DonateModal'
 import { LanguageProvider } from '@/context'
-import { SITE_CONFIG } from '@/config/site'
+import { SITE_CONFIG } from '@/config'
 
 describe('DonateModal QA & Vietcombank + MoMo Payment Flow Test Suite', () => {
   const defaultProps = {

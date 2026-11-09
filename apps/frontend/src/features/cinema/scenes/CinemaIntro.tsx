@@ -111,7 +111,7 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
     return () => {
       tl.kill()
     }
-  }, [handleSkip, onComplete, onProgress, useFallback])
+  }, [onComplete, onProgress, useFallback])
 
   if (isIntroFinished) return null
 

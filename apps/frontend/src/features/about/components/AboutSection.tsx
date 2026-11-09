@@ -103,7 +103,7 @@ export const AboutSection: React.FC = () => {
                   Verified Trajectory
                 </Badge>
                 <span className="text-xs font-mono text-[#64748b]">
-                  // FPT University × SPX Express Hub
+                  {'// FPT University × SPX Express Hub'}
                 </span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-[#f1f5f9]">

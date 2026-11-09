@@ -44,32 +44,35 @@ describe('Kietfolio Core Enterprise QA Test Suite (5 Core Feature Test Cases)', 
       })
     })
 
-    it('TC-01-VCB-MOMO: executes full donation lifecycle across Vietcombank and MoMo payment channels', () => {
+    it('TC-01-VCB-MOMO: executes full donation lifecycle across Vietcombank and MoMo payment channels', async () => {
       const onCloseMock = vi.fn()
       const calculateAmountMock = () => 50000
 
-      const { rerender } = render(
-        <LanguageProvider>
-          <DonateModal
-            isOpen={true}
-            onClose={onCloseMock}
-            selectedTier={50000}
-            customAmount="50000"
-            setCustomAmount={vi.fn()}
-            handleSelectTier={vi.fn()}
-            orderType="coffee"
-            setOrderType={vi.fn()}
-            donorName="Tester Doanh Nghiệp"
-            setDonorName={vi.fn()}
-            donorMessage="Ủng hộ Kiệt phát triển Kietfolio!"
-            setDonorMessage={vi.fn()}
-            isLoading={false}
-            errorMessage={null}
-            calculateAmount={calculateAmountMock}
-            onPayWithVnpay={vi.fn()}
-          />
-        </LanguageProvider>
-      )
+      let renderResult!: ReturnType<typeof render>
+      act(() => {
+        renderResult = render(
+          <LanguageProvider>
+            <DonateModal
+              isOpen={true}
+              onClose={onCloseMock}
+              selectedTier={50000}
+              customAmount="50000"
+              setCustomAmount={vi.fn()}
+              handleSelectTier={vi.fn()}
+              orderType="coffee"
+              setOrderType={vi.fn()}
+              donorName="Tester Doanh Nghiệp"
+              setDonorName={vi.fn()}
+              donorMessage="Ủng hộ Kiệt phát triển Kietfolio!"
+              setDonorMessage={vi.fn()}
+              isLoading={false}
+              errorMessage={null}
+              calculateAmount={calculateAmountMock}
+              onPayWithVnpay={vi.fn()}
+            />
+          </LanguageProvider>
+        )
+      })
 
       // 1. Kiểm tra hiển thị mặc định tab Vietcombank
       expect(screen.getAllByText(/vietcombank/i).length).toBeGreaterThan(0)
@@ -79,7 +82,7 @@ describe('Kietfolio Core Enterprise QA Test Suite (5 Core Feature Test Cases)', 
 
       // 2. Kiểm tra sao chép STK vào Clipboard
       const copyAccountBtn = screen.getByTitle('Sao chép số tài khoản')
-      act(() => {
+      await act(async () => {
         fireEvent.click(copyAccountBtn)
       })
       expect(writeTextMock).toHaveBeenCalledWith(SITE_CONFIG.donation.vietcombank.accountNumber)
@@ -102,28 +105,30 @@ describe('Kietfolio Core Enterprise QA Test Suite (5 Core Feature Test Cases)', 
       expect(onCloseMock).toHaveBeenCalled()
 
       // 5. Khi isOpen = false -> Modal biến mất hoàn toàn
-      rerender(
-        <LanguageProvider>
-          <DonateModal
-            isOpen={false}
-            onClose={onCloseMock}
-            selectedTier={50000}
-            customAmount="50000"
-            setCustomAmount={vi.fn()}
-            handleSelectTier={vi.fn()}
-            orderType="coffee"
-            setOrderType={vi.fn()}
-            donorName=""
-            setDonorName={vi.fn()}
-            donorMessage=""
-            setDonorMessage={vi.fn()}
-            isLoading={false}
-            errorMessage={null}
-            calculateAmount={calculateAmountMock}
-            onPayWithVnpay={vi.fn()}
-          />
-        </LanguageProvider>
-      )
+      act(() => {
+        renderResult.rerender(
+          <LanguageProvider>
+            <DonateModal
+              isOpen={false}
+              onClose={onCloseMock}
+              selectedTier={50000}
+              customAmount="50000"
+              setCustomAmount={vi.fn()}
+              handleSelectTier={vi.fn()}
+              orderType="coffee"
+              setOrderType={vi.fn()}
+              donorName=""
+              setDonorName={vi.fn()}
+              donorMessage=""
+              setDonorMessage={vi.fn()}
+              isLoading={false}
+              errorMessage={null}
+              calculateAmount={calculateAmountMock}
+              onPayWithVnpay={vi.fn()}
+            />
+          </LanguageProvider>
+        )
+      })
       expect(screen.queryByText(/vietcombank/i)).toBeNull()
     })
   })
@@ -208,6 +213,10 @@ describe('Kietfolio Core Enterprise QA Test Suite (5 Core Feature Test Cases)', 
   // TEST CASE 3: SỔ LƯU BÚT SỐ & DỮ LIỆU THỜI GIAN THỰC (GUESTBOOK REAL-TIME PERSISTENCE)
   // =======================================================================================
   describe('TC-03: Guestbook Real-time Data Flow & Author Verification', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+
     it('TC-03-GUESTBOOK-POST: reads entries and persists new guestbook submission with verification badge', async () => {
       // 1. Lấy danh sách lưu bút ban đầu
       const initialEntries = await guestbookApi.getEntries()
