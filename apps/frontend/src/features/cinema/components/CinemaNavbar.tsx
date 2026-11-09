@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useCinema } from '../hooks/useCinema'
-import { useAuth } from '@/hooks'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import { CINEMA_GENRES } from '../data/moviesData'
 import type { CinemaViewTab } from '../types/cinema'
 import {
@@ -293,7 +293,7 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               )}
               <img
                 src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve'}
-                alt={user.displayName}
+                alt={user.displayName || 'User Avatar'}
                 className="w-7 h-7 rounded-full border border-[#d4af70]/50 object-cover"
               />
             </div>

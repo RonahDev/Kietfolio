@@ -66,7 +66,7 @@ export const CinemaDetailModal: React.FC = () => {
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2 text-xs font-mono">
                 <span className="px-2 py-0.5 rounded-xs bg-[#a51d35] text-white font-bold text-[10px]">
-                  {activeMovie.quality}
+                  {activeMovie.streamSource === 'kkphim' ? 'KKPHIM HLS' : activeMovie.quality}
                 </span>
                 <span className="flex items-center gap-1 text-[#d4af70] font-bold">
                   <Star className="w-3.5 h-3.5 fill-[#d4af70]" />
@@ -96,6 +96,17 @@ export const CinemaDetailModal: React.FC = () => {
                 <Play className="w-4 h-4 fill-white" />
                 <span>PHÁT NGAY</span>
               </button>
+
+              {activeMovie.trailerUrl && (
+                <a
+                  href={activeMovie.trailerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#2d3139] text-[#f5f5f5] font-mono text-xs transition-colors"
+                >
+                  <span>TRAILER</span>
+                </a>
+              )}
 
               <button
                 type="button"

@@ -11,7 +11,7 @@ import {
   isFirebaseConfigured,
   type User,
 } from '@/services/firebase'
-import { ADMIN_EMAIL, ADMIN_AUTHORIZED_EMAILS, type AuthUser, type UserRecord } from '../types/auth'
+import { ADMIN_EMAIL, ADMIN_AUTHORIZED_EMAILS, type AuthUser, type UserRecord, type UserRole } from '../types/auth'
 import { SITE_CONFIG } from '@/config/site'
 import { AuthContext, type AuthModalMode } from './authTypes'
 

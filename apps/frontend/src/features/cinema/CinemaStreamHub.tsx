@@ -18,6 +18,7 @@ import {
   Sparkles,
   Search,
   Bookmark,
+  Film,
 } from 'lucide-react'
 
 interface CinemaStreamHubProps {
@@ -33,6 +34,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
     selectedGenre,
     searchQuery,
     watchlist,
+    isConnectingStream,
   } = useCinema()
 
   // Filtered movies based on genre and search
@@ -72,6 +74,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
     () => movies.filter((m) => (m.progressPercentage || 0) > 0),
     [movies]
   )
+  const vietnameseMovies = useMemo(() => movies.filter((m) => m.isVietnamese), [movies])
   const comingSoonMovies = useMemo(() => movies.filter((m) => m.isComingSoon), [movies])
 
   const isBrowsingAll = activeTab === 'all' && selectedGenre === 'all' && searchQuery.trim() === ''
@@ -106,6 +109,16 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
               icon={<Award className="w-5 h-5 text-[#d4af70]" />}
               movies={awardMovies}
             />
+
+            {/* Vietnamese & Asian Stream Row (KKPhim HLS Stream) */}
+            {vietnameseMovies.length > 0 && (
+              <CinemaCarouselRow
+                title="Phim Việt & Châu Á Trực Tuyến"
+                subtitle="Luồng phát trực tiếp tốc độ cao Full HD qua KKPhim HLS Stream"
+                icon={<Film className="w-5 h-5 text-[#d4af70]" />}
+                movies={vietnameseMovies}
+              />
+            )}
 
             {/* Cyberpunk & Tech Realm Row */}
             <CinemaCarouselRow
@@ -199,6 +212,23 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
           </div>
         )}
       </main>
+
+      {/* KKPhim Stream Connection Overlay */}
+      {isConnectingStream && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="w-16 h-16 rounded-full border-4 border-[#a51d35] border-t-[#d4af70] animate-spin" />
+          <h4 className="mt-5 text-sm sm:text-base font-mono text-[#d4af70] font-bold tracking-widest uppercase">
+            ĐANG KẾT NỐI LUỒNG PHÁT 4K HLS TỪ KKPHIM...
+          </h4>
+          <p className="mt-1.5 text-xs text-[#a1a1aa] font-mono">
+            Đang phân giải danh sách tập và máy chủ video tốc độ cao
+          </p>
+        </div>
+      )}
 
       {/* Movie Details Modal */}
       <CinemaDetailModal />

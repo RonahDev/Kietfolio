@@ -27,6 +27,7 @@ export const AuthModal: React.FC = () => {
     registerWithEmail,
     signInWithEmail,
     signInWithGoogle,
+    signInDemo,
     isLoading,
     error: authError,
     clearError,

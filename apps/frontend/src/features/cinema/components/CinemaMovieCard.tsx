@@ -31,7 +31,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
       {/* Top Badges (Quality & Rating) */}
       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
         <span className="px-1.5 py-0.5 rounded-xs bg-black/75 backdrop-blur-md text-[9px] font-mono font-bold text-[#d4af70] border border-[#d4af70]/30">
-          {movie.quality === '4K ULTRA HD' ? '4K' : 'HD'}
+          {movie.streamSource === 'kkphim' ? 'HLS VIETSUB' : movie.quality === '4K ULTRA HD' ? '4K' : 'HD'}
         </span>
 
         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-xs bg-black/75 backdrop-blur-md text-[10px] font-mono font-bold text-[#f5f5f5]">

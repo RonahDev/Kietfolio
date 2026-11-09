@@ -1,9 +1,15 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react'
 import type { MovieItem, CinemaViewTab } from '../types/cinema'
 import { CINEMA_MOVIES } from '../data/moviesData'
+import {
+  fetchTMDbTrendingMovies,
+  fetchKKPhimVietnameseMovies,
+  fetchKKPhimStreamDetails,
+} from '../services/cinemaService'
+import { SITE_CONFIG } from '@/config'
 
-const WATCHLIST_STORAGE_KEY = 'kietfolio_cinema_watchlist'
-const CURTAIN_SEEN_SESSION_KEY = 'kietfolio_cinema_curtain_seen'
+const WATCHLIST_STORAGE_KEY = SITE_CONFIG.storageKeys.cinemaWatchlist || 'kietfolio_cinema_watchlist'
+const CURTAIN_SEEN_SESSION_KEY = SITE_CONFIG.storageKeys.cinemaCurtainSeen || 'kietfolio_cinema_curtain_seen'
 
 interface CinemaContextValue {
   movies: MovieItem[]
@@ -15,9 +21,11 @@ interface CinemaContextValue {
   activeTab: CinemaViewTab
   isCurtainIntroActive: boolean
   hasSeenCurtainIntro: boolean
+  isLoadingRemoteMovies: boolean
+  isConnectingStream: boolean
   openMovieDetail: (movie: MovieItem) => void
   closeMovieDetail: () => void
-  playMovie: (movie: MovieItem) => void
+  playMovie: (movie: MovieItem) => Promise<void> | void
   closePlayer: () => void
   toggleWatchlist: (movieId: string) => void
   isInWatchlist: (movieId: string) => boolean
@@ -32,12 +40,14 @@ interface CinemaContextValue {
 const CinemaContext = createContext<CinemaContextValue | undefined>(undefined)
 
 export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [movies] = useState<MovieItem[]>(CINEMA_MOVIES)
+  const [movies, setMovies] = useState<MovieItem[]>(CINEMA_MOVIES)
   const [activeMovie, setActiveMovie] = useState<MovieItem | null>(null)
   const [playingMovie, setPlayingMovie] = useState<MovieItem | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedGenre, setSelectedGenre] = useState<string>('all')
   const [activeTab, setActiveTab] = useState<CinemaViewTab>('all')
+  const [isLoadingRemoteMovies, setIsLoadingRemoteMovies] = useState<boolean>(false)
+  const [isConnectingStream, setIsConnectingStream] = useState<boolean>(false)
 
   // Check session storage for curtain animation flag
   const [hasSeenCurtainIntro, setHasSeenCurtainIntro] = useState<boolean>(() => {
@@ -78,6 +88,64 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [watchlist])
 
+  // =========================================================================
+  // HYBRID DATA LOADER: TMDb API 4K Metadata + KKPhim Vietnamese Stream API
+  // =========================================================================
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadHybridMovieCatalog() {
+      setIsLoadingRemoteMovies(true)
+      try {
+        const [tmdbTrending, kkphimVietnamese] = await Promise.allSettled([
+          fetchTMDbTrendingMovies(),
+          fetchKKPhimVietnameseMovies(),
+        ])
+
+        if (!isMounted) return
+
+        const freshTmdbMovies = tmdbTrending.status === 'fulfilled' ? tmdbTrending.value : []
+        const freshKkphimMovies = kkphimVietnamese.status === 'fulfilled' ? kkphimVietnamese.value : []
+
+        // Merge with deduplication based on ID and Title
+        setMovies((prev) => {
+          const map = new Map<string, MovieItem>()
+
+          // 1. Add TMDb movies (Priority for hero & trending)
+          for (const m of freshTmdbMovies) {
+            map.set(m.id, m)
+          }
+
+          // 2. Add KKPhim Vietnamese movies
+          for (const m of freshKkphimMovies) {
+            map.set(m.id, m)
+          }
+
+          // 3. Keep existing curated showcase movies as rock-solid fallback
+          for (const m of prev) {
+            if (!map.has(m.id)) {
+              map.set(m.id, m)
+            }
+          }
+
+          return Array.from(map.values())
+        })
+      } catch (err) {
+        console.warn('[CinemaProvider]: Error fetching remote cinema catalog:', err)
+      } finally {
+        if (isMounted) {
+          setIsLoadingRemoteMovies(false)
+        }
+      }
+    }
+
+    loadHybridMovieCatalog()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const openMovieDetail = useCallback((movie: MovieItem) => {
     setActiveMovie(movie)
   }, [])
@@ -86,7 +154,35 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setActiveMovie(null)
   }, [])
 
-  const playMovie = useCallback((movie: MovieItem) => {
+  /**
+   * Hybrid Player Launcher:
+   * - If KKPhim title: on-demand resolves m3u8 playlist and episodes
+   * - If TMDb / Blockbuster: plays 4K stream or trailer
+   */
+  const playMovie = useCallback(async (movie: MovieItem) => {
+    if (movie.streamSource === 'kkphim' && movie.slug && !movie.videoStreamUrl) {
+      setIsConnectingStream(true)
+      try {
+        const details = await fetchKKPhimStreamDetails(movie.slug)
+        if (details) {
+          const enrichedMovie: MovieItem = {
+            ...movie,
+            videoStreamUrl: details.videoStreamUrl,
+            episodes: details.episodes,
+          }
+          setMovies((prev) =>
+            prev.map((m) => (m.id === movie.id ? enrichedMovie : m))
+          )
+          setPlayingMovie(enrichedMovie)
+          return
+        }
+      } catch (err) {
+        console.warn('[CinemaProvider]: Could not fetch KKPhim stream details, playing default:', err)
+      } finally {
+        setIsConnectingStream(false)
+      }
+    }
+
     setPlayingMovie(movie)
   }, [])
 
@@ -142,6 +238,8 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       activeTab,
       isCurtainIntroActive,
       hasSeenCurtainIntro,
+      isLoadingRemoteMovies,
+      isConnectingStream,
       openMovieDetail,
       closeMovieDetail,
       playMovie,
@@ -165,6 +263,8 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       activeTab,
       isCurtainIntroActive,
       hasSeenCurtainIntro,
+      isLoadingRemoteMovies,
+      isConnectingStream,
       openMovieDetail,
       closeMovieDetail,
       playMovie,

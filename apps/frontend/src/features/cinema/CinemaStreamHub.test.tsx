@@ -32,9 +32,9 @@ describe('CinemaStreamHub Component Suite', () => {
     const onBack = vi.fn()
     renderWithProviders(<CinemaStreamHub onBackToPortfolio={onBack} />)
 
-    expect(screen.getAllByText(/CINEMA/i)[0]).toBeInTheDocument()
-    expect(screen.getAllByText(/STREAM/i)[0]).toBeInTheDocument()
-    expect(screen.getAllByText(/Portfolio/i)[0]).toBeInTheDocument()
+    expect(screen.getAllByText(/CINEMA/i)[0]).toBeDefined()
+    expect(screen.getAllByText(/STREAM/i)[0]).toBeDefined()
+    expect(screen.getAllByText(/Portfolio/i)[0]).toBeDefined()
   })
 
   it('invokes onBackToPortfolio callback when clicking back button', () => {
@@ -50,10 +50,10 @@ describe('CinemaStreamHub Component Suite', () => {
     const onBack = vi.fn()
     renderWithProviders(<CinemaStreamHub onBackToPortfolio={onBack} />)
 
-    expect(screen.getByText(/Thịnh Hành & Đang Sốt/i)).toBeInTheDocument()
-    expect(screen.getByText(/Tuyệt Tác Điện Ảnh & Giải Thưởng/i)).toBeInTheDocument()
-    expect(screen.getByText(/Vũ Trụ Cyberpunk/i)).toBeInTheDocument()
-    expect(screen.getByText(/Kỹ Thuật Hệ Thống & Logistics/i)).toBeInTheDocument()
+    expect(screen.getByText(/Thịnh Hành & Đang Sốt/i)).toBeDefined()
+    expect(screen.getByText(/Tuyệt Tác Điện Ảnh & Giải Thưởng/i)).toBeDefined()
+    expect(screen.getByText(/Vũ Trụ Cyberpunk/i)).toBeDefined()
+    expect(screen.getByText(/Kỹ Thuật Hệ Thống & Logistics/i)).toBeDefined()
   })
 
   it('filters movies when typing into the search input', () => {
@@ -67,8 +67,8 @@ describe('CinemaStreamHub Component Suite', () => {
     const searchInput = screen.getByPlaceholderText(/Tìm phim, đạo diễn/i)
     fireEvent.change(searchInput, { target: { value: 'Oppenheimer' } })
 
-    expect(screen.getByText(/Kết quả tìm kiếm cho: "Oppenheimer"/i)).toBeInTheDocument()
-    expect(screen.getAllByText(/The Quantum Horizon/i)[0]).toBeInTheDocument()
+    expect(screen.getByText(/Kết quả tìm kiếm cho: "Oppenheimer"/i)).toBeDefined()
+    expect(screen.getAllByText(/The Quantum Horizon/i)[0]).toBeDefined()
   })
 
   it('switches to Watchlist view tab properly', () => {
@@ -78,6 +78,6 @@ describe('CinemaStreamHub Component Suite', () => {
     const watchlistTab = screen.getByText(/Danh Sách Của Tôi/i)
     fireEvent.click(watchlistTab)
 
-    expect(screen.getByText(/Danh Sách Phim Yêu Thích Của Tôi/i)).toBeInTheDocument()
+    expect(screen.getByText(/Danh Sách Phim Yêu Thích Của Tôi/i)).toBeDefined()
   })
 })

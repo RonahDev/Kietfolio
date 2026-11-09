@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import Hls from 'hls.js'
 import { useCinema } from '../hooks/useCinema'
 import {
   Play,
@@ -13,13 +14,17 @@ import {
   Settings,
   Subtitles,
   Sparkles,
+  Layers,
+  AlertCircle,
+  ExternalLink,
 } from 'lucide-react'
 
 export const CinemaVideoPlayer: React.FC = () => {
   const { playingMovie, closePlayer } = useCinema()
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hlsRef = useRef<Hls | null>(null)
 
   const [isPlaying, setIsPlaying] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
@@ -30,8 +35,19 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [showControls, setShowControls] = useState(true)
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1)
   const [showSettings, setShowSettings] = useState(false)
+  const [showEpisodes, setShowEpisodes] = useState(false)
   const [selectedQuality, setSelectedQuality] = useState('4K UHD')
   const [selectedSubtitle, setSelectedSubtitle] = useState('Tiếng Việt')
+  const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
+  const [streamError, setStreamError] = useState<string | null>(null)
+  const [isBuffering, setIsBuffering] = useState(true)
+  const [viewMode, setViewMode] = useState<'video' | 'youtube'>('video')
+
+  // Derive active stream URL (either chosen episode or movie default)
+  const activeStreamUrl =
+    playingMovie?.episodes && playingMovie.episodes.length > 0
+      ? playingMovie.episodes[currentEpIndex]?.linkM3u8 || playingMovie.videoStreamUrl
+      : playingMovie?.videoStreamUrl || ''
 
   // Auto-hide controls during playback after 3.5s of inactivity
   const handleMouseMove = useCallback(() => {
@@ -41,6 +57,7 @@ export const CinemaVideoPlayer: React.FC = () => {
       hideTimerRef.current = setTimeout(() => {
         setShowControls(false)
         setShowSettings(false)
+        setShowEpisodes(false)
       }, 3500)
     }
   }, [isPlaying])
@@ -49,7 +66,7 @@ export const CinemaVideoPlayer: React.FC = () => {
   const togglePlay = useCallback(() => {
     if (!videoRef.current) return
     if (videoRef.current.paused) {
-      videoRef.current.play()
+      videoRef.current.play().catch(() => setIsPlaying(false))
       setIsPlaying(true)
     } else {
       videoRef.current.pause()
@@ -101,9 +118,9 @@ export const CinemaVideoPlayer: React.FC = () => {
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return
     if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true))
+      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
     } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false))
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {})
     }
   }, [])
 
@@ -135,24 +152,80 @@ export const CinemaVideoPlayer: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [togglePlay, toggleFullscreen, toggleMute, skipTime, closePlayer])
 
-  // Sync video time updates
-  const handleTimeUpdate = () => {
-    if (!videoRef.current) return
-    setCurrentTime(videoRef.current.currentTime)
-  }
+  // ========================================================
+  // HLS.JS STREAM ATTACHMENT & ADAPTIVE PLAYBACK
+  // ========================================================
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !activeStreamUrl || viewMode === 'youtube') return
 
-  const handleLoadedMetadata = () => {
-    if (!videoRef.current) return
-    setDuration(videoRef.current.duration)
-  }
+    setStreamError(null)
+    setIsBuffering(true)
 
-  const handlePlaybackRateChange = (rate: number) => {
-    setPlaybackSpeed(rate)
-    if (videoRef.current) {
-      videoRef.current.playbackRate = rate
+    // Destroy existing Hls instance if any
+    if (hlsRef.current) {
+      hlsRef.current.destroy()
+      hlsRef.current = null
     }
-    setShowSettings(false)
-  }
+
+    const isM3U8 = activeStreamUrl.includes('.m3u8')
+
+    if (isM3U8 && Hls.isSupported()) {
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 90,
+      })
+      hlsRef.current = hls
+
+      hls.loadSource(activeStreamUrl)
+      hls.attachMedia(video)
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setIsBuffering(false)
+        video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+      })
+
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hls.startLoad()
+              break
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hls.recoverMediaError()
+              break
+            default:
+              hls.destroy()
+              setStreamError('Không thể kết nối luồng phát m3u8. Bạn có thể xem trailer hoặc luồng dự phòng.')
+              setIsBuffering(false)
+              break
+          }
+        }
+      })
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native Safari HLS
+      video.src = activeStreamUrl
+      video.addEventListener('loadedmetadata', () => {
+        setIsBuffering(false)
+        video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+      })
+    } else {
+      // Standard MP4 stream fallback
+      video.src = activeStreamUrl
+      video.addEventListener('loadedmetadata', () => {
+        setIsBuffering(false)
+        video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+      })
+    }
+
+    return () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy()
+        hlsRef.current = null
+      }
+    }
+  }, [activeStreamUrl, viewMode])
 
   if (!playingMovie) return null
 
@@ -163,27 +236,92 @@ export const CinemaVideoPlayer: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
+  const hasMultipleEpisodes = Boolean(playingMovie.episodes && playingMovie.episodes.length > 1)
+
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
       className="fixed inset-0 z-50 bg-black flex items-center justify-center select-none overflow-hidden"
     >
-      {/* Video Stream Element */}
-      <video
-        ref={videoRef}
-        src={playingMovie.videoStreamUrl}
-        poster={playingMovie.backdropUrl}
-        autoPlay
-        playsInline
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onClick={togglePlay}
-        className="w-full h-full object-contain cursor-pointer"
-      />
+      {/* View Mode: YouTube Embed Player */}
+      {viewMode === 'youtube' && playingMovie.youtubeKey ? (
+        <div className="w-full h-full flex items-center justify-center bg-black">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${playingMovie.youtubeKey}?autoplay=1&controls=1&rel=0`}
+            title={playingMovie.title}
+            className="w-full h-full max-w-6xl aspect-video border-0 shadow-2xl"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        /* View Mode: High-Performance HTML5 / HLS.js Video Element */
+        <video
+          ref={videoRef}
+          poster={playingMovie.backdropUrl}
+          autoPlay
+          playsInline
+          onTimeUpdate={() => {
+            if (videoRef.current) setCurrentTime(videoRef.current.currentTime)
+          }}
+          onLoadedMetadata={() => {
+            if (videoRef.current) setDuration(videoRef.current.duration)
+          }}
+          onWaiting={() => setIsBuffering(true)}
+          onPlaying={() => setIsBuffering(false)}
+          onClick={togglePlay}
+          className="w-full h-full object-contain cursor-pointer"
+        />
+      )}
+
+      {/* Buffering Spinner */}
+      {isBuffering && viewMode === 'video' && !streamError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-xs pointer-events-none z-20">
+          <div className="w-14 h-14 rounded-full border-3 border-[#a51d35] border-t-[#d4af70] animate-spin" />
+          <span className="mt-3 text-xs font-mono text-[#d4af70] tracking-wider uppercase">
+            ĐANG TẢI LUỒNG HLS 4K...
+          </span>
+        </div>
+      )}
+
+      {/* Stream Error Alert Card with Fallback Options */}
+      {streamError && viewMode === 'video' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md z-30 p-6">
+          <div className="max-w-md w-full bg-[#11131a] border border-[#a51d35]/60 rounded-sm p-6 space-y-4 text-center shadow-[0_0_50px_rgba(165,29,53,0.5)]">
+            <AlertCircle className="w-12 h-12 text-[#a51d35] mx-auto animate-pulse" />
+            <h4 className="text-lg font-bold text-white font-['Plus_Jakarta_Sans',sans-serif]">
+              Không Thể Tải Luồng Phim Trực Tiếp
+            </h4>
+            <p className="text-xs text-[#a1a1aa] leading-relaxed">
+              {streamError}
+            </p>
+            <div className="flex flex-col gap-2 pt-2">
+              {playingMovie.trailerUrl && (
+                <a
+                  href={playingMovie.trailerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white text-xs font-mono font-bold transition-all"
+                >
+                  <span>MỞ TRAILER TRÊN YOUTUBE</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={closePlayer}
+                className="px-4 py-2 rounded-full bg-[#181b24] hover:bg-[#252a36] text-[#f5f5f5] text-xs font-mono transition-colors"
+              >
+                Đóng Trình Phát
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Center Big Play Indicator when paused */}
-      {!isPlaying && (
+      {!isPlaying && viewMode === 'video' && !isBuffering && !streamError && (
         <div
           onClick={togglePlay}
           className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs cursor-pointer z-10"
@@ -196,31 +334,98 @@ export const CinemaVideoPlayer: React.FC = () => {
 
       {/* Top Header Bar */}
       <div
-        className={`absolute top-0 left-0 right-0 p-6 bg-gradient-to-b from-black/90 via-black/50 to-transparent flex items-center justify-between z-30 transition-opacity duration-300 ${
+        className={`absolute top-0 left-0 right-0 p-6 bg-gradient-to-b from-black/95 via-black/60 to-transparent flex items-center justify-between z-30 transition-opacity duration-300 ${
           showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="px-1.5 py-0.2 rounded-xs bg-[#a51d35] text-white font-bold text-[10px]">
-              {selectedQuality}
+            <span className="px-2 py-0.5 rounded-xs bg-[#a51d35] text-white font-bold text-[10px] tracking-wider uppercase">
+              {playingMovie.streamSource === 'kkphim' ? 'KKPHIM HLS STREAM' : '4K ULTRA HD'}
             </span>
             <span className="text-[#d4af70] font-bold">{playingMovie.audio}</span>
+            {hasMultipleEpisodes && (
+              <span className="text-emerald-400 font-bold">
+                TẬP {playingMovie.episodes?.[currentEpIndex]?.name || currentEpIndex + 1}
+              </span>
+            )}
           </div>
-          <h3 className="text-lg sm:text-xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-white">
+          <h3 className="text-lg sm:text-2xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-white">
             {playingMovie.title}
           </h3>
         </div>
 
-        <button
-          type="button"
-          onClick={closePlayer}
-          className="p-2.5 rounded-full bg-black/60 border border-[#181b24] text-white hover:bg-[#a51d35] transition-colors cursor-pointer"
-          title="Thoát trình phát (Phím ESC)"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Switch between HLS Stream and YouTube Trailer */}
+          {playingMovie.youtubeKey && (
+            <button
+              type="button"
+              onClick={() => setViewMode((prev) => (prev === 'video' ? 'youtube' : 'video'))}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-[#a51d35]/60 text-xs font-mono font-bold text-white hover:bg-[#a51d35] transition-all cursor-pointer"
+            >
+              <span>{viewMode === 'video' ? 'XEM TRAILER' : 'BẢN PHIM'}</span>
+            </button>
+          )}
+
+          {/* Episode Switcher Button (For KKPhim multi-episode titles) */}
+          {hasMultipleEpisodes && (
+            <button
+              type="button"
+              onClick={() => setShowEpisodes(!showEpisodes)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-[#d4af70]/50 text-xs font-mono font-bold text-[#d4af70] hover:bg-[#d4af70] hover:text-black transition-all cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>CHỌN TẬP ({playingMovie.episodes?.length})</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={closePlayer}
+            className="p-2.5 rounded-full bg-black/60 border border-[#181b24] text-white hover:bg-[#a51d35] transition-colors cursor-pointer"
+            title="Thoát trình phát (Phím ESC)"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
       </div>
+
+      {/* Episode Selection Drawer Modal */}
+      {showEpisodes && hasMultipleEpisodes && (
+        <div className="absolute top-20 right-6 z-40 max-w-sm w-full bg-[#0c0e14]/95 border border-[#181b24] rounded-sm p-4 backdrop-blur-md shadow-2xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center justify-between border-b border-[#181b24] pb-2">
+            <span className="text-xs font-mono font-bold text-[#d4af70] uppercase">
+              DANH SÁCH TẬP PHIM
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowEpisodes(false)}
+              className="text-[#a1a1aa] hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="max-h-60 overflow-y-auto grid grid-cols-4 gap-2 pr-1">
+            {playingMovie.episodes?.map((ep, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setCurrentEpIndex(idx)
+                  setShowEpisodes(false)
+                }}
+                className={`p-2 rounded-xs text-xs font-mono transition-all ${
+                  currentEpIndex === idx
+                    ? 'bg-[#a51d35] text-white font-bold shadow-[0_0_12px_rgba(165,29,53,0.6)]'
+                    : 'bg-[#181b24] text-[#a1a1aa] hover:text-white hover:bg-[#252a36]'
+                }`}
+              >
+                Tập {ep.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Bottom Control Bar */}
       <div
@@ -344,7 +549,11 @@ export const CinemaVideoPlayer: React.FC = () => {
                         <button
                           key={speed}
                           type="button"
-                          onClick={() => handlePlaybackRateChange(speed)}
+                          onClick={() => {
+                            setPlaybackSpeed(speed)
+                            if (videoRef.current) videoRef.current.playbackRate = speed
+                            setShowSettings(false)
+                          }}
                           className={`py-1 rounded-xs ${
                             playbackSpeed === speed
                               ? 'bg-[#a51d35] text-white font-bold'

@@ -71,6 +71,15 @@ export const SITE_CONFIG = {
     theme: 'kietfolio_theme',
     introSeen: 'kietfolio_intro_seen',
     performanceQuality: 'kietfolio_perf_quality_mode',
+    cinemaWatchlist: 'kietfolio_cinema_watchlist',
+    cinemaCurtainSeen: 'kietfolio_cinema_curtain_seen',
+  },
+  cinema: {
+    tmdbApiKey: getEnvString('VITE_TMDB_API_KEY', ''),
+    tmdbBaseUrl: getEnvString('VITE_TMDB_BASE_URL', 'https://api.themoviedb.org/3'),
+    tmdbImageBaseUrl: getEnvString('VITE_TMDB_IMAGE_BASE_URL', 'https://image.tmdb.org/t/p'),
+    kkphimApiBaseUrl: getEnvString('VITE_KKPHIM_API_BASE_URL', 'https://phimapi.com'),
+    kkphimImageBaseUrl: getEnvString('VITE_KKPHIM_IMAGE_BASE_URL', 'https://phimimg.com'),
   },
   timeouts: {
     apiDefaultMs: getEnvNumber('VITE_API_TIMEOUT_MS', 8000),

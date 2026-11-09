@@ -1,1 +1,1 @@
-export * from '@/features/auth'
+export { useAuth } from '@/features/auth/hooks/useAuth'

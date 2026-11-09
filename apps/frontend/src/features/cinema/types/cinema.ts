@@ -33,6 +33,15 @@ export interface MovieItem {
   isComingSoon?: boolean
   progressPercentage?: number
   similarMovieIds?: string[]
+  // Hybrid TMDb + KKPhim extended properties
+  tmdbId?: number
+  slug?: string
+  originTitle?: string
+  isVietnamese?: boolean
+  youtubeKey?: string
+  streamSource?: 'hls' | 'youtube' | 'kkphim'
+  episodes?: Array<{ name: string; slug: string; linkM3u8: string }>
+  currentEpisodeIndex?: number
 }
 
 export interface CinemaGenre {
