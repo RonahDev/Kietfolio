@@ -12,6 +12,7 @@ import {
   LogIn,
   UserPlus,
   Loader2,
+  Crown,
 } from 'lucide-react'
 
 export const GuestbookSection: React.FC = () => {
@@ -269,9 +270,14 @@ export const GuestbookSection: React.FC = () => {
                             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-[#00d2ff] text-[#050a14] font-bold">
                               ADMIN
                             </span>
+                          ) : entry.role === 'vip' ? (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 flex items-center gap-1 shadow-sm">
+                              <Crown className="w-2.5 h-2.5 text-amber-400" />
+                              VIP MEMBER
+                            </span>
                           ) : (
                             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-[#34a853]/20 text-[#34a853] font-bold border border-[#34a853]/30">
-                              GOOGLE_VERIFIED
+                              MEMBER
                             </span>
                           )}
                         </div>

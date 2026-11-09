@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { SITE_CONFIG } from '@/config/site'
 import {
   PerformanceContext,
   type PerformanceTier,
@@ -7,7 +8,7 @@ import {
   type PerformanceContextValue,
 } from './performanceTypes'
 
-const STORAGE_QUALITY_KEY = 'kietfolio_perf_quality_mode'
+const STORAGE_QUALITY_KEY = SITE_CONFIG.storageKeys.performanceQuality
 
 function getInitialDeviceProfile(): DeviceProfile {
   if (typeof window === 'undefined') {

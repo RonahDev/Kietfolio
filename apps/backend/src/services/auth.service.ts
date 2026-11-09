@@ -11,7 +11,7 @@ const memoryUsers = new Map<string, {
   passwordHash: string
   displayName: string
   photoURL?: string
-  role: 'admin' | 'user'
+  role: 'admin' | 'vip' | 'user'
   provider: 'password' | 'google'
 }>()
 
@@ -19,8 +19,7 @@ export class AuthService {
   private static determineRole(email: string): 'admin' | 'user' {
     const adminEmails = [
       config.admin.email.toLowerCase(),
-      'kietteve22102005@gmail.com',
-      'kiet.maianh@gmail.com',
+      ...config.admin.additionalEmails,
     ]
     return adminEmails.includes(email.toLowerCase().trim()) ? 'admin' : 'user'
   }

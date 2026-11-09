@@ -2,6 +2,46 @@ import type { ProjectItem } from '@/types'
 
 export const projectsData: ProjectItem[] = [
   {
+    id: 'cinemastream-3d-platform',
+    title: 'CinemaStream — 3D WebGL Theater & Streaming Hub',
+    subtitle: {
+      en: 'Immersive cinema streaming platform featuring signature realistic Three.js theater curtain opening sequence.',
+      vi: 'Nền tảng phát phim điện ảnh 4K với hiệu ứng mở màn rạp nhung Three.js WebGL sống động.',
+    },
+    category: 'creative',
+    statusBadge: {
+      en: 'Signature Premiere · Live 4K Platform',
+      vi: 'Tuyệt Phẩm Premiere · Nền Tảng 4K Sống Động',
+    },
+    isFeatured: true,
+    isPlaceholder: true,
+    problemStatement: {
+      en: 'Generic video streaming platforms lack cinematic immersion, treating films like static e-commerce catalog items rather than experiential theater events.',
+      vi: 'Các nền tảng xem phim trực tuyến thông thường thiếu tính nhập vai điện ảnh, trình bày phim như các danh mục thương mại điện tử tĩnh thay vì trải nghiệm nhà hát thực thụ.',
+    },
+    solutionArchitecture: {
+      en: 'Engineered a realistic 3D theater curtain opening experience utilizing procedural subdivided Three.js BufferGeometry with sinusoidal fold harmonics, custom GLSL velvet grazing-angle fresnel sheen, and GSAP opening timeline orchestration. Integrated with 4K adaptive player controls and multi-tier RBAC.',
+      vi: 'Phát triển trải nghiệm mở màn rạp 3D chân thực bằng hình học Three.js BufferGeometry phân rã nếp gấp dạng sóng, shader GLSL mô phỏng ánh bóng nhung đỏ (velvet sheen) và timeline mở rạp mượt mà bằng GSAP. Tích hợp trình phát 4K tùy chỉnh và hệ thống phân quyền.',
+    },
+    keyEngineeringDecisions: {
+      en: [
+        'Procedural velvet drapery with dual harmonic vertex displacement and lateral bunching physics.',
+        'High-performance custom GLSL shaders with spotlight attenuation and grazing-angle Fresnel reflectance.',
+        'GSAP Timeline orchestrating stage lighting, curtain accordion draw, and progressive UI reveal.',
+        'High-fidelity CSS velvet fallback for non-WebGL devices and full reduced-motion accessibility.',
+      ],
+      vi: [
+        'Hình học nếp gấp nhung thủ tục với độ sâu sóng kép và vật lý co cụm nếp gấp sang hai bên cánh rạp.',
+        'Shader GLSL tùy chỉnh mô phỏng độ phản chiếu ánh sáng nghiêng của sợi nhung và đèn rọi tiêu điểm.',
+        'GSAP Timeline điều phối ánh sáng sân khấu, kéo rèm nhung và mở dần giao diện phát phim.',
+        'Giao diện rèm nhung CSS dự phòng cho thiết bị không hỗ trợ WebGL và tôn trọng chế độ giảm chuyển động.',
+      ],
+    },
+    techStack: ['Three.js', 'GLSL Shaders', 'GSAP', 'React 19', 'TypeScript', 'Tailwind CSS 4'],
+    githubUrl: 'https://github.com/RonahDev/Kietfolio',
+    liveUrl: '#cinema',
+  },
+  {
     id: 'hubflow-logistics-engine',
     title: 'HubFlow — Logistics Hub Flow & Dispatch Engine',
     subtitle: {

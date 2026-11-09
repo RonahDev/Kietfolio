@@ -1,4 +1,5 @@
 import type { PersonalProfile } from '../types'
+import { SITE_CONFIG } from '@/config/site'
 
 export const profileData: PersonalProfile = {
   fullName: 'Mai Anh Kiệt',
@@ -49,9 +50,9 @@ export const profileData: PersonalProfile = {
     ],
   },
   contactLinks: {
-    email: 'kietteve22102005@gmail.com', // Verified contact email
-    github: 'https://github.com/RonahDev',
-    linkedin: 'https://linkedin.com/in/maianhkiet',
+    email: SITE_CONFIG.author.email,
+    github: SITE_CONFIG.author.github,
+    linkedin: SITE_CONFIG.author.linkedin,
     locationLabel: 'Ho Chi Minh City, VN',
   },
 }

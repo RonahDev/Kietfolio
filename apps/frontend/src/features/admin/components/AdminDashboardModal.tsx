@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth, useLanguage } from '@/hooks'
-import { ADMIN_EMAIL, type ContactMessage } from '@/features/auth'
+import { type ContactMessage } from '@/features/auth'
+import { SITE_CONFIG } from '@/config/site'
 import type { ErrorLogItem } from '@/types/errorLog'
 import { clientLogger } from '@/services/logger/clientLogger'
 import {
@@ -20,6 +21,7 @@ import {
   ChevronRight,
   Server,
   Laptop,
+  Crown,
 } from 'lucide-react'
 
 interface RegisteredUserItem {
@@ -32,7 +34,7 @@ interface RegisteredUserItem {
   createdAt?: string
 }
 
-const MESSAGES_STORAGE_KEY = 'kietfolio_inbox_messages'
+const MESSAGES_STORAGE_KEY = SITE_CONFIG.storageKeys.inbox
 
 const defaultSeedMessages: ContactMessage[] = [
   {
@@ -60,8 +62,18 @@ const defaultSeedMessages: ContactMessage[] = [
 ]
 
 export const AdminDashboardModal: React.FC = () => {
-  const { user, isAdmin, isAdminModalOpen, closeAdminModal, signOutUser } = useAuth()
+  const { user, isAdmin, isAdminModalOpen, closeAdminModal, signOutUser, updateUserRoleByAdmin } = useAuth()
   const { language } = useLanguage()
+
+  const handleToggleUserVip = async (uid: string, currentRole: string) => {
+    const nextRole = currentRole === 'vip' ? 'member' : 'vip'
+    const success = await updateUserRoleByAdmin(uid, nextRole)
+    if (success) {
+      setRegisteredUsers((prev) =>
+        prev.map((u) => (u.uid === uid ? { ...u, role: nextRole } : u))
+      )
+    }
+  }
   const [messages, setMessages] = useState<ContactMessage[]>(() => {
     try {
       const stored = localStorage.getItem(MESSAGES_STORAGE_KEY)
@@ -84,7 +96,7 @@ export const AdminDashboardModal: React.FC = () => {
 
   const fetchLogs = useCallback(async () => {
     setIsLoadingLogs(true)
-    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+    const token = localStorage.getItem(SITE_CONFIG.storageKeys.jwtToken)
     try {
       const res = await fetch('/api/telemetry/errors', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -105,7 +117,7 @@ export const AdminDashboardModal: React.FC = () => {
 
   const clearAllLogs = useCallback(async () => {
     clientLogger.clearLocalLogs()
-    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+    const token = localStorage.getItem(SITE_CONFIG.storageKeys.jwtToken)
     try {
       await fetch('/api/telemetry/errors', {
         method: 'DELETE',
@@ -120,7 +132,7 @@ export const AdminDashboardModal: React.FC = () => {
   useEffect(() => {
     if (!isAdminModalOpen || !isAdmin) return
     let isCancelled = false
-    const token = localStorage.getItem('kietfolio_auth_jwt_token')
+    const token = localStorage.getItem(SITE_CONFIG.storageKeys.jwtToken)
 
     fetch('/api/auth/users', {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -143,7 +155,7 @@ export const AdminDashboardModal: React.FC = () => {
 
     function loadLocalUsers() {
       try {
-        const local = JSON.parse(localStorage.getItem('kietfolio_registered_users_db') || '[]')
+        const local = JSON.parse(localStorage.getItem(SITE_CONFIG.storageKeys.usersDb) || '[]')
         setRegisteredUsers(
           local.map((u: Record<string, string | undefined>) => ({
             uid: u.uid || '',
@@ -209,8 +221,8 @@ export const AdminDashboardModal: React.FC = () => {
               </div>
               <h2 id="admin-dashboard-title" className="text-lg font-bold font-mono text-[#f1f5f9]">
                 {language === 'vi'
-                  ? 'Bảng Điều Khiển Quản Trị // Mai Anh Kiệt'
-                  : 'Admin Command Center // Mai Anh Kiệt'}
+                  ? `Bảng Điều Khiển Quản Trị // ${SITE_CONFIG.author.name}`
+                  : `Admin Command Center // ${SITE_CONFIG.author.name}`}
               </h2>
             </div>
           </div>
@@ -235,12 +247,12 @@ export const AdminDashboardModal: React.FC = () => {
             />
             <div>
               <span className="text-[#f1f5f9] font-bold block">{user?.displayName}</span>
-              <span className="text-[#00d2ff] text-[11px]">{ADMIN_EMAIL}</span>
+              <span className="text-[#00d2ff] text-[11px]">{user?.email || SITE_CONFIG.admin.email}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-[11px] text-[#94a3b8]">
-            <span>HUB: Thủ Dầu Một (63BDG02)</span>
+            <span>HUB: {SITE_CONFIG.author.stationName} ({SITE_CONFIG.author.stationCode})</span>
             <span>ROLE: Senior Analyst & Developer</span>
           </div>
         </div>
@@ -477,9 +489,14 @@ export const AdminDashboardModal: React.FC = () => {
                                 <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] border border-[#00d2ff]/30 font-bold">
                                   ROOT_ADMIN
                                 </span>
+                              ) : regUser.role === 'vip' ? (
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center gap-1 shadow-sm">
+                                  <Crown className="w-3 h-3 text-amber-400" />
+                                  VIP_MEMBER
+                                </span>
                               ) : (
                                 <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-slate-800 text-slate-300 border border-slate-700">
-                                  MEMBER
+                                  STANDARD_MEMBER
                                 </span>
                               )}
                               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#34a853]/20 text-[#34a853] border border-[#34a853]/30 uppercase">
@@ -490,13 +507,36 @@ export const AdminDashboardModal: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 text-[11px] font-mono text-[#64748b]">
-                          <Clock className="w-3 h-3" />
-                          <span>
-                            {regUser.createdAt
-                              ? new Date(regUser.createdAt).toLocaleString()
-                              : 'Mới tạo'}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          {/* Role switch action for Admin */}
+                          {regUser.role !== 'admin' && (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleUserVip(regUser.uid, regUser.role)}
+                              className={`px-2.5 py-1 rounded text-xs font-mono font-bold flex items-center gap-1 transition-all cursor-pointer border ${
+                                regUser.role === 'vip'
+                                  ? 'border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300'
+                                  : 'border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+                              }`}
+                              title={
+                                regUser.role === 'vip'
+                                  ? 'Hạ cấp về Thành viên thường'
+                                  : 'Phân quyền nâng cấp lên Tài khoản VIP'
+                              }
+                            >
+                              <Crown className="w-3 h-3 text-amber-400" />
+                              <span>{regUser.role === 'vip' ? 'Hạ cấp Thường' : '⭐ Cấp VIP'}</span>
+                            </button>
+                          )}
+
+                          <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#64748b]">
+                            <Clock className="w-3 h-3" />
+                            <span>
+                              {regUser.createdAt
+                                ? new Date(regUser.createdAt).toLocaleDateString()
+                                : 'Mới tạo'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -740,11 +780,11 @@ export const AdminDashboardModal: React.FC = () => {
             <div className="p-4 rounded-sm bg-[#0f1b33]/60 border border-[#172847] space-y-4 text-xs font-mono text-[#cbd5e1]">
               <div className="font-bold text-[#00d2ff] uppercase">[ACTIVE_SYSTEM_CREDENTIALS]</div>
               <ul className="space-y-2 text-[#94a3b8]">
-                <li>• Quản trị viên: Mai Anh Kiệt</li>
-                <li>• Email xác thực: {ADMIN_EMAIL}</li>
-                <li>• Cơ sở hoạt động: Hub Thủ Dầu Một (Mã trạm: 63BDG02)</li>
+                <li>• Quản trị viên: {SITE_CONFIG.author.name}</li>
+                <li>• Email xác thực: {user?.email || SITE_CONFIG.admin.email}</li>
+                <li>• Cơ sở hoạt động: {SITE_CONFIG.author.stationName} (Mã trạm: {SITE_CONFIG.author.stationCode})</li>
                 <li>• Nền tảng học thuật: Đại học FPT, Cơ sở TP.HCM</li>
-                <li>• Trạng thái Git Remote: https://github.com/RonahDev/Kietfolio.git</li>
+                <li>• Trạng thái Git Remote: {SITE_CONFIG.author.github}</li>
               </ul>
             </div>
           )}

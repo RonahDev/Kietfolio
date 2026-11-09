@@ -19,7 +19,11 @@ export const config = {
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   },
   admin: {
-    email: (process.env.ADMIN_EMAIL || 'kiet.maianh@gmail.com').toLowerCase(),
+    email: (process.env.ADMIN_EMAIL || 'kietteve22102005@gmail.com').toLowerCase(),
+    additionalEmails: (process.env.ADMIN_ADDITIONAL_EMAILS || 'kiet.maianh@gmail.com')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean),
   },
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes

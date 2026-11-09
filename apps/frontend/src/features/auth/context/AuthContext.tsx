@@ -11,16 +11,17 @@ import {
   isFirebaseConfigured,
   type User,
 } from '@/services/firebase'
-import { ADMIN_EMAIL, type AuthUser, type UserRecord } from '../types/auth'
+import { ADMIN_EMAIL, ADMIN_AUTHORIZED_EMAILS, type AuthUser, type UserRecord } from '../types/auth'
+import { SITE_CONFIG } from '@/config/site'
 import { AuthContext, type AuthModalMode } from './authTypes'
 
-const SESSION_STORAGE_KEY = 'kietfolio_auth_active_session'
-const USERS_DB_KEY = 'kietfolio_registered_users_db'
-const JWT_TOKEN_KEY = 'kietfolio_auth_jwt_token'
+const SESSION_STORAGE_KEY = SITE_CONFIG.storageKeys.session
+const USERS_DB_KEY = SITE_CONFIG.storageKeys.usersDb
+const JWT_TOKEN_KEY = SITE_CONFIG.storageKeys.jwtToken
 
 const mapFirebaseUser = (firebaseUser: User): AuthUser => {
   const email = firebaseUser.email || ''
-  const isAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  const isAdmin = ADMIN_AUTHORIZED_EMAILS.includes(email.toLowerCase())
   return {
     uid: firebaseUser.uid,
     email: firebaseUser.email,
@@ -59,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false)
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>('signin')
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false)
+  const [isVipModalOpen, setIsVipModalOpen] = useState<boolean>(false)
 
   const isFirebaseReady = useMemo(() => isFirebaseConfigured(), [])
 
@@ -230,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return false
         }
 
-        const isAdmin = trimmedEmail === ADMIN_EMAIL.toLowerCase()
+        const isAdmin = ADMIN_AUTHORIZED_EMAILS.includes(trimmedEmail)
         const newRecord: UserRecord = {
           uid: `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           name: trimmedName || trimmedEmail.split('@')[0],
@@ -348,8 +350,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.getItem(USERS_DB_KEY) || '[]'
         )
 
-        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase() || trimmedEmail === 'kiet.maianh@gmail.com'
-        const adminMasterPassword = (import.meta as unknown as { env: Record<string, string | undefined> }).env?.VITE_ADMIN_PASSWORD || 'SecretAdminKey@2005'
+        const isAdminEmail = ADMIN_AUTHORIZED_EMAILS.includes(trimmedEmail)
+        const adminMasterPassword = SITE_CONFIG.admin.defaultPassword
 
         const foundUser = storedUsers.find(
           (u) => u.email === trimmedEmail && u.passwordHash === btoa(password)
@@ -408,9 +410,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   )
 
   // 3. 1-Click Demo Sign In (strictly for test / local demo)
-  const signInDemo = useCallback((asAdmin: boolean = false) => {
+  const signInDemo = useCallback((asAdmin: boolean | 'admin' | 'vip' | 'member' = false) => {
     setError(null)
-    const demoUser: AuthUser = asAdmin
+    const isAdminTarget = asAdmin === true || asAdmin === 'admin'
+    const isVipTarget = asAdmin === 'vip'
+
+    const demoUser: AuthUser = isAdminTarget
       ? {
           uid: 'demo_admin_kiet_uid',
           email: ADMIN_EMAIL,
@@ -420,10 +425,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           provider: 'demo',
           lastLoginAt: new Date().toISOString(),
         }
+      : isVipTarget
+      ? {
+          uid: 'demo_vip_partner_uid',
+          email: 'vip.partner@kietfolio.com',
+          displayName: 'Đối Tác Doanh Nghiệp VIP',
+          photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=VipPartner',
+          role: 'vip',
+          provider: 'demo',
+          lastLoginAt: new Date().toISOString(),
+        }
       : {
           uid: 'demo_visitor_recruiter_uid',
           email: 'partner.recruiter@example.com',
-          displayName: 'Guest Recruiter / Partner',
+          displayName: 'Khách Tham Quan (Member)',
           photoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=GuestVisitor',
           role: 'member',
           provider: 'demo',
@@ -451,7 +466,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return
         }
 
-        const isAdminEmail = trimmedEmail === ADMIN_EMAIL.toLowerCase() || trimmedEmail === 'kiet.maianh@gmail.com'
+        const isAdminEmail = ADMIN_AUTHORIZED_EMAILS.includes(trimmedEmail)
         const finalName = customDisplayName?.trim() || trimmedEmail.split('@')[0]
 
         const googleUser: AuthUser = {
@@ -562,7 +577,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // SECURITY: Prevent unauthorized impersonation of Kiệt's admin account
-    if (trimmedEmail === ADMIN_EMAIL.toLowerCase()) {
+    if (ADMIN_AUTHORIZED_EMAILS.includes(trimmedEmail)) {
       setError('Đây là tài khoản Quản trị viên của Kiệt. Vui lòng chuyển sang tab Đăng nhập và nhập mật khẩu!')
       return
     }
@@ -622,8 +637,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem(JWT_TOKEN_KEY)
       setUser(null)
       setIsAdminModalOpen(false)
+      setIsVipModalOpen(false)
       setIsLoading(false)
     }
+  }, [user])
+
+  const isAdmin = useMemo(() => {
+    return Boolean(
+      user &&
+      user.role === 'admin' &&
+      user.email &&
+      ADMIN_AUTHORIZED_EMAILS.includes(user.email.toLowerCase())
+    )
+  }, [user])
+
+  const isVip = useMemo(() => {
+    return Boolean(user && (user.role === 'vip' || isAdmin))
+  }, [user, isAdmin])
+
+  const isMember = useMemo(() => {
+    return Boolean(user)
   }, [user])
 
   const openAuthModal = useCallback((mode: AuthModalMode = 'signin') => {
@@ -637,26 +670,106 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null)
   }, [])
 
-  const openAdminModal = useCallback(() => setIsAdminModalOpen(true), [])
+  const openAdminModal = useCallback(() => {
+    setIsAdminModalOpen(true)
+    if (!isAdmin) {
+      setError('Yêu cầu quyền Quản trị viên: Chỉ tài khoản Admin được phân quyền mới có thể truy cập khu vực này!')
+    }
+  }, [isAdmin])
+
   const closeAdminModal = useCallback(() => setIsAdminModalOpen(false), [])
+
+  const openVipModal = useCallback(() => {
+    setError(null)
+    setIsVipModalOpen(true)
+  }, [])
+
+  const closeVipModal = useCallback(() => {
+    setIsVipModalOpen(false)
+    setError(null)
+  }, [])
+
+  const upgradeToVip = useCallback(
+    async (plan: string = 'lifetime'): Promise<boolean> => {
+      if (!user) {
+        openAuthModal('signin')
+        return false
+      }
+
+      const expiresAt =
+        plan === 'monthly'
+          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          : null
+
+      const updatedUser: AuthUser = {
+        ...user,
+        role: user.role === 'admin' ? 'admin' : 'vip',
+        vipExpiresAt: expiresAt,
+      }
+
+      setUser(updatedUser)
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser))
+
+      try {
+        const existingRaw = localStorage.getItem(USERS_DB_KEY)
+        const userList: UserRecord[] = existingRaw ? JSON.parse(existingRaw) : []
+        const index = userList.findIndex(
+          (u) =>
+            u.uid === user.uid ||
+            (user.email && u.email.toLowerCase() === user.email.toLowerCase())
+        )
+        if (index !== -1) {
+          userList[index].role = user.role === 'admin' ? 'admin' : 'vip'
+          userList[index].vipExpiresAt = expiresAt
+          localStorage.setItem(USERS_DB_KEY, JSON.stringify(userList))
+        }
+      } catch {
+        // Ignore localStorage parse errors
+      }
+
+      triggerCelebratoryWhale()
+      setIsVipModalOpen(false)
+      return true
+    },
+    [user, openAuthModal]
+  )
+
+  const updateUserRoleByAdmin = useCallback(
+    async (targetUid: string, newRole: UserRole): Promise<boolean> => {
+      if (!isAdmin) {
+        setError('Chỉ Quản trị viên (Admin) mới có thẩm quyền phân quyền người dùng!')
+        return false
+      }
+
+      try {
+        const existingRaw = localStorage.getItem(USERS_DB_KEY)
+        const userList: UserRecord[] = existingRaw ? JSON.parse(existingRaw) : []
+        const index = userList.findIndex((u) => u.uid === targetUid)
+        if (index !== -1) {
+          userList[index].role = newRole
+          localStorage.setItem(USERS_DB_KEY, JSON.stringify(userList))
+        }
+
+        if (user && user.uid === targetUid) {
+          const updatedSession: AuthUser = { ...user, role: newRole }
+          setUser(updatedSession)
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession))
+        }
+        return true
+      } catch {
+        return false
+      }
+    },
+    [isAdmin, user]
+  )
+
   const clearError = useCallback(() => setError(null), [])
-
-  const isAdmin = useMemo(() => {
-    return Boolean(
-      user &&
-      user.role === 'admin' &&
-      user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
-    )
-  }, [user])
-
-  const isMember = useMemo(() => {
-    return Boolean(user)
-  }, [user])
 
   const contextValue = useMemo(
     () => ({
       user,
       isAdmin,
+      isVip,
       isMember,
       isLoading,
       error,
@@ -664,10 +777,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAuthModalOpen,
       authModalMode,
       isAdminModalOpen,
+      isVipModalOpen,
       openAuthModal,
       closeAuthModal,
       openAdminModal,
       closeAdminModal,
+      openVipModal,
+      closeVipModal,
+      upgradeToVip,
+      updateUserRoleByAdmin,
       registerWithEmail,
       signInWithEmail,
       signInWithGoogle,
@@ -679,6 +797,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [
       user,
       isAdmin,
+      isVip,
       isMember,
       isLoading,
       error,
@@ -686,10 +805,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAuthModalOpen,
       authModalMode,
       isAdminModalOpen,
+      isVipModalOpen,
       openAuthModal,
       closeAuthModal,
       openAdminModal,
       closeAdminModal,
+      openVipModal,
+      closeVipModal,
+      upgradeToVip,
+      updateUserRoleByAdmin,
       registerWithEmail,
       signInWithEmail,
       signInWithGoogle,

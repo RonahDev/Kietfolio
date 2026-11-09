@@ -308,7 +308,7 @@ export const DonateModal: React.FC<DonateModalProps> = ({
             >
               <Smartphone className="w-4 h-4 text-pink-400" />
               <span className="text-xs font-bold font-mono">Ví MoMo</span>
-              <span className="text-[10px] text-pink-400/80">0963463831</span>
+              <span className="text-[10px] text-pink-400/80">{SITE_CONFIG.donation.momo.phone}</span>
             </button>
 
             {/* VNPay QR Tab */}

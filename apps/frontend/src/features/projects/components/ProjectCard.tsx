@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import type { ProjectItem } from '@/types'
-import { useLanguage } from '@/hooks'
+import { useLanguage, useAuth } from '@/hooks'
 import { Card, Badge, Button, GithubIcon } from '@/components/ui'
 import {
   ExternalLink,
@@ -10,6 +10,9 @@ import {
   Layers,
   CheckCircle2,
   AlertTriangle,
+  Crown,
+  Lock,
+  Terminal,
 } from 'lucide-react'
 
 interface ProjectCardProps {
@@ -18,7 +21,11 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project }) => {
   const { t, language } = useLanguage()
+  const { isVip, isAdmin, openVipModal } = useAuth()
   const [isExpanded, setIsExpanded] = useState(project.isFeatured)
+  const [showVipBlueprint, setShowVipBlueprint] = useState(false)
+
+  const isVipUnlocked = isVip || isAdmin
 
   return (
     <Card
@@ -121,6 +128,62 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project }) 
             </div>
           </div>
         )}
+
+        {/* VIP Exclusive Architecture Blueprint */}
+        <div className="mt-5 pt-4 border-t border-[#172847]/70">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                if (isVipUnlocked) {
+                  setShowVipBlueprint((prev) => !prev)
+                } else {
+                  openVipModal()
+                }
+              }}
+              className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer group"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              <span>
+                {language === 'vi'
+                  ? 'Bản Vẽ Kiến Trúc VIP (System Blueprint)'
+                  : 'VIP System Architecture Blueprint'}
+              </span>
+              {isVipUnlocked ? (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-amber-400/20 text-amber-300">
+                  {showVipBlueprint ? 'ĐÓNG' : 'MỞ KHÓA'}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-xs bg-amber-400/10 text-amber-300 border border-amber-400/30">
+                  <Lock className="w-2.5 h-2.5" />
+                  NÂNG CẤP
+                </span>
+              )}
+            </button>
+          </div>
+
+          {isVipUnlocked && showVipBlueprint && (
+            <div className="mt-3 p-3.5 rounded-sm bg-[#081020] border border-amber-500/30 text-xs font-mono space-y-2.5 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2 text-amber-300 font-bold">
+                <Terminal className="w-3.5 h-3.5" />
+                <span>[VIP_SPEC_UNLOCKED] // {project.id.toUpperCase()}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#cbd5e1]">
+                <div className="p-2 rounded-xs bg-[#0f1b33] border border-[#172847]">
+                  <span className="text-amber-400 block mb-0.5 font-semibold">Tải trọng & Benchmark:</span>
+                  <span>10,000 req/s, P99 Latency &lt; 45ms, Caching Redis L1/L2</span>
+                </div>
+                <div className="p-2 rounded-xs bg-[#0f1b33] border border-[#172847]">
+                  <span className="text-amber-400 block mb-0.5 font-semibold">Khả năng mở rộng (HA):</span>
+                  <span>Cluster đa vùng, Auto-scaling HPA, Rate limiting phân tầng</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#94a3b8] italic">
+                * Tài liệu kiến trúc chuyên sâu chỉ hiển thị riêng cho Hội Viên VIP và Admin Kietfolio.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Footer Controls & Repository Links */}
@@ -157,8 +220,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project }) 
           {project.liveUrl && (
             <Button
               href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              target={project.liveUrl.startsWith('#') ? undefined : '_blank'}
+              rel={project.liveUrl.startsWith('#') ? undefined : 'noopener noreferrer'}
+              onClick={
+                project.liveUrl === '#cinema'
+                  ? (e: React.MouseEvent) => {
+                      e.preventDefault()
+                      window.location.hash = 'cinema'
+                      window.dispatchEvent(
+                        new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                      )
+                    }
+                  : undefined
+              }
               variant="accent-outline"
               size="sm"
               className="flex-1 sm:flex-initial"

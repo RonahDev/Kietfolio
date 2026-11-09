@@ -1,6 +1,7 @@
 import type { ErrorLogItem, ErrorLogLevel, ClientDeviceContext } from '@/types/errorLog'
+import { SITE_CONFIG } from '@/config/site'
 
-const LOCAL_LOGS_KEY = 'kietfolio_client_error_logs'
+const LOCAL_LOGS_KEY = SITE_CONFIG.storageKeys.clientLogs
 const MAX_LOCAL_LOGS = 50
 
 class ClientLogger {
@@ -38,7 +39,7 @@ class ClientLogger {
    */
   private getUserContext() {
     try {
-      const session = localStorage.getItem('kietfolio_auth_active_session')
+      const session = localStorage.getItem(SITE_CONFIG.storageKeys.session)
       if (session) {
         const parsed = JSON.parse(session)
         return {

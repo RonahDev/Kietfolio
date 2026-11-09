@@ -3,7 +3,7 @@ export interface UserPayload {
   email: string
   displayName?: string
   photoURL?: string
-  role: 'admin' | 'user'
+  role: 'admin' | 'vip' | 'user'
   provider: 'google' | 'password'
 }
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import type { Language } from '../types'
 import { translations } from '../data/translations'
+import { SITE_CONFIG } from '@/config/site'
 import { LanguageContext, type LanguageContextType } from './languageTypes'
 
-const STORAGE_KEY = 'kietfolio_lang_preference'
+const STORAGE_KEY = SITE_CONFIG.storageKeys.language
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {

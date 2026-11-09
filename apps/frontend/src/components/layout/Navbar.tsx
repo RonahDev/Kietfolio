@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { isReducedMotion } from '@/animations'
-import { useLanguage, useAuth } from '@/hooks'
+import { useLanguage, useAuth, useWhaleCinematic } from '@/hooks'
 import {
   Menu,
   X,
@@ -13,11 +13,15 @@ import {
   LogIn,
   UserPlus,
   Coffee,
+  Crown,
+  Sparkles,
+  Film,
 } from 'lucide-react'
 
 export const Navbar: React.FC = () => {
   const { t, language, toggleLanguage } = useLanguage()
-  const { user, isAdmin, openAuthModal, openAdminModal, signOutUser } = useAuth()
+  const { user, isAdmin, isVip, openAuthModal, openAdminModal, openVipModal, signOutUser } = useAuth()
+  const { triggerWhaleCinematic } = useWhaleCinematic()
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
@@ -158,9 +162,22 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Actions for Desktop / Tablet: Auth, Donate, Language */}
+          {/* Right Actions for Desktop / Tablet: Auth, VIP, Donate, Language */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
-            {/* Google Authentication Button / User Profile Menu */}
+            {/* Upgrade to VIP button (prominently displayed when not VIP and not Admin) */}
+            {(!user || (!isVip && !isAdmin)) && (
+              <button
+                type="button"
+                onClick={openVipModal}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-amber-500/40 bg-gradient-to-r from-amber-500/15 to-amber-500/25 hover:from-amber-500/25 hover:to-amber-500/35 text-amber-300 rounded-full transition-all cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)] hover:shadow-[0_0_18px_rgba(245,158,11,0.35)] hover:border-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                title={language === 'vi' ? 'Nâng cấp lên Tài Khoản VIP' : 'Upgrade to VIP Partner'}
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <span className="font-bold">{language === 'vi' ? 'Nâng Cấp VIP' : 'Upgrade VIP'}</span>
+              </button>
+            )}
+
+            {/* Authentication Button / User Profile Menu */}
             {!user ? (
               <button
                 type="button"
@@ -179,35 +196,81 @@ export const Navbar: React.FC = () => {
                   className={`inline-flex items-center gap-2 px-2.5 py-1 text-xs font-mono border rounded-full transition-all cursor-pointer ${
                     isAdmin
                       ? 'border-[#00d2ff]/60 bg-[#0c182e] text-[#00d2ff] shadow-[0_0_15px_rgba(0,210,255,0.25)]'
+                      : isVip
+                      ? 'border-amber-400/80 bg-amber-950/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
                       : 'border-[#172847] bg-[#0a1224] text-[#f1f5f9] hover:border-[#00d2ff]/40'
                   }`}
                 >
                   <img
                     src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
                     alt={user.displayName || 'User'}
-                    className="w-5 h-5 rounded-full border border-[#00d2ff]/40 shrink-0 object-cover"
+                    className={`w-5 h-5 rounded-full border shrink-0 object-cover ${
+                      isVip ? 'border-amber-400' : 'border-[#00d2ff]/40'
+                    }`}
                   />
-                  <span className="font-semibold max-w-[80px] truncate">
+                  <span className="font-semibold max-w-[80px] truncate flex items-center gap-1">
                     {user.displayName?.split(' ')[0] || 'User'}
+                    {isVip && !isAdmin && <Crown className="w-3 h-3 text-amber-400 shrink-0" />}
                   </span>
                   <ChevronDown className="w-3 h-3 text-[#94a3b8]" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-60 rounded-lg bg-[#0a1224]/95 border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs backdrop-blur-md">
+                  <div className="absolute right-0 mt-2 w-64 rounded-lg bg-[#0a1224]/95 border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs backdrop-blur-md">
                     <div className="p-2 border-b border-[#172847] mb-1">
-                      <div className="font-bold text-[#f1f5f9] truncate">
-                        {user.displayName}
+                      <div className="font-bold text-[#f1f5f9] truncate flex items-center gap-1.5">
+                        <span>{user.displayName}</span>
+                        {isVip && <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
                       </div>
                       <div className="text-[11px] text-[#00d2ff] truncate">
                         {user.email}
                       </div>
-                      <div className="mt-1 text-[9px] text-[#64748b]">
-                        {isAdmin ? 'CLEARANCE: ADMIN (63BDG02)' : 'ROLE: VERIFIED VISITOR'}
+                      <div className="mt-1 text-[9px]">
+                        {isAdmin ? (
+                          <span className="text-[#00d2ff] font-bold">CLEARANCE: ROOT_ADMIN (63BDG02)</span>
+                        ) : isVip ? (
+                          <span className="text-amber-300 font-bold flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-amber-400" />
+                            CLEARANCE: VIP PARTNER (PREMIUM)
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">ROLE: THÀNH VIÊN TIÊU CHUẨN (MEMBER)</span>
+                        )}
                       </div>
                     </div>
 
+                    {/* Action 1: Upgrade to VIP (for normal members) */}
+                    {!isVip && !isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false)
+                          openVipModal()
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-amber-300 hover:bg-amber-950/30 transition-colors cursor-pointer border border-amber-500/20 mb-1"
+                      >
+                        <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span className="font-bold">Nâng Cấp Lên Tài Khoản VIP</span>
+                      </button>
+                    )}
+
+                    {/* Action 2: Trigger VIP Whale (for VIP members) */}
+                    {isVip && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false)
+                          triggerWhaleCinematic()
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-amber-300 hover:bg-amber-950/20 transition-colors cursor-pointer mb-1"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>Vũ Điệu Cá Voi VIP (Theo yêu cầu)</span>
+                      </button>
+                    )}
+
+                    {/* Action 3: Admin Dashboard (Strictly for Admin only) */}
                     {isAdmin && (
                       <button
                         type="button"
@@ -215,13 +278,14 @@ export const Navbar: React.FC = () => {
                           setUserDropdownOpen(false)
                           openAdminModal()
                         }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-[#00d2ff] hover:bg-[#0f1b33] transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-sm text-[#00d2ff] hover:bg-[#0f1b33] transition-colors cursor-pointer mb-1"
                       >
                         <Shield className="w-3.5 h-3.5 shrink-0" />
                         <span>{t.nav.adminDashboard}</span>
                       </button>
                     )}
 
+                    {/* Sign out */}
                     <button
                       type="button"
                       onClick={() => {
@@ -237,6 +301,25 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             )}
+
+            {/* Cinema Stream Platform Direct Entry */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'cinema'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                )
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#a51d35]/60 bg-gradient-to-r from-[#a51d35]/25 via-[#6e0d1f]/40 to-[#a51d35]/25 hover:from-[#a51d35] hover:to-[#8c1228] text-rose-200 hover:text-white rounded-full transition-all shadow-sm hover:shadow-[0_0_15px_rgba(165,29,53,0.5)] cursor-pointer group"
+              title={language === 'vi' ? 'Mở Rạp Phim 3D Cinema Stream' : 'Open 3D Cinema Stream'}
+            >
+              <Film className="w-3.5 h-3.5 text-[#d4af70] group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-[11px]">{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
+              <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">
+                4K
+              </span>
+            </button>
 
             {/* Donate VNPay QR Button */}
             <button
@@ -322,15 +405,38 @@ export const Navbar: React.FC = () => {
                   <img
                     src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Visitor'}
                     alt="User"
-                    className="w-8 h-8 rounded-full border border-[#00d2ff]"
+                    className={`w-8 h-8 rounded-full border ${
+                      isVip ? 'border-amber-400' : 'border-[#00d2ff]'
+                    }`}
                   />
                   <div>
-                    <div className="text-xs font-bold text-[#f1f5f9]">{user.displayName}</div>
+                    <div className="text-xs font-bold text-[#f1f5f9] flex items-center gap-1">
+                      <span>{user.displayName}</span>
+                      {isVip && <Crown className="w-3 h-3 text-amber-400 shrink-0" />}
+                    </div>
                     <div className="text-[10px] text-[#00d2ff]">{user.email}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  {!isVip && !isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        openVipModal()
+                      }}
+                      className="px-2 py-1 rounded-sm bg-amber-400 text-[#050a14] text-[10px] font-bold flex items-center gap-1 cursor-pointer shadow-sm"
+                    >
+                      <Crown className="w-3 h-3" />
+                      <span>VIP</span>
+                    </button>
+                  )}
+                  {isVip && !isAdmin && (
+                    <span className="px-1.5 py-0.5 rounded-sm bg-amber-500/20 text-amber-300 text-[9px] font-bold border border-amber-500/40">
+                      VIP
+                    </span>
+                  )}
                   {isAdmin && (
                     <button
                       type="button"
@@ -338,7 +444,7 @@ export const Navbar: React.FC = () => {
                         setMobileMenuOpen(false)
                         openAdminModal()
                       }}
-                      className="px-2 py-1 rounded-xs bg-[#00d2ff] text-[#050a14] text-[10px] font-bold"
+                      className="px-2 py-1 rounded-sm bg-[#00d2ff] text-[#050a14] text-[10px] font-bold cursor-pointer"
                     >
                       ADMIN
                     </button>
@@ -349,7 +455,7 @@ export const Navbar: React.FC = () => {
                       setMobileMenuOpen(false)
                       signOutUser()
                     }}
-                    className="p-1 rounded-xs text-red-400 hover:bg-red-950/40"
+                    className="p-1 rounded-sm text-red-400 hover:bg-red-950/40 cursor-pointer"
                     title="Đăng xuất"
                   >
                     <LogOut className="w-4 h-4" />
@@ -391,8 +497,41 @@ export const Navbar: React.FC = () => {
                     <span>{t.nav.signUp}</span>
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    openVipModal()
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs font-mono font-bold cursor-pointer hover:bg-amber-500/20"
+                >
+                  <Crown className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Nâng Cấp Lên Tài Khoản VIP</span>
+                </button>
               </div>
             )}
+
+            {/* Mobile Cinema Stream Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false)
+                window.location.hash = 'cinema'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                )
+              }}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-[#a51d35]/60 bg-gradient-to-r from-[#a51d35]/20 to-[#6e0d1f]/30 text-rose-200 text-sm font-mono font-bold"
+            >
+              <div className="flex items-center gap-2">
+                <Film className="w-4 h-4 text-[#d4af70]" />
+                <span>Rạp Phim 3D (Cinema Stream)</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[10px]">
+                4K
+              </span>
+            </button>
 
             {navLinks.map((link) => {
               const isActive = activeSection === link.id

@@ -28,8 +28,7 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
 
   const adminEmails = [
     config.admin.email.toLowerCase(),
-    'kietteve22102005@gmail.com',
-    'kiet.maianh@gmail.com',
+    ...config.admin.additionalEmails,
   ]
 
   const isVerifiedAdmin =

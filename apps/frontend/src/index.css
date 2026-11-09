@@ -218,3 +218,18 @@ p {
 .perf-medium .animate-aurora-2 {
   animation-duration: 30s !important;
 }
+
+/* ==========================================================================
+   Cinema Stream Platform Design Tokens & Ken Burns Animation
+   ========================================================================== */
+@keyframes kenburns {
+  0% {
+    transform: scale(1.0) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1.15) translate(1%, -0.5%);
+  }
+}

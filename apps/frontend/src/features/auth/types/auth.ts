@@ -1,6 +1,12 @@
-export const ADMIN_EMAIL = 'kietteve22102005@gmail.com'
+import { SITE_CONFIG } from '@/config/site'
 
-export type UserRole = 'admin' | 'member' | 'visitor'
+export const ADMIN_EMAIL = SITE_CONFIG.admin.email
+export const ADMIN_AUTHORIZED_EMAILS = [
+  SITE_CONFIG.admin.email.toLowerCase(),
+  ...SITE_CONFIG.admin.additionalEmails.map((e) => e.toLowerCase()),
+]
+
+export type UserRole = 'admin' | 'vip' | 'member' | 'visitor'
 export type AuthProviderType = 'google' | 'email' | 'demo'
 
 export interface AuthUser {
@@ -12,6 +18,7 @@ export interface AuthUser {
   provider: AuthProviderType
   createdAt?: string
   lastLoginAt: string
+  vipExpiresAt?: string | null
 }
 
 export interface UserRecord {
@@ -23,6 +30,7 @@ export interface UserRecord {
   role: UserRole
   provider: AuthProviderType
   createdAt: string
+  vipExpiresAt?: string | null
 }
 
 export interface ContactMessage {
