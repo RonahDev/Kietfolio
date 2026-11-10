@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import type { MovieItem } from '../types/cinema'
 import { useCinema } from '../hooks/useCinema'
-import { Play, Plus, Check, Info, Star } from 'lucide-react'
+import { Play, Plus, Check, Info, Star, Film } from 'lucide-react'
+import { handleImageFallback, getFallbackPoster } from '../utils/imageFallbacks'
 
 interface CinemaMovieCardProps {
   movie: MovieItem
@@ -19,13 +20,23 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openMovieDetail(movie)}
     >
-      {/* Movie Poster Image */}
+      {/* Stylized Ambient Underlay (Prevents black empty cards during loading or offline) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#181b24] via-[#11131a] to-[#0c0e14] flex flex-col items-center justify-center p-4 text-center pointer-events-none">
+        <div className="w-10 h-10 rounded-full bg-[#a51d35]/20 border border-[#d4af70]/30 flex items-center justify-center mb-2">
+          <Film className="w-5 h-5 text-[#d4af70]" />
+        </div>
+        <span className="text-xs font-bold text-[#f5f5f5] line-clamp-2 px-2">{movie.title}</span>
+        <span className="text-[10px] font-mono text-[#a1a1aa] mt-1">{movie.year}</span>
+      </div>
+
+      {/* Movie Poster Image with Resilient Fallback */}
       <img
         src={movie.posterUrl}
         alt={movie.title}
         loading="lazy"
         decoding="async"
-        className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
+        onError={(e) => handleImageFallback(e, getFallbackPoster(movie.genres, movie.franchise))}
+        className="relative z-1 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
       />
 
       {/* Top Badges (Quality & Rating) */}

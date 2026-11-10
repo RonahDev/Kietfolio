@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import { handleImageFallback, getFallbackBackdrop } from '../utils/imageFallbacks'
 
 export const CinemaHero: React.FC = () => {
   const { movies, openMovieDetail, playMovie, toggleWatchlist, isInWatchlist } = useCinema()
@@ -37,17 +38,21 @@ export const CinemaHero: React.FC = () => {
   return (
     <section className="relative w-full min-h-[85vh] sm:min-h-[92vh] flex items-end pb-16 sm:pb-24 pt-28 overflow-hidden select-none">
       {/* Ken Burns Animated Backdrop Artwork */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-[#08090d]">
+        {/* Ambient Cinema Aura (glows behind backdrop image) */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/25 via-[#11131a] to-[#08090d]" />
+
         <img
           key={activeMovie.id}
           src={activeMovie.backdropUrl}
+          onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise))}
           alt={activeMovie.title}
-          className="w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate] will-change-transform transform-gpu"
+          className="relative z-1 w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate] will-change-transform transform-gpu"
         />
         {/* Cinematic Vignette Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08090d] via-[#08090d]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#08090d] via-[#08090d]/70 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,transparent_40%,#08090d_100%)] opacity-80" />
+        <div className="absolute inset-0 z-2 bg-gradient-to-t from-[#08090d] via-[#08090d]/60 to-transparent" />
+        <div className="absolute inset-0 z-2 bg-gradient-to-r from-[#08090d] via-[#08090d]/70 to-transparent" />
+        <div className="absolute inset-0 z-2 bg-[radial-gradient(ellipse_at_bottom,transparent_40%,#08090d_100%)] opacity-80" />
       </div>
 
       {/* Hero Content Container */}

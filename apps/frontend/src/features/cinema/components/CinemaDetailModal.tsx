@@ -11,6 +11,11 @@ import {
   ExternalLink,
   Sparkles,
 } from 'lucide-react'
+import {
+  handleImageFallback,
+  getFallbackBackdrop,
+  getFallbackPoster,
+} from '../utils/imageFallbacks'
 
 export const CinemaDetailModal: React.FC = () => {
   const { activeMovie, closeMovieDetail, playMovie, toggleWatchlist, isInWatchlist, movies } =
@@ -54,15 +59,17 @@ export const CinemaDetailModal: React.FC = () => {
         </button>
 
         {/* Top Header Banner with Backdrop Image */}
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden flex-none">
+        <div className="relative h-64 sm:h-80 w-full overflow-hidden flex-none bg-[#0c0e14]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/25 via-[#11131a] to-[#0c0e14]" />
           <img
             src={activeMovie.backdropUrl}
             alt={activeMovie.title}
-            className="w-full h-full object-cover object-center"
+            onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise))}
+            className="relative z-1 w-full h-full object-cover object-center"
           />
           {/* Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14]/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0c0e14]/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-2 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14]/50 to-transparent" />
+          <div className="absolute inset-0 z-2 bg-gradient-to-r from-[#0c0e14]/90 via-transparent to-transparent" />
 
           {/* Quick Play Action Floating on Backdrop */}
           <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">
@@ -255,6 +262,7 @@ export const CinemaDetailModal: React.FC = () => {
                     <img
                       src={similar.posterUrl}
                       alt={similar.title}
+                      onError={(e) => handleImageFallback(e, getFallbackPoster(similar.genres, similar.franchise))}
                       className="w-14 h-20 object-cover rounded-xs"
                     />
                     <div className="flex-1 space-y-1">

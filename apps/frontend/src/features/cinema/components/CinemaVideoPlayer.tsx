@@ -18,6 +18,7 @@ import {
   AlertCircle,
   ExternalLink,
 } from 'lucide-react'
+import { getFallbackBackdrop } from '../utils/imageFallbacks'
 
 export const CinemaVideoPlayer: React.FC = () => {
   const { playingMovie, closePlayer } = useCinema()
@@ -260,20 +261,33 @@ export const CinemaVideoPlayer: React.FC = () => {
     >
       {/* View Mode: YouTube Embed Player */}
       {viewMode === 'youtube' && playingMovie.youtubeKey ? (
-        <div className="w-full h-full flex items-center justify-center bg-black">
+        <div className="w-full h-full flex flex-col items-center justify-center bg-black p-2 sm:p-6 relative">
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${playingMovie.youtubeKey}?autoplay=1&controls=1&rel=0`}
+            src={`https://www.youtube-nocookie.com/embed/${playingMovie.youtubeKey}?autoplay=1&controls=1&rel=0&modestbranding=1`}
             title={playingMovie.title}
-            className="w-full h-full max-w-6xl aspect-video border-0 shadow-2xl"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            className="w-full h-full max-w-6xl aspect-video border-0 shadow-2xl rounded-sm"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="origin-when-cross-origin"
             allowFullScreen
           />
+          {/* Quick External Link & Fallback Action Bar for YouTube */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#181b24] text-[11px] font-mono text-[#a1a1aa] z-30">
+            <span>Video không tự chạy?</span>
+            <a
+              href={playingMovie.trailerUrl || `https://www.youtube.com/watch?v=${playingMovie.youtubeKey}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#d4af70] hover:underline font-bold flex items-center gap-1"
+            >
+              Mở trực tiếp trên YouTube <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </div>
       ) : (
         /* View Mode: High-Performance HTML5 / HLS.js Video Element */
         <video
           ref={videoRef}
-          poster={playingMovie.backdropUrl}
+          poster={playingMovie.backdropUrl || getFallbackBackdrop(playingMovie.genres, playingMovie.franchise)}
           autoPlay
           playsInline
           onTimeUpdate={() => {
