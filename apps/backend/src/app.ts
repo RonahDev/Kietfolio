@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
 import { config } from './config/env'
 import { apiRouter } from './routes'
 import { apiLimiter } from './middlewares/rateLimiter.middleware'
@@ -38,9 +39,12 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Idempotency-Key', 'X-Idempotency-Key'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Idempotency-Key', 'X-Idempotency-Key', 'X-CSRF-Token'],
   })
 )
+
+// Cookie Parser with session secret
+app.use(cookieParser(config.session.secret))
 
 // 3. Request Logging & Body Parsing
 if (config.env !== 'test') {

@@ -48,13 +48,21 @@ const CinemaStreamHub = lazy(() =>
     default: m.CinemaStreamHub,
   }))
 )
+const AdminLayout = lazy(() =>
+  import('@/features/admin/layouts/AdminLayout').then((m) => ({
+    default: m.AdminLayout,
+  }))
+)
 
 export function AppContent() {
   const { language } = useLanguage()
   const { user } = useAuth()
   const { isCinematicActive, triggerWhaleCinematic, skipWhaleCinematic } = useWhaleCinematic()
-  const [currentView, setCurrentView] = useState<'portfolio' | 'cinema'>(() => {
+  const [currentView, setCurrentView] = useState<'portfolio' | 'cinema' | 'admin'>(() => {
     if (typeof window === 'undefined') return 'portfolio'
+    if (window.location.hash === '#admin' || window.location.search.includes('view=admin')) {
+      return 'admin'
+    }
     return window.location.hash === '#cinema' || window.location.search.includes('view=cinema')
       ? 'cinema'
       : 'portfolio'
@@ -62,7 +70,9 @@ export function AppContent() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#cinema') {
+      if (window.location.hash === '#admin') {
+        setCurrentView('admin')
+      } else if (window.location.hash === '#cinema') {
         setCurrentView('cinema')
       } else if (window.location.hash === '' || window.location.hash === '#') {
         setCurrentView('portfolio')
@@ -70,7 +80,7 @@ export function AppContent() {
     }
 
     const handleNavigateView = (e: Event) => {
-      const customEvent = e as CustomEvent<{ view: 'portfolio' | 'cinema' }>
+      const customEvent = e as CustomEvent<{ view: 'portfolio' | 'cinema' | 'admin' }>
       if (customEvent.detail?.view) {
         setCurrentView(customEvent.detail.view)
       }
@@ -154,7 +164,22 @@ export function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#050a14] text-[#f1f5f9] flex flex-col font-sans selection:bg-[#00d2ff] selection:text-[#050a14] relative">
-      {currentView === 'cinema' ? (
+      {currentView === 'admin' ? (
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-[#dc2626] font-mono text-sm tracking-widest">
+              ĐANG KHỞI ĐỘNG HỆ THỐNG QUẢN TRỊ ADMIN...
+            </div>
+          }
+        >
+          <AdminLayout
+            onBackToCinema={() => {
+              window.location.hash = '#cinema'
+              setCurrentView('cinema')
+            }}
+          />
+        </Suspense>
+      ) : currentView === 'cinema' ? (
         <Suspense
           fallback={
             <div className="min-h-screen bg-[#08090d] flex items-center justify-center text-[#d4af70] font-mono text-sm tracking-widest">

@@ -9,8 +9,19 @@ export interface UserPayload {
   provider: 'google' | 'password'
 }
 
+export interface AdminUserPayload {
+  id: string
+  email: string
+  displayName?: string
+  photoUrl?: string
+  role: string
+  permissions: string[]
+}
+
 export interface AuthenticatedRequest extends Request {
   user?: UserPayload
+  adminUser?: AdminUserPayload
+  sessionId?: string
 }
 
 export interface GuestbookEntry {

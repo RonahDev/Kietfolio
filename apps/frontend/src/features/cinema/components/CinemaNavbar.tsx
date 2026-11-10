@@ -288,10 +288,20 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
           {user ? (
             <div className="flex items-center gap-2 pl-2 border-l border-[#181b24]">
               {isAdmin ? (
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-xs bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-mono font-bold">
-                  <Shield className="w-3 h-3" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = '#admin'
+                    window.dispatchEvent(
+                      new CustomEvent('kietfolio:navigate-view', { detail: { view: 'admin' } })
+                    )
+                  }}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-xs bg-amber-400/20 border border-amber-400/40 text-amber-300 text-[10px] font-mono font-bold hover:bg-amber-400/30 transition-colors cursor-pointer"
+                  title="Truy cập Bảng điều khiển Quản trị Movie Hub (Admin Dashboard)"
+                >
+                  <Shield className="w-3 h-3 text-amber-400" />
                   ADMIN
-                </span>
+                </button>
               ) : isVip ? (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-xs bg-[#d4af70]/20 border border-[#d4af70]/40 text-[#d4af70] text-[10px] font-mono font-bold">
                   <Crown className="w-3 h-3" />
