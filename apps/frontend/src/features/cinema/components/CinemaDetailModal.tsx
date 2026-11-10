@@ -66,11 +66,11 @@ export const CinemaDetailModal: React.FC = () => {
             alt={activeMovie.title}
             referrerPolicy="no-referrer"
             onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise), 'backdrop')}
-            className="relative z-1 w-full h-full object-cover object-center"
+            className="relative z-0 w-full h-full object-cover object-center"
           />
           {/* Overlays */}
-          <div className="absolute inset-0 z-2 bg-gradient-to-t from-[#0c0e14] via-[#0c0e14]/50 to-transparent" />
-          <div className="absolute inset-0 z-2 bg-gradient-to-r from-[#0c0e14]/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-[2] bg-gradient-to-t from-[#0c0e14] via-[#0c0e14]/50 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 z-[2] bg-gradient-to-r from-[#0c0e14]/90 via-transparent to-transparent pointer-events-none" />
 
           {/* Quick Play Action Floating on Backdrop */}
           <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-end justify-between gap-4">

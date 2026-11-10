@@ -37,7 +37,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
         decoding="async"
         referrerPolicy="no-referrer"
         onError={(e) => handleImageFallback(e, getFallbackPoster(movie.genres, movie.franchise), 'poster')}
-        className="relative z-1 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
+        className="relative z-[1] w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
       />
 
       {/* Top Badges (Quality & Rating) */}

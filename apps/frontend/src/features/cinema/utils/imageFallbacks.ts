@@ -61,63 +61,63 @@ export const OFFLINE_BACKDROP_SVG = `data:image/svg+xml;utf8,${encodeURIComponen
 </svg>
 `)}`
 
-// High-Availability CDN Backdrops (Primary Mirror)
+// High-Availability CDN Backdrops (Primary Mirror: Official High-Definition 4K)
 export const FALLBACK_BACKDROPS = {
   default:
-    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg',
   theatrical_vn:
-    'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg',
   anime:
-    'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
   conan:
-    'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
   doraemon:
-    'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/hQ9grQ2RjHS3X7crItJqhoGvUPm.jpg',
   dragonball:
-    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/uR0FopHrAjDlG5q6PZB07a1JOva.jpg',
   naruto:
-    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/l8ubUlfzlB5R2j9cJ3CN7tj0gmd.jpg',
   onepiece:
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/wghKvEjM7UzQzQcKnGbDjOyQO13.jpg',
   shin:
-    'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/biRLtgt3t8MwxeLRRJkf1BsHoeq.jpg',
   cyberpunk:
-    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/uR0FopHrAjDlG5q6PZB07a1JOva.jpg',
   drama:
-    'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1920&q=80',
+    'https://image.tmdb.org/t/p/original/aXLcNxJI2JDdASNL6ZaNI0jWl2s.jpg',
 } as const
 
-// High-Availability CDN Posters (Primary Mirror)
+// High-Availability CDN Posters (Primary Mirror: Official High-Definition 4K)
 export const FALLBACK_POSTERS = {
   default:
-    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
   theatrical_vn:
-    'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
   anime:
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/AlSEw3akrBZRK9w68gcFQpHHpy3.jpg',
   conan:
-    'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/AlSEw3akrBZRK9w68gcFQpHHpy3.jpg',
   doraemon:
-    'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/sdakBAPqhYHbu4S5wehKKrz6CV5.jpg',
   dragonball:
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/1TIl7hssPbhfUXqAL3geaiE4gNT.jpg',
   naruto:
-    'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/x0CwUdcWWQgOb9tO8cW6jxyo9Zx.jpg',
   onepiece:
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/gpzMYQQrDLSihHmCLHAKT8h30Oc.jpg',
   shin:
-    'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/Ah9H6Sj434nJiZpTPQrovHaEePV.jpg',
   cyberpunk:
-    'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/1TIl7hssPbhfUXqAL3geaiE4gNT.jpg',
   drama:
-    'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
+    'https://image.tmdb.org/t/p/w780/ejPrzjG17UrYHjUn8xE3EAYnoDl.jpg',
 } as const
 
-// Secondary Mirror Fallbacks (Fast Cloud CDN)
+// Secondary Mirror Fallbacks (Fast Global CDN)
 export const SECONDARY_POSTER_FALLBACK =
-  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80'
+  'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg'
 export const SECONDARY_BACKDROP_FALLBACK =
-  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80'
+  'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg'
 
 /**
  * Get tailored backdrop fallback by franchise or genres

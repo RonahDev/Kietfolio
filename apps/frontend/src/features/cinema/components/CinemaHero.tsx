@@ -37,10 +37,10 @@ export const CinemaHero: React.FC = () => {
 
   return (
     <section className="relative w-full min-h-[85vh] sm:min-h-[92vh] flex items-end pb-16 sm:pb-24 pt-28 overflow-hidden select-none">
-      {/* Ken Burns Animated Backdrop Artwork */}
-      <div className="absolute inset-0 z-0 bg-[#08090d]">
+      {/* Cinematic Animated Backdrop Artwork */}
+      <div className="absolute inset-0 z-0 bg-[#08090d] overflow-hidden">
         {/* Ambient Cinema Aura (glows behind backdrop image) */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/25 via-[#11131a] to-[#08090d]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/35 via-[#181b24] to-[#08090d]" />
 
         <img
           key={activeMovie.id}
@@ -48,12 +48,13 @@ export const CinemaHero: React.FC = () => {
           referrerPolicy="no-referrer"
           onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise), 'backdrop')}
           alt={activeMovie.title}
-          className="relative z-1 w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate] will-change-transform transform-gpu"
+          className="relative z-0 w-full h-full object-cover object-center scale-105 animate-[kenburns_24s_ease-out_infinite_alternate] will-change-transform transform-gpu opacity-95 transition-opacity duration-700"
         />
-        {/* Cinematic Vignette Overlays */}
-        <div className="absolute inset-0 z-2 bg-gradient-to-t from-[#08090d] via-[#08090d]/60 to-transparent" />
-        <div className="absolute inset-0 z-2 bg-gradient-to-r from-[#08090d] via-[#08090d]/70 to-transparent" />
-        <div className="absolute inset-0 z-2 bg-[radial-gradient(ellipse_at_bottom,transparent_40%,#08090d_100%)] opacity-80" />
+
+        {/* Targeted Cinematic Vignette Overlays */}
+        <div className="absolute inset-y-0 left-0 w-full sm:w-2/3 md:w-3/5 z-[2] bg-gradient-to-r from-[#08090d] via-[#08090d]/80 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-48 z-[2] bg-gradient-to-t from-[#08090d] via-[#08090d]/70 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-28 z-[2] bg-gradient-to-b from-[#08090d]/80 to-transparent pointer-events-none" />
       </div>
 
       {/* Hero Content Container */}

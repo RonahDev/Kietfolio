@@ -30,6 +30,7 @@ interface CinemaContextValue {
   hasSeenCurtainIntro: boolean
   isLoadingRemoteMovies: boolean
   isConnectingStream: boolean
+  isPlayingTrailer: boolean
   openMovieDetail: (movie: MovieItem) => void
   closeMovieDetail: () => void
   playMovie: (movie: MovieItem, options?: { isTrailer?: boolean }) => Promise<void> | void
@@ -59,6 +60,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [activeTab, setActiveTab] = useState<CinemaViewTab>('all')
   const [isLoadingRemoteMovies, setIsLoadingRemoteMovies] = useState<boolean>(false)
   const [isConnectingStream, setIsConnectingStream] = useState<boolean>(false)
+  const [isPlayingTrailer, setIsPlayingTrailer] = useState<boolean>(false)
 
   // Check session storage for curtain animation flag
   const [hasSeenCurtainIntro, setHasSeenCurtainIntro] = useState<boolean>(() => {
@@ -197,7 +199,8 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * - If movie has a KKPhim slug, asynchronously enriches with m3u8 playlist & episodes
    */
   const playMovie = useCallback((movie: MovieItem, options?: { isTrailer?: boolean }) => {
-    // 1. Immediately open player with base movie data
+    // 1. Immediately open player with base movie data and record trailer mode
+    setIsPlayingTrailer(Boolean(options?.isTrailer))
     setPlayingMovie(movie)
 
     // 2. If movie has a slug and user is playing full movie, enrich stream asynchronously
@@ -229,6 +232,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const closePlayer = useCallback(() => {
     setPlayingMovie(null)
+    setIsPlayingTrailer(false)
   }, [])
 
   const toggleWatchlist = useCallback((movieId: string) => {
@@ -281,6 +285,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       hasSeenCurtainIntro,
       isLoadingRemoteMovies,
       isConnectingStream,
+      isPlayingTrailer,
       openMovieDetail,
       closeMovieDetail,
       playMovie,
@@ -306,6 +311,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       hasSeenCurtainIntro,
       isLoadingRemoteMovies,
       isConnectingStream,
+      isPlayingTrailer,
       openMovieDetail,
       closeMovieDetail,
       playMovie,

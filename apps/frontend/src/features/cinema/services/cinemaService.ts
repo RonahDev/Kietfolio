@@ -209,11 +209,11 @@ export async function fetchTMDbNowPlayingVietnam(): Promise<MovieItem[]> {
 
       const backdropUrl = m.backdrop_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/original${m.backdrop_path}`
-        : 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2400&q=95'
+        : 'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg'
 
       const posterUrl = m.poster_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w780${m.poster_path}`
-        : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=85'
+        : 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg'
 
       return {
         id: `tmdb-rap-${m.id}`,
@@ -281,11 +281,11 @@ export async function fetchTMDbTrendingMovies(): Promise<MovieItem[]> {
 
       const backdropUrl = m.backdrop_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/original${m.backdrop_path}`
-        : 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=2400&q=95'
+        : 'https://image.tmdb.org/t/p/original/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg'
 
       const posterUrl = m.poster_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w780${m.poster_path}`
-        : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=85'
+        : 'https://image.tmdb.org/t/p/w780/AlSEw3akrBZRK9w68gcFQpHHpy3.jpg'
 
       return {
         id: `tmdb-${m.id}`,

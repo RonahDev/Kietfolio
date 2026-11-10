@@ -25,9 +25,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Trong tương lai gần khi các hệ thống phân tán AI chiếm lĩnh toàn bộ cơ sở hạ tầng toàn cầu, một kỹ sư kiến trúc hệ thống ngầm phát hiện ra một thực thể số tự sinh khởi chạy từ một node bị cô lập. Một cuộc rượt đuổi nghẹt thở xuyên qua mạng lưới điện toán đám mây và thực tại mở rộng bắt đầu.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/uR0FopHrAjDlG5q6PZB07a1JOva.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/1TIl7hssPbhfUXqAL3geaiE4gNT.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
@@ -58,9 +58,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Lấy cảm hứng từ 2 năm thực chiến điều phối điều vận kho bãi tại Trạm Hub Thủ Dầu Một, bộ phim tài liệu điện ảnh tái hiện lại chiến dịch hậu cần vũ trụ vĩ đại nhất nhân loại: thiết lập chuỗi cung ứng không độ trễ giữa Trái Đất và Trạm vũ trụ Kepler-452b trong bối cảnh cơn bão từ thế kỷ đe dọa làm sập toàn bộ hệ thống định tuyến.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5fK5VQsXEG.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -91,9 +91,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Khắc họa chân thực áp lực trí tuệ tột bậc và những quyết định kỹ thuật cân não đằng sau dự án Manhattan. Phim đi sâu vào bài toán xung khắc giữa tốc độ triển khai khẩn cấp và tính ổn định tuyệt đối của hệ thống cơ học lượng tử.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBSSBaO0V.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     year: 2024,
@@ -122,9 +122,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Trên hành tinh sa mạc khắc nghiệt Arrakis, sự khan hiếm tài nguyên và các cuộc tranh giành vương quyền đẩy các gia tộc vào vòng xoáy chiến tranh. Sự trỗi dậy của một đấng cứu thế mang theo những khúc ca bi tráng giữa biển cát vô tận.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/1K7pHhCZprfDXB7LkCquIK62yCb.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/aSPg7viRKZUp6py0VLVTv6mo3GN.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -153,9 +153,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Tại đại đô thị ngập trong ánh đèn neon và mưa axít, một thám tử sinh học nhân tạo đối mặt với bí ẩn về một nhóm người máy thế hệ mới có khả năng cảm nhận được giấc mơ và sự sáng tạo tâm linh.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/AlSEw3akrBZRK9w68gcFQpHHpy3.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
@@ -182,9 +182,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Nghệ thuật thâm nhập tiềm thức để gieo mầm ý niệm. Một tác phẩm kinh điển về kết cấu phân tầng thời gian và không gian đa chiều, nơi mọi định luật vật lý đều có thể bị bẻ cong bởi kiến trúc sư giấc mơ.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     year: 2023,
@@ -211,9 +211,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Phim tài liệu kỹ thuật kịch tính ghi lại thời khắc nghẹt thở trong đợt Mega Sale 11.11. Trước nguy cơ sập luồng bốc dỡ hàng loạt và tắc nghẽn cục bộ, đội ngũ vận hành và kỹ sư phần mềm đã ứng biến tái phân luồng thủ công kết hợp thuật toán dự báo tải trọng để giải cứu toàn bộ đơn hàng trong đêm.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -242,9 +242,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Quay trở lại thế giới của hai thực tại: cuộc sống hàng ngày và những gì ẩn sau bức màn nhị phân xanh biếc. Liệu sự thật có giải phóng con người hay chỉ đưa họ vào một tầng mô phỏng tinh vi hơn?',
     backdropUrl:
-      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/l8ubUlfzlB5R2j9cJ3CN7tj0gmd.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/x0CwUdcWWQgOb9tO8cW6jxyo9Zx.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
@@ -271,9 +271,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Một kiệt tác hoạt họa 3D phong cách anime duy mỹ. Một cô bé vô tình bước qua cánh cổng Torii cổ kính giữa rừng rậm và lạc vào thành phố nổi của các linh hồn cổ xưa, nơi chỉ có lòng dũng cảm và trái tim thuần khiết mới mở được đường về.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/hQ9grQ2RjHS3X7crItJqhoGvUPm.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/sdakBAPqhYHbu4S5wehKKrz6CV5.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     videoStreamUrl:
       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -301,9 +301,9 @@ export const CINEMA_MOVIES: MovieItem[] = [
     synopsis:
       'Bom tấn khoa học viễn tưởng sắp ra mắt về khoảnh khắc bước ngoặt khi công nghệ điện toán lượng tử kết hợp trí tuệ nhân tạo tổng quát (AGI) viết lại toàn bộ lịch sử tiến hóa nhân loại.',
     backdropUrl:
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80',
+      'https://image.tmdb.org/t/p/original/wghKvEjM7UzQzQcKnGbDjOyQO13.jpg',
     posterUrl:
-      'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+      'https://image.tmdb.org/t/p/w780/gpzMYQQrDLSihHmCLHAKT8h30Oc.jpg',
     trailerUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     year: 2027,

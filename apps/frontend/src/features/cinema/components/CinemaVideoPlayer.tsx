@@ -21,7 +21,7 @@ import {
 import { getFallbackBackdrop } from '../utils/imageFallbacks'
 
 export const CinemaVideoPlayer: React.FC = () => {
-  const { playingMovie, closePlayer } = useCinema()
+  const { playingMovie, closePlayer, isPlayingTrailer } = useCinema()
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -42,12 +42,18 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
   const [streamError, setStreamError] = useState<string | null>(null)
   const [isBuffering, setIsBuffering] = useState(true)
-  const [viewMode, setViewMode] = useState<'video' | 'youtube'>('video')
+  const [viewMode, setViewMode] = useState<'video' | 'youtube'>(() => {
+    return isPlayingTrailer && playingMovie?.youtubeKey ? 'youtube' : 'video'
+  })
 
   useEffect(() => {
-    // Always default to high-performance in-web player
-    setViewMode('video')
-  }, [playingMovie])
+    // If user explicitly launched trailer mode, open embedded trailer in web player
+    if (isPlayingTrailer && playingMovie?.youtubeKey) {
+      setViewMode('youtube')
+    } else {
+      setViewMode('video')
+    }
+  }, [playingMovie, isPlayingTrailer])
 
   // Derive active stream URL (either chosen episode or movie default)
   const activeStreamUrl =
