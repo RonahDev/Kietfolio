@@ -86,7 +86,7 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     duration: '2h 11m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['theatrical_vn', 'drama', 'romance'],
+    genres: ['drama', 'romance', 'theatrical_vn'],
     director: 'Trấn Thành',
     cast: [
       { name: 'Phương Anh Đào', role: 'Mai' },
@@ -123,7 +123,7 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     duration: '2h 18m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['theatrical_vn', 'drama', 'family'],
+    genres: ['family', 'drama', 'comedy', 'theatrical_vn'],
     director: 'Lý Hải',
     cast: [
       { name: 'Thanh Hiền', role: 'Bà Hai' },
@@ -159,7 +159,7 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     duration: '2h 14m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['theatrical_vn', 'adventure', 'drama', 'history'],
+    genres: ['adventure', 'history', 'action', 'drama', 'theatrical_vn'],
     director: 'Nguyễn Quang Dũng',
     cast: [
       { name: 'Hạo Khang', role: 'Bé An' },
@@ -194,7 +194,7 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     duration: '1h 57m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['theatrical_vn', 'romance', 'drama'],
+    genres: ['romance', 'drama', 'theatrical_vn'],
     director: 'Victor Vũ',
     cast: [
       { name: 'Trần Nghĩa', role: 'Ngạn' },
@@ -230,7 +230,7 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     duration: '2h 02m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['theatrical_vn', 'horror', 'mystery'],
+    genres: ['horror', 'mystery', 'theatrical_vn'],
     director: 'Trần Hữu Tấn',
     cast: [
       { name: 'Lâm Thanh Mỹ', role: 'Cám' },
@@ -275,7 +275,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 51m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'conan', 'animation', 'mystery', 'action'],
+    genres: ['mystery', 'animation', 'action', 'conan', 'anime_theatrical'],
     franchise: 'conan',
     director: 'Chika Nagaoka',
     cast: [
@@ -313,7 +313,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 50m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'conan', 'animation', 'action', 'mystery'],
+    genres: ['mystery', 'action', 'animation', 'conan', 'anime_theatrical'],
     franchise: 'conan',
     director: 'Yuzuru Tachikawa',
     cast: [
@@ -353,7 +353,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 55m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'doraemon', 'animation', 'adventure'],
+    genres: ['animation', 'adventure', 'family', 'music', 'doraemon', 'anime_theatrical'],
     franchise: 'doraemon',
     director: 'Kazuaki Imai',
     cast: [
@@ -390,7 +390,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 48m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['anime_theatrical', 'doraemon', 'animation', 'sci-fi'],
+    genres: ['animation', 'adventure', 'sci-fi', 'family', 'doraemon', 'anime_theatrical'],
     franchise: 'doraemon',
     director: 'Takumi Doyama',
     cast: [
@@ -429,7 +429,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 34m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['anime_theatrical', 'shin', 'animation', 'comedy'],
+    genres: ['comedy', 'animation', 'action', 'family', 'shin', 'anime_theatrical'],
     franchise: 'shin',
     director: 'Hitoshi One',
     cast: [
@@ -468,7 +468,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 40m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'dragonball', 'animation', 'action', 'sci-fi'],
+    genres: ['action', 'animation', 'sci-fi', 'dragonball', 'anime_theatrical'],
     franchise: 'dragonball',
     director: 'Tetsuro Kodama',
     cast: [
@@ -504,7 +504,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 40m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'dragonball', 'animation', 'action'],
+    genres: ['action', 'animation', 'sci-fi', 'dragonball', 'anime_theatrical'],
     franchise: 'dragonball',
     director: 'Tatsuya Nagamine',
     cast: [
@@ -544,7 +544,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 52m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['anime_theatrical', 'naruto', 'animation', 'romance', 'action'],
+    genres: ['action', 'animation', 'romance', 'adventure', 'naruto', 'anime_theatrical'],
     franchise: 'naruto',
     director: 'Tsuneo Kobayashi',
     cast: [
@@ -580,7 +580,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 35m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY 5.1',
-    genres: ['anime_theatrical', 'naruto', 'animation', 'action'],
+    genres: ['action', 'animation', 'adventure', 'naruto', 'anime_theatrical'],
     franchise: 'naruto',
     director: 'Hiroyuki Yamashita',
     cast: [
@@ -620,7 +620,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     duration: '1h 55m',
     quality: '4K ULTRA HD',
     audio: 'DOLBY ATMOS',
-    genres: ['anime_theatrical', 'animation', 'action', 'adventure'],
+    genres: ['action', 'animation', 'music', 'adventure', 'onepiece', 'anime_theatrical'],
     franchise: 'onepiece',
     director: 'Goro Taniguchi',
     cast: [

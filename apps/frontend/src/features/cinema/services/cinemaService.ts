@@ -1,6 +1,7 @@
 import { SITE_CONFIG } from '@/config'
 import type { MovieItem } from '../types/cinema'
 import { CINEMA_MOVIES } from '../data/moviesData'
+import { normalizeGenreSlug } from '../utils/genreUtils'
 
 // TMDb Response Data Contracts
 interface TMDbMovieDto {
@@ -77,23 +78,23 @@ interface KKPhimDetailDto {
 const TMDB_GENRES_MAP: Record<number, string> = {
   28: 'action',
   12: 'adventure',
-  16: 'cyberpunk',
+  16: 'animation',
   35: 'comedy',
   80: 'action',
   99: 'logistics',
   18: 'drama',
-  10751: 'adventure',
-  14: 'fantasy',
+  10751: 'family',
+  14: 'adventure',
   36: 'history',
   27: 'horror',
   10402: 'music',
   9648: 'mystery',
   10749: 'romance',
-  878: 'cyberpunk',
-  10770: 'tv',
-  53: 'thriller',
-  10752: 'war',
-  37: 'western',
+  878: 'sci-fi',
+  10770: 'drama',
+  53: 'action',
+  10752: 'history',
+  37: 'action',
 }
 
 // Sample 4K Showcase HLS Stream for International Blockbusters
@@ -150,7 +151,12 @@ export async function fetchTheatricalMovies(): Promise<MovieItem[]> {
         (c) => c.slug === 'viet-nam' || c.name?.toLowerCase().includes('việt nam')
       )
 
-      const categories = (item.category || []).map((c) => c.slug || 'action')
+      const rawCategories = (item.category || []).map((c) => c.slug || c.name || '')
+      const normalizedCategories = rawCategories.map((c) => normalizeGenreSlug(c)).filter(Boolean)
+      const categories = Array.from(new Set(normalizedCategories.length > 0 ? normalizedCategories : ['action', 'drama']))
+      if (isVn && !categories.includes('theatrical_vn')) {
+        categories.push('theatrical_vn')
+      }
 
       return {
         id: `rap-${item.slug}`,
@@ -170,7 +176,7 @@ export async function fetchTheatricalMovies(): Promise<MovieItem[]> {
         duration: item.time || '105 phút',
         quality: '1080P FULL HD',
         audio: 'DOLBY 5.1',
-        genres: categories.length > 0 ? categories : ['action', 'drama'],
+        genres: categories,
         director: 'Rạp chiếu toàn quốc',
         cast: [{ name: 'Diễn viên điện ảnh', role: 'Diễn xuất chính' }],
         isTheatrical: true,

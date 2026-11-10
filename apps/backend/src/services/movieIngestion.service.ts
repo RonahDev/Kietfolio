@@ -59,6 +59,28 @@ export interface SyncOptions {
   triggeredBy?: string
 }
 
+const TMDB_GENRES_MAP: Record<number, string> = {
+  28: 'action',
+  12: 'adventure',
+  16: 'animation',
+  35: 'comedy',
+  80: 'action',
+  99: 'logistics',
+  18: 'drama',
+  10751: 'family',
+  14: 'adventure',
+  36: 'history',
+  27: 'horror',
+  10402: 'music',
+  9648: 'mystery',
+  10749: 'romance',
+  878: 'sci-fi',
+  10770: 'drama',
+  53: 'action',
+  10752: 'history',
+  37: 'action',
+}
+
 export class MovieIngestionService {
   private static inMemoryMoviesStore = new Map<string, NormalizedMoviePayload>()
 
@@ -244,7 +266,7 @@ export class MovieIngestionService {
         status: 'published',
         isTheatrical: true,
         isFeatured: true,
-        genreIds: ['theatrical_vn', ...(detail?.genres || ['action'])],
+        genreIds: [...(detail?.genres || ['action']), 'theatrical_vn'],
         categoryIds: ['vietnam-cinema', 'trending'],
         episodes: detail?.episodes || [],
       }
@@ -302,7 +324,7 @@ export class MovieIngestionService {
           status: 'published',
           isTheatrical: true,
           isFeatured: true,
-          genreIds: ['anime_theatrical', 'animation', f.genre],
+          genreIds: ['animation', f.genre, 'anime_theatrical'],
           categoryIds: ['anime-collection', 'trending'],
           episodes: detail?.episodes || [],
         }
@@ -351,7 +373,9 @@ export class MovieIngestionService {
         status: 'published',
         isTheatrical: true,
         isFeatured: false,
-        genreIds: ['theatrical_vn', 'action'],
+        genreIds: (m.genre_ids && m.genre_ids.length > 0)
+          ? [...m.genre_ids.map((gid: number) => TMDB_GENRES_MAP[gid]).filter(Boolean), 'theatrical_vn']
+          : ['action', 'theatrical_vn'],
         categoryIds: ['trending'],
       })
     }

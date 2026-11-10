@@ -9,6 +9,7 @@ import { CinemaMovieCard } from './components/CinemaMovieCard'
 import { CinemaDetailModal } from './components/CinemaDetailModal'
 import { CinemaVideoPlayer } from './components/CinemaVideoPlayer'
 import { CinemaFooter } from './components/CinemaFooter'
+import { isMovieMatchingGenre } from './utils/genreUtils'
 import {
   Flame,
   Award,
@@ -41,7 +42,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
   const filteredMovies = useMemo(() => {
     return movies.filter((movie) => {
       // Genre filter
-      if (selectedGenre !== 'all' && !movie.genres.includes(selectedGenre)) {
+      if (selectedGenre !== 'all' && !isMovieMatchingGenre(movie, selectedGenre)) {
         return false
       }
       // Search query filter

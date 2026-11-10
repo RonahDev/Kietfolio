@@ -16,6 +16,7 @@ import {
   getOptimizedImageUrl,
   getFallbackPoster,
 } from '../utils/imageFallbacks'
+import { getGenreLabel } from '../utils/genreUtils'
 
 export const CinemaDetailModal: React.FC = () => {
   const { activeMovie, closeMovieDetail, playMovie, toggleWatchlist, isInWatchlist, movies } =
@@ -157,6 +158,19 @@ export const CinemaDetailModal: React.FC = () => {
             <p className="text-sm text-[#cbd5e1] leading-relaxed font-sans">
               {activeMovie.synopsis}
             </p>
+          </div>
+
+          {/* Genre Badges */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-xs font-mono text-[#a1a1aa] mr-1">Thể loại:</span>
+            {activeMovie.genres.map((g, idx) => (
+              <span
+                key={idx}
+                className="px-2.5 py-1 rounded-xs bg-[#181b24] border border-[#d4af70]/30 text-xs font-mono text-[#f5d061] font-medium"
+              >
+                {getGenreLabel(g)}
+              </span>
+            ))}
           </div>
 
           {/* Technical Specifications Grid */}

@@ -3,6 +3,7 @@ import type { MovieItem } from '../types/cinema'
 import { useCinema } from '../hooks/useCinema'
 import { Play, Plus, Check, Info, Star, Film, Sparkles } from 'lucide-react'
 import { handleImageFallback, getOptimizedImageUrl } from '../utils/imageFallbacks'
+import { getMoviePrimaryGenreLabel, getGenreLabel } from '../utils/genreUtils'
 
 interface CinemaMovieCardProps {
   movie: MovieItem
@@ -88,7 +89,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
         <div className="flex items-center gap-2 text-[10px] font-mono text-[#a1a1aa] mt-0.5">
           <span>{movie.year}</span>
           <span>•</span>
-          <span className="capitalize">{movie.genres[0]}</span>
+          <span className="text-[#d4af70] font-medium truncate">{getMoviePrimaryGenreLabel(movie.genres)}</span>
         </div>
       </div>
 
@@ -110,12 +111,12 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
           </h4>
 
           <div className="flex flex-wrap gap-1 pt-1">
-            {movie.genres.slice(0, 2).map((g, idx) => (
+            {movie.genres.slice(0, 3).map((g, idx) => (
               <span
                 key={idx}
-                className="text-[9px] font-mono px-1.5 py-0.2 rounded-xs bg-[#181b24] text-[#a1a1aa]"
+                className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-[#181b24] border border-[#2d3139] text-[#cbd5e1] font-medium"
               >
-                {g}
+                {getGenreLabel(g)}
               </span>
             ))}
           </div>

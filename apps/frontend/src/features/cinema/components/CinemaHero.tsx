@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { handleImageFallback, getOptimizedImageUrl } from '../utils/imageFallbacks'
+import { getGenreLabel } from '../utils/genreUtils'
 
 export const CinemaHero: React.FC = () => {
   const { movies, openMovieDetail, playMovie, toggleWatchlist, isInWatchlist } = useCinema()
@@ -122,9 +123,9 @@ export const CinemaHero: React.FC = () => {
             {activeMovie.genres.slice(0, 4).map((g, idx) => (
               <span
                 key={idx}
-                className="px-2 py-0.5 rounded-xs bg-[#11131a]/80 border border-[#181b24] text-[10px] sm:text-[11px] font-mono text-[#cbd5e1]"
+                className="px-2.5 py-0.5 rounded-xs bg-[#11131a]/90 border border-[#d4af70]/30 text-[10px] sm:text-[11px] font-mono text-[#f5d061] font-medium shadow-xs"
               >
-                #{g}
+                {getGenreLabel(g)}
               </span>
             ))}
           </div>

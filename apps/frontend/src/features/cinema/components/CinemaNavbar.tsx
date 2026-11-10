@@ -192,7 +192,7 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               </button>
 
               {isGenreOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 rounded-sm bg-[#11131a] border border-[#181b24] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-sm bg-[#11131a] border border-[#181b24] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                   {CINEMA_GENRES.map((g) => (
                     <button
                       key={g.id}
