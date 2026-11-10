@@ -9,7 +9,7 @@ import { CinemaMovieCard } from './components/CinemaMovieCard'
 import { CinemaDetailModal } from './components/CinemaDetailModal'
 import { CinemaVideoPlayer } from './components/CinemaVideoPlayer'
 import { CinemaFooter } from './components/CinemaFooter'
-import { isMovieMatchingGenre } from './utils/genreUtils'
+import { isMovieMatchingGenre, getGenreLabel } from './utils/genreUtils'
 import {
   Flame,
   Award,
@@ -97,6 +97,10 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
       ),
     [movies]
   )
+  const actionMovies = useMemo(
+    () => movies.filter((m) => isMovieMatchingGenre(m, 'action')),
+    [movies]
+  )
   const comingSoonMovies = useMemo(() => movies.filter((m) => m.isComingSoon), [movies])
 
   const isBrowsingAll = activeTab === 'all' && selectedGenre === 'all' && searchQuery.trim() === ''
@@ -143,6 +147,16 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
                 subtitle="Tuyển tập các tác phẩm điện ảnh chiếu rạp hot nhất với chất lượng cao Full HD / Vietsub"
                 icon={<Film className="w-5 h-5 text-rose-500" />}
                 movies={theatricalMovies}
+              />
+            )}
+
+            {/* Action & Thriller Blockbuster Row (Bom Tấn Hành Động & Kịch Tính) */}
+            {actionMovies.length > 0 && (
+              <CinemaCarouselRow
+                title="Bom Tấn Hành Động & Kịch Tính"
+                subtitle="Những pha rượt đuổi nghẹt thở, đấu trí căng thẳng và võ thuật đỉnh cao"
+                icon={<Flame className="w-5 h-5 text-red-500" />}
+                movies={actionMovies}
               />
             )}
 
@@ -225,7 +239,7 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
                     : activeTab === 'series'
                     ? 'Phim Bộ & Tài Liệu Kỹ Thuật'
                     : selectedGenre !== 'all'
-                    ? `Thể Loại: ${selectedGenre.toUpperCase()}`
+                    ? `Thể Loại: ${getGenreLabel(selectedGenre).toUpperCase()}`
                     : 'Bộ Sưu Tập Phim Điện Ảnh'}
                 </h2>
                 <p className="text-xs font-mono text-[#a1a1aa] mt-1">

@@ -11,7 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { handleImageFallback, getOptimizedImageUrl } from '../utils/imageFallbacks'
+import { getOptimizedImageUrl, getFallbackBackdrop } from '../utils/imageFallbacks'
 import { getGenreLabel } from '../utils/genreUtils'
 
 export const CinemaHero: React.FC = () => {
@@ -32,16 +32,37 @@ export const CinemaHero: React.FC = () => {
     return () => clearInterval(timer)
   }, [featuredMovies.length])
 
+  const initialBackdrop = activeMovie
+    ? getOptimizedImageUrl(activeMovie.backdropUrl, 'backdrop', activeMovie.genres, activeMovie.franchise)
+    : ''
+
+  const [currentBackdrop, setCurrentBackdrop] = useState(initialBackdrop)
+  const [isBackdropLoaded, setIsBackdropLoaded] = useState(false)
+  const [hasBackdropError, setHasBackdropError] = useState(false)
+
+  useEffect(() => {
+    if (activeMovie) {
+      setCurrentBackdrop(
+        getOptimizedImageUrl(activeMovie.backdropUrl, 'backdrop', activeMovie.genres, activeMovie.franchise)
+      )
+      setIsBackdropLoaded(false)
+      setHasBackdropError(false)
+    }
+  }, [activeMovie?.id, activeMovie?.backdropUrl])
+
+  const handleHeroBackdropError = () => {
+    if (!activeMovie) return
+    const fallback = getFallbackBackdrop(activeMovie.genres, activeMovie.franchise)
+    if (currentBackdrop !== fallback) {
+      setCurrentBackdrop(fallback)
+    } else {
+      setHasBackdropError(true)
+    }
+  }
+
   if (!activeMovie) return null
 
   const isSaved = isInWatchlist(activeMovie.id)
-
-  const optimizedBackdropUrl = getOptimizedImageUrl(
-    activeMovie.backdropUrl,
-    'backdrop',
-    activeMovie.genres,
-    activeMovie.franchise
-  )
 
   const hasTrailer = Boolean(
     activeMovie.youtubeKey ||
@@ -49,25 +70,30 @@ export const CinemaHero: React.FC = () => {
   )
 
   return (
-    <section className="relative w-full min-h-[85vh] sm:min-h-[92vh] flex items-end pb-14 sm:pb-22 pt-24 sm:pt-28 overflow-hidden select-none">
+    <section className="relative w-full min-h-[75vh] sm:min-h-[82vh] lg:min-h-[88vh] flex items-end pb-12 sm:pb-16 pt-24 sm:pt-28 overflow-hidden select-none">
       {/* Cinematic Animated Backdrop Artwork with Resilient Gradient Aura */}
       <div className="absolute inset-0 z-0 bg-[#08090d] overflow-hidden">
         {/* Ambient Cinema Aura (glows behind backdrop image even before loading) */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/35 via-[#181b24] to-[#08090d]" />
 
-        <img
-          key={activeMovie.id}
-          src={optimizedBackdropUrl}
-          referrerPolicy="no-referrer"
-          onError={(e) => handleImageFallback(e, activeMovie, 'backdrop')}
-          alt={activeMovie.title}
-          className="relative z-0 w-full h-full object-cover object-center scale-105 animate-[kenburns_24s_ease-out_infinite_alternate] will-change-transform transform-gpu opacity-95 transition-opacity duration-700"
-        />
+        {!hasBackdropError && currentBackdrop && (
+          <img
+            key={activeMovie.id + currentBackdrop}
+            src={currentBackdrop}
+            referrerPolicy="no-referrer"
+            onLoad={() => setIsBackdropLoaded(true)}
+            onError={handleHeroBackdropError}
+            alt={activeMovie.title}
+            className={`relative z-0 w-full h-full object-cover object-center scale-105 animate-[kenburns_24s_ease-out_infinite_alternate] will-change-transform transform-gpu transition-opacity duration-700 ${
+              isBackdropLoaded ? 'opacity-95' : 'opacity-0'
+            }`}
+          />
+        )}
 
-        {/* Targeted Cinematic Vignette Overlays */}
-        <div className="absolute inset-y-0 left-0 w-full sm:w-2/3 md:w-3/5 z-[2] bg-gradient-to-r from-[#08090d] via-[#08090d]/85 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-48 z-[2] bg-gradient-to-t from-[#08090d] via-[#08090d]/75 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-28 z-[2] bg-gradient-to-b from-[#08090d]/80 to-transparent pointer-events-none" />
+        {/* Targeted Cinematic Vignette Overlays - Leaves artwork vibrant on right and center */}
+        <div className="absolute inset-y-0 left-0 w-full sm:w-3/4 md:w-3/5 lg:w-1/2 z-[2] bg-gradient-to-r from-[#08090d]/95 via-[#08090d]/70 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-48 z-[2] bg-gradient-to-t from-[#08090d] via-[#08090d]/75 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-24 sm:h-28 z-[2] bg-gradient-to-b from-[#08090d]/80 to-transparent pointer-events-none" />
       </div>
 
       {/* Hero Content Container */}
@@ -102,7 +128,7 @@ export const CinemaHero: React.FC = () => {
           </div>
 
           {/* Blockbuster Title with Responsive Wrapping */}
-          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-['Plus_Jakarta_Sans',sans-serif] text-[#f5f5f5] leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] max-w-3xl">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black font-['Plus_Jakarta_Sans',sans-serif] text-[#f5f5f5] leading-tight tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] max-w-3xl break-words">
             {activeMovie.title}
           </h1>
 

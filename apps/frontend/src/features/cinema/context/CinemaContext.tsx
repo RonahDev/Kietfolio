@@ -3,6 +3,7 @@ import type { MovieItem, CinemaViewTab } from '../types/cinema'
 import { CINEMA_MOVIES } from '../data/moviesData'
 import {
   OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES,
+  OFFICIAL_ACTION_THRILLER_MOVIES,
   OFFICIAL_THEATRICAL_ANIME_MOVIES,
   fetchDynamicOfficialTheatrical,
 } from '../services/officialMovieService'
@@ -51,6 +52,7 @@ const CinemaContext = createContext<CinemaContextValue | undefined>(undefined)
 export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [movies, setMovies] = useState<MovieItem[]>(() => [
     ...OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES,
+    ...OFFICIAL_ACTION_THRILLER_MOVIES,
     ...OFFICIAL_THEATRICAL_ANIME_MOVIES,
     ...CINEMA_MOVIES,
   ])
@@ -142,6 +144,11 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
           // 1. Official Curated & Theatrical Anime Movies
           for (const m of OFFICIAL_THEATRICAL_ANIME_MOVIES) {
+            map.set(m.id, m)
+          }
+
+          // 2. Official Action & Thriller Blockbusters
+          for (const m of OFFICIAL_ACTION_THRILLER_MOVIES) {
             map.set(m.id, m)
           }
 

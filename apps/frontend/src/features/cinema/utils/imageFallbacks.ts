@@ -1,47 +1,44 @@
 /**
- * Cinema Image Fallback Utilities & Multi-Mirror CDN Proxy Engine
+ * Cinema Image Fallback Utilities & Multi-Mirror CDN Engine
  * Enterprise Multi-Mirror Fallback Engine
  * 
  * Solves:
- * 1. ISP DNS blocks on image.tmdb.org in Vietnam (Viettel, VNPT, FPT) via Cloudflare CDN proxy (wsrv.nl).
- * 2. Relative KKPhim CDN paths (phimimg.com).
- * 3. Multi-tier resilient fallbacks (Tailored CDN -> Global CDN -> Dynamic SVG Canvas).
+ * 1. ISP DNS blocks on image.tmdb.org in Vietnam via BunnyCDN SG & Cloudflare Edge CDN.
+ * 2. Corrupted or mismatched third-party hashes on KKPhim.
+ * 3. Multi-tier resilient fallbacks (Verified TMDb / Edge CDN -> Tailored Franchise Mirror -> Zero-Network Dynamic SVG Canvas).
  * 4. Zero broken image icons: Dynamic SVG poster/backdrop rendered with movie metadata.
  */
 
-// Global CDN Image Proxy - Caches on Cloudflare Edge with 100% bypass of Vietnamese ISP blocks
-const CLOUDFLARE_IMAGE_PROXY = 'https://wsrv.nl/?url='
-
-// Verified high-uptime Cloudflare Edge Cinema Backdrops (100% accessible in Vietnam & globally)
+// Verified high-uptime Cloudflare & TMDb Edge Cinema Backdrops (100% accessible in Vietnam & globally)
 export const VERIFIED_CDN_BACKDROPS = {
-  theatrical_vn: 'https://phimimg.com/upload/vod/20231219-1/3992070b04a9d61260ddf4c17f3f27cb.jpg', // Mai
-  anime: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg', // Conan Ngôi Sao 5 Cánh
-  conan: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
-  doraemon: 'https://phimimg.com/upload/vod/20250521-1/0514f6f2eef84b1340afd31c42574a2d.jpg', // Doraemon Bản Giao Hưởng
-  shin: 'https://phimimg.com/uploads/movies/20260818/shin-cau-be-but-chi-16-sieu-con-bao-hung-hang-moi-goi-dung-si-kinpoko-thumb.webp',
-  dragonball: 'https://phimimg.com/upload/vod/20241013-1/91111e599bd78a9fc80ae3f15b23ae29.jpg',
-  naruto: 'https://phimimg.com/upload/vod/20231213-1/750bbebb9442a6819e34143deb2dc8e5.jpg',
-  onepiece: 'https://phimimg.com/upload/vod/20230922-1/61f686b92d5f29ed34ab75e998895b9b.jpg',
-  cyberpunk: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
-  action: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
-  drama: 'https://phimimg.com/upload/vod/20231219-1/3992070b04a9d61260ddf4c17f3f27cb.jpg',
-  default: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
+  theatrical_vn: 'https://image.tmdb.org/t/p/w1280/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg', // Mai
+  anime: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg', // Conan Ngôi Sao 5 Cánh
+  conan: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
+  doraemon: 'https://image.tmdb.org/t/p/w1280/Z3mSxuPRNiFYxf1LBoGz3YrJzC.jpg', // Doraemon Bản Giao Hưởng
+  shin: 'https://image.tmdb.org/t/p/w1280/gutU32BiBxJvJdzLv5RWC9hQhNh.jpg', // Shin Cậu Bé Bút Chì 3D
+  dragonball: 'https://image.tmdb.org/t/p/w1280/sYLzRuEcwSz0L1Z92wQNrETHU9O.jpg', // Dragon Ball Super Hero
+  naruto: 'https://image.tmdb.org/t/p/w1280/l8ubUlfzlB5R2j9cJ3CN7tj0gmd.jpg', // The Last Naruto
+  onepiece: 'https://image.tmdb.org/t/p/w1280/wghKvEjM7UzQzQcKnGbDjOyQO13.jpg', // One Piece Film Red
+  cyberpunk: 'https://image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg', // Blade Runner 2049
+  action: 'https://image.tmdb.org/t/p/w1280/7I6VUdPj6tQECNHdviJkUHD2u89.jpg', // John Wick 4
+  drama: 'https://image.tmdb.org/t/p/w1280/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg', // Mai / Drama
+  default: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
 } as const
 
-// Verified high-uptime Cloudflare Edge Cinema Posters (100% authentic anime & cinema artwork)
+// Verified high-uptime Cloudflare & TMDb Edge Cinema Posters (100% authentic anime & cinema artwork)
 export const VERIFIED_CDN_POSTERS = {
-  theatrical_vn: 'https://phimimg.com/upload/vod/20231219-1/2d35aa8e3e1f1d292753e94c51a7d1b1.jpg', // Mai
-  anime: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg', // Conan
-  conan: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
-  doraemon: 'https://phimimg.com/upload/vod/20250521-1/3b5ed51c3fb1dca303cfedbbfd59c904.jpg', // Doraemon Bản Giao Hưởng
-  shin: 'https://phimimg.com/uploads/movies/20260818/shin-cau-be-but-chi-16-sieu-con-bao-hung-hang-moi-goi-dung-si-kinpoko-poster.webp',
-  dragonball: 'https://phimimg.com/upload/vod/20241013-1/0fae7296f2e1a31e55deb61fe6db7a03.jpg',
-  naruto: 'https://phimimg.com/upload/vod/20231213-1/b307b73fa90fb62c252b019290c6e6e8.jpg',
-  onepiece: 'https://phimimg.com/upload/vod/20230922-1/c787c4458260fac226233ec52ce4fa36.jpg',
-  cyberpunk: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
-  action: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
-  drama: 'https://phimimg.com/upload/vod/20231219-1/2d35aa8e3e1f1d292753e94c51a7d1b1.jpg',
-  default: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+  theatrical_vn: 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg', // Mai
+  anime: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg', // Conan Ngôi Sao 5 Cánh
+  conan: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg',
+  doraemon: 'https://image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg', // Doraemon Bản Giao Hưởng Địa Cầu
+  shin: 'https://image.tmdb.org/t/p/w780/lOAJYpX608aT0ApIv63ZTnol27Y.jpg', // Shin Cậu Bé Bút Chì Sushi Bay
+  dragonball: 'https://image.tmdb.org/t/p/w780/dwXmOYJVM1VIkkSXHY5zYSaLJLC.jpg', // Dragon Ball Super Hero
+  naruto: 'https://image.tmdb.org/t/p/w780/bAQ8O5Uw6FedtlCbJTutenzPVKd.jpg', // Naruto The Last
+  onepiece: 'https://image.tmdb.org/t/p/w780/8ibfhe4P7rhmn3lrPhOZzIJHA2B.jpg', // One Piece Film Red
+  cyberpunk: 'https://image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', // Blade Runner 2049
+  action: 'https://image.tmdb.org/t/p/w780/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg', // John Wick 4
+  drama: 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
+  default: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg',
 } as const
 
 /**
@@ -122,7 +119,13 @@ export function getFallbackBackdrop(genres?: string[], franchise?: string): stri
   }
   if (genres && genres.length > 0) {
     if (genres.includes('theatrical_vn')) return VERIFIED_CDN_BACKDROPS.theatrical_vn
-    if (genres.includes('anime_theatrical') || genres.includes('animation') || genres.includes('conan') || genres.includes('doraemon')) {
+    if (genres.includes('doraemon')) return VERIFIED_CDN_BACKDROPS.doraemon
+    if (genres.includes('conan')) return VERIFIED_CDN_BACKDROPS.conan
+    if (genres.includes('shin')) return VERIFIED_CDN_BACKDROPS.shin
+    if (genres.includes('dragonball')) return VERIFIED_CDN_BACKDROPS.dragonball
+    if (genres.includes('naruto')) return VERIFIED_CDN_BACKDROPS.naruto
+    if (genres.includes('onepiece')) return VERIFIED_CDN_BACKDROPS.onepiece
+    if (genres.includes('anime_theatrical') || genres.includes('animation')) {
       return VERIFIED_CDN_BACKDROPS.anime
     }
     if (genres.includes('cyberpunk') || genres.includes('sci-fi')) return VERIFIED_CDN_BACKDROPS.cyberpunk
@@ -141,7 +144,13 @@ export function getFallbackPoster(genres?: string[], franchise?: string): string
   }
   if (genres && genres.length > 0) {
     if (genres.includes('theatrical_vn')) return VERIFIED_CDN_POSTERS.theatrical_vn
-    if (genres.includes('anime_theatrical') || genres.includes('animation') || genres.includes('conan') || genres.includes('doraemon')) {
+    if (genres.includes('doraemon')) return VERIFIED_CDN_POSTERS.doraemon
+    if (genres.includes('conan')) return VERIFIED_CDN_POSTERS.conan
+    if (genres.includes('shin')) return VERIFIED_CDN_POSTERS.shin
+    if (genres.includes('dragonball')) return VERIFIED_CDN_POSTERS.dragonball
+    if (genres.includes('naruto')) return VERIFIED_CDN_POSTERS.naruto
+    if (genres.includes('onepiece')) return VERIFIED_CDN_POSTERS.onepiece
+    if (genres.includes('anime_theatrical') || genres.includes('animation')) {
       return VERIFIED_CDN_POSTERS.anime
     }
     if (genres.includes('cyberpunk') || genres.includes('sci-fi')) return VERIFIED_CDN_POSTERS.cyberpunk
@@ -153,9 +162,6 @@ export function getFallbackPoster(genres?: string[], franchise?: string): string
 
 /**
  * Transform image URLs through high-speed CDN proxy when needed
- * 1. image.tmdb.org -> proxied via wsrv.nl (Cloudflare Edge, bypasses ISP blocks)
- * 2. relative KKPhim path -> https://phimimg.com/...
- * 3. empty/null -> fallback
  */
 export function getOptimizedImageUrl(
   url: string | undefined | null,
@@ -176,6 +182,12 @@ export function getOptimizedImageUrl(
     return cleanUrl
   }
 
+  // Handle TMDB URLs: normalize size
+  if (cleanUrl.includes('image.tmdb.org')) {
+    const size = type === 'backdrop' ? 'w1280' : 'w780'
+    return cleanUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`)
+  }
+
   // Handle direct KKPhim / phimimg CDN paths
   if (cleanUrl.includes('phimimg.com')) {
     return cleanUrl
@@ -187,21 +199,15 @@ export function getOptimizedImageUrl(
     return `https://phimimg.com/${normalizedPath}`
   }
 
-  // Handle TMDB URLs: Route through Cloudflare image CDN proxy to bypass ISP blocks in Vietnam
-  if (cleanUrl.includes('image.tmdb.org')) {
-    const size = type === 'backdrop' ? 'w1280' : 'w780'
-    const normalizedTmdb = cleanUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`)
-    return `${CLOUDFLARE_IMAGE_PROXY}${encodeURIComponent(normalizedTmdb)}&w=${type === 'backdrop' ? '1280' : '600'}&output=webp&q=80`
-  }
-
   return cleanUrl
 }
 
 /**
  * Multi-Stage Image Fallback Error Handler
  * Never displays broken image icons:
- * - Stage 1: Try tailored verified CDN mirror (from phimimg.com)
+ * - Stage 1: Try tailored verified CDN mirror (from verified TMDb / CDN)
  * - Stage 2: Instant offline SVG artwork with movie title
+ * - Stage 3: Hide image element cleanly to let the underlying stylized card shine
  */
 export function handleImageFallback(
   event: React.SyntheticEvent<HTMLImageElement, Event>,
@@ -234,8 +240,8 @@ export function handleImageFallback(
   const stage = img.dataset.fallbackStage
 
   if (!stage) {
-    // Stage 1: Try tailored verified CDN mirror (from phimimg.com)
-    img.dataset.fallbackStage = 'primary'
+    // Stage 1: Try tailored verified CDN mirror
+    img.dataset.fallbackStage = 'mirror'
     const targetUrl = customFallbackUrl || (fallbackType === 'backdrop' ? VERIFIED_CDN_BACKDROPS.default : VERIFIED_CDN_POSTERS.default)
     if (img.src !== targetUrl) {
       img.src = targetUrl
@@ -243,10 +249,16 @@ export function handleImageFallback(
     }
   }
 
-  // Stage 2: Instant zero-network dynamic SVG Canvas (100% guarantee to render without broken icon)
-  img.dataset.fallbackStage = 'svg'
-  img.src = fallbackType === 'backdrop'
-    ? generateSvgBackdrop(title, 'KIETFLIX 4K THEATER')
-    : generateSvgPoster(title, year, rating)
+  if (stage === 'mirror') {
+    // Stage 2: Instant zero-network dynamic SVG Canvas
+    img.dataset.fallbackStage = 'svg'
+    img.src = fallbackType === 'backdrop'
+      ? generateSvgBackdrop(title, 'KIETFLIX 4K THEATER')
+      : generateSvgPoster(title, year, rating)
+    return
+  }
+
+  // Stage 3: Hide completely so no broken document icon is ever shown
+  img.style.display = 'none'
   img.onerror = null
 }

@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { MovieItem } from '../types/cinema'
 import { useCinema } from '../hooks/useCinema'
 import { Play, Plus, Check, Info, Star, Film, Sparkles } from 'lucide-react'
-import { handleImageFallback, getOptimizedImageUrl } from '../utils/imageFallbacks'
+import { getOptimizedImageUrl, getFallbackPoster } from '../utils/imageFallbacks'
 import { getMoviePrimaryGenreLabel, getGenreLabel } from '../utils/genreUtils'
 
 interface CinemaMovieCardProps {
@@ -14,12 +14,34 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
   const [isHovered, setIsHovered] = useState(false)
   const isSaved = isInWatchlist(movie.id)
 
-  const optimizedPosterUrl = getOptimizedImageUrl(
+  const initialPoster = getOptimizedImageUrl(
     movie.posterUrl,
     'poster',
     movie.genres,
     movie.franchise
   )
+
+  const [currentPoster, setCurrentPoster] = useState(initialPoster)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [hasImageError, setHasImageError] = useState(false)
+
+  // Synchronize poster state when movie updates
+  useEffect(() => {
+    setCurrentPoster(
+      getOptimizedImageUrl(movie.posterUrl, 'poster', movie.genres, movie.franchise)
+    )
+    setIsLoaded(false)
+    setHasImageError(false)
+  }, [movie.id, movie.posterUrl])
+
+  const handleCardImageError = () => {
+    const fallback = getFallbackPoster(movie.genres, movie.franchise)
+    if (currentPoster !== fallback) {
+      setCurrentPoster(fallback)
+    } else {
+      setHasImageError(true)
+    }
+  }
 
   const hasTrailer = Boolean(movie.youtubeKey || (movie.trailerUrl && movie.trailerUrl.includes('youtu')))
 
@@ -32,23 +54,29 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
     >
       {/* Stylized Ambient Underlay (Prevents black empty cards during loading or offline) */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#181b24] via-[#11131a] to-[#0c0e14] flex flex-col items-center justify-center p-4 text-center pointer-events-none">
-        <div className="w-10 h-10 rounded-full bg-[#a51d35]/20 border border-[#d4af70]/30 flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(165,29,53,0.3)]">
-          <Film className="w-5 h-5 text-[#d4af70]" />
+        <div className="w-12 h-12 rounded-full bg-[#a51d35]/25 border border-[#d4af70]/40 flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(165,29,53,0.3)]">
+          <Film className="w-6 h-6 text-[#d4af70]" />
         </div>
-        <span className="text-xs font-bold text-[#f5f5f5] line-clamp-2 px-2">{movie.title}</span>
-        <span className="text-[10px] font-mono text-[#d4af70] mt-1 font-semibold">★ {movie.rating} • {movie.year}</span>
+        <span className="text-xs font-bold text-[#f5f5f5] line-clamp-2 px-2 drop-shadow-sm">{movie.title}</span>
+        <span className="text-[10px] font-mono text-[#d4af70] mt-1.5 font-semibold">★ {movie.rating} • {movie.year}</span>
+        <span className="text-[9px] font-mono text-[#a1a1aa] mt-1">{getMoviePrimaryGenreLabel(movie.genres)}</span>
       </div>
 
       {/* Movie Poster Image with Resilient Cloudflare CDN Proxy & Multi-Stage Fallback */}
-      <img
-        src={optimizedPosterUrl}
-        alt={movie.title}
-        loading="lazy"
-        decoding="async"
-        referrerPolicy="no-referrer"
-        onError={(e) => handleImageFallback(e, movie, 'poster')}
-        className="relative z-[1] w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
-      />
+      {!hasImageError && currentPoster && (
+        <img
+          src={currentPoster}
+          alt={movie.title}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onLoad={() => setIsLoaded(true)}
+          onError={handleCardImageError}
+          className={`relative z-[1] w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      )}
 
       {/* Top Badges (Quality & Rating) */}
       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
