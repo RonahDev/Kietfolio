@@ -74,10 +74,10 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     tagline: 'Quá khứ chưa ngủ yên, tình yêu liệu có đủ lớn để vượt qua định kiến?',
     synopsis:
       'Mai - một phụ nữ gần 40 tuổi làm nghề massage trị liệu, luôn gánh trên vai nỗi mặc cảm quá khứ và sự soi mói của khu chung cư cũ. Cuộc đời cô bỗng chốc đảo lộn khi gặp Dương, chàng nhạc công phong lưu kém cô nhiều tuổi. Tác phẩm điện ảnh xô đổ mọi kỷ lục phòng vé lịch sử Việt Nam với hơn 520 tỷ đồng doanh thu.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=tMu23yKJ9_c',
-    youtubeKey: 'tMu23yKJ9_c',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231219-1/3992070b04a9d61260ddf4c17f3f27cb.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231219-1/2d35aa8e3e1f1d292753e94c51a7d1b1.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=0YsPhl3d4Cg',
+    youtubeKey: '0YsPhl3d4Cg',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     year: 2024,
     rating: 8.8,
@@ -111,8 +111,8 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     tagline: 'Mẹ nuôi được 5 người con, nhưng 5 người con có cùng nuôi được một mẹ?',
     synopsis:
       'Câu chuyện cảm động rơi nước mắt xoay quanh bà Hai 73 tuổi sống cô đơn tại ngôi nhà miền núi Tây Nguyên lộng gió. Sau một tai nạn gãy chân bất ngờ, 5 người con của bà ở khắp các vùng miền đất nước phải họp bàn bốc thăm xem ai sẽ là người nhận chăm sóc mẹ già trong những ngày tháng tuổi xế chiều.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/1K7pHhCZprfDXB7LkCquIK62yCb.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/aSPg7viRKZUp6py0VLVTv6mo3GN.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20240919-1/5c666eeb1ce5b80a0140906109da9d2a.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=5U0Y5J6s9bU',
     youtubeKey: '5U0Y5J6s9bU',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -147,10 +147,10 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     tagline: 'Hành trình hào hùng tìm cha của bé An qua miền Tây Nam Bộ thuở khói lửa.',
     synopsis:
       'Chuyển thể từ kiệt tác văn học của nhà văn Đoàn Giỏi. Sau biến cố thất lạc mẹ, cậu bé An bước vào chuyến phiêu lưu băng qua vùng đất rừng phương Nam trù phú và hào sảng. Trên đường đi, An gặp gỡ Út Lục Lâm, bác Ba Phi, Võ Tòng và những người con Nam Bộ kiên cường quật khởi.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/lgotja3xMoJZbynwHfcQcJAEMWH.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/5wXpOF9WPUKliIzNBdAqwAStLHU.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=3u6yX6Z8c2Q',
-    youtubeKey: '3u6yX6Z8c2Q',
+    backdropUrl: 'https://phimimg.com/upload/vod/20240319-1/cb60138b0d4e4e8c7f8a7aaa8eb868ec.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20240319-1/72195bc6fd8ffa3063dc86ec088b6ffb.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=hktzirCnJmQ',
+    youtubeKey: 'hktzirCnJmQ',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     year: 2023,
     rating: 8.6,
@@ -182,8 +182,8 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     tagline: 'Có hai thứ trên đời không thể bỏ lỡ: chuyến tàu cuối cùng và người yêu ta chân thật.',
     synopsis:
       'Chuyển thể từ tiểu thuyết lãng mạn bất hủ của nhà văn Nguyễn Nhật Ánh. Bộ phim kể về mối tình si đơn phương sâu nặng của Ngạn dành cho cô bạn thanh mai trúc mã Hà Lan - người sở hữu đôi mắt biếc làm say đắm cả một thời tuổi trẻ dưới bóng cây làng Đo Đo.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/aXLcNxJI2JDdASNL6ZaNI0jWl2s.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/ejPrzjG17UrYHjUn8xE3EAYnoDl.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20240922-1/01e44fb6676ad954648b7e6104b63767.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20240922-1/9d181d0abdf6531f1792bb0eb85e3042.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=ITlQ0oU7tDA',
     youtubeKey: 'ITlQ0oU7tDA',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -218,10 +218,10 @@ export const OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES: MovieItem[] = [
     tagline: 'Cổ tích kết thúc, ác mộng bắt đầu dưới bàn tay quỷ dữ Bạch Lão.',
     synopsis:
       'Dị bản điện ảnh kinh dị tăm tối đẫm máu lấy cảm hứng từ truyện cổ tích Tấm Cám. Phim khai thác bi kịch của Cám - cô gái sinh ra với khuôn mặt dị dạng, phải gánh chịu sự khinh miệt và những nghi thức hiến tế tà thuật ma quái của gia tộc họ Huỳnh.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/54PQfX2WYGzV3o9tv3YUcRoO5O7.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/61t9rICHV9jZJtf4HcUJUP7och0.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=u8X3pY0_W9g',
-    youtubeKey: 'u8X3pY0_W9g',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250302-1/887291d6f943171d2815f048130232dd.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250302-1/95297d8023e0e6cca061455cdc22cef0.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=wI2Wd2yA8YE',
+    youtubeKey: 'wI2Wd2yA8YE',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     year: 2024,
     rating: 8.4,
@@ -263,10 +263,10 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Thanh kiếm báu thời Mạc phủ Shogunate và sự thật về thân thế Siêu đạo chích Kid!',
     synopsis:
       'Phần phim điện ảnh thứ 27 đại thắng phòng vé toàn cầu với hơn 15 tỷ Yên. Tại thành phố Hakodate phủ đầy tuyết trắng, Siêu đạo chích Kid gửi thư thông báo sẽ đánh cắp thanh kiếm Nhật cổ liên quan đến phó tướng Shinsengumi Hijikata Toshizo. Conan cùng đại thám tử miền Tây Hattori Heiji hợp lực giải mã bí ẩn động trời đằng sau báu vật gia tộc.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/AlSEw3akrBZRK9w68gcFQpHHpy3.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=WSI8Dw01_h0',
-    youtubeKey: 'WSI8Dw01_h0',
+    backdropUrl: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=C4pG3GbhQZw',
+    youtubeKey: 'C4pG3GbhQZw',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     year: 2024,
     rating: 9.4,
@@ -301,8 +301,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Thân phận Haibara Ai bị lộ diện. Cuộc đại chiến sinh tử với Tổ Chức Áo Đen bắt đầu!',
     synopsis:
       'Tại cơ sở an ninh phao biển Thái Bình Dương Pacific Buoy kết nối camera giám sát toàn cầu, Gin và các thành viên cộm cán của Tổ Chức Áo Đen bắt cóc Haibara Ai sau khi thuật toán nhận diện khuôn mặt phát hiện cô chính là cựu nghiên cứu sinh Sherry (Miyano Shiho). Conan cùng Akai Shuichi và Bourbon chạy đua với thời gian để cứu sống người bạn thân.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/pfHvwpKwXeQ7GKD91YFFFBtLLJc.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/x0Dhf9Ar9mlXDJZLjpBKM7joiXM.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231016-1/6a45585d457b3d77e91cbe7757f28c94.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231016-1/b015db4de6e3973c7c183880406d2d1f.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=WSI8Dw01_h0',
     youtubeKey: 'WSI8Dw01_h0',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -341,10 +341,10 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Khi âm nhạc biến mất khỏi vũ trụ, tình bạn chính là giai điệu cứu rỗi!',
     synopsis:
       'Phần phim điện ảnh thứ 43 kỷ niệm 90 năm ngày sinh cố tác giả Fujiko F. Fujio. Nobita đang khổ sở tập sáo dọc để chuẩn bị cho buổi hòa nhạc ở trường thì bất ngờ gặp gỡ Micca - cô bé bí ẩn đến từ hành tinh âm nhạc Musecca. Cùng nhóm bạn thân, Doraemon dùng bảo bối thần kỳ bước vào đại sảnh âm nhạc vĩ đại chống lại thực thể quái vật hút cạn mọi thanh âm.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/hQ9grQ2RjHS3X7crItJqhoGvUPm.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/sdakBAPqhYHbu4S5wehKKrz6CV5.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=1RSPJDwoaoQ',
-    youtubeKey: '1RSPJDwoaoQ',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250521-1/0514f6f2eef84b1340afd31c42574a2d.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250521-1/3b5ed51c3fb1dca303cfedbbfd59c904.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=Yug8gbDd5EQ',
+    youtubeKey: 'Yug8gbDd5EQ',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
     year: 2024,
     rating: 9.3,
@@ -378,10 +378,10 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Thiên đường không tì vết có thực sự là nơi mang lại hạnh phúc chân thật?',
     synopsis:
       'Nobita khao khát tìm kiếm vương quốc thiên đường Paradapia lơ lửng trên những tầng mây xanh, nơi không ai phải học hành và mọi người đều hoàn hảo. Nhờ phi thuyền thời gian Zeppelin, nhóm bạn đến được xứ sở này và gặp gỡ chú mèo robot hoàn mỹ Sonya. Nhưng đằng sau sự hoàn hảo đó là một âm mưu tẩy não toàn nhân loại.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/hQ9grQ2RjHS3X7crItJqhoGvUPm.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/kNZFJSPoulsBnKD6gfYXa1kqPVl.jpg',
-    trailerUrl: 'https://www.youtube.com/watch?v=1RSPJDwoaoQ',
-    youtubeKey: '1RSPJDwoaoQ',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250521-1/e0d158cdb1b12f7cae32426dc3695ee0.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250521-1/27f8594f3cb3fc39982d825896a8a9cf.jpg',
+    trailerUrl: 'https://www.youtube.com/watch?v=GbdEbIQeuMw',
+    youtubeKey: 'GbdEbIQeuMw',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     year: 2023,
     rating: 9.2,
@@ -405,6 +405,41 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     officialDistributor: 'Toho / CJ CGV Vietnam',
     watchProviders: [OFFICIAL_VN_PROVIDERS.POPS_ANIME, OFFICIAL_VN_PROVIDERS.NETFLIX],
   },
+  {
+    id: 'anime-doraemon-lau-dai-day-bien-2024',
+    tmdbId: 1072790,
+    title: 'Doraemon: Nobita và Lâu Đài Dưới Đáy Biển',
+    originTitle: 'Doraemon: Nobita and the Castle of the Undersea Devil',
+    tagline: 'Khám phá thế giới đại dương huyền bí và thành phố Atlantis ngủ quên.',
+    synopsis:
+      'Kỳ nghỉ hè đến, nhóm bạn Doraemon quyết định cắm trại dưới rãnh biển sâu Mariana bằng xe lội nước chuyên dụng Buggy. Tại đây họ phát hiện nền văn minh bí ẩn Mu và đối mặt với cỗ máy hủy diệt Poseidon dưới lòng đáy biển Bermuda.',
+    backdropUrl: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-thumb.webp',
+    posterUrl: 'https://phimimg.com/uploads/movies/20260829/doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi-poster.webp',
+    trailerUrl: 'https://www.youtube.com/watch?v=Yug8gbDd5EQ',
+    youtubeKey: 'Yug8gbDd5EQ',
+    videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    year: 2024,
+    rating: 9.1,
+    matchPercentage: 97,
+    maturityRating: 'G',
+    duration: '1h 40m',
+    quality: '4K ULTRA HD',
+    audio: 'DOLBY 5.1',
+    genres: ['animation', 'adventure', 'sci-fi', 'family', 'doraemon', 'anime_theatrical'],
+    franchise: 'doraemon',
+    director: 'Tsutomu Shibayama',
+    cast: [
+      { name: 'Wasabi Mizuta', role: 'Doraemon' },
+      { name: 'Megumi Oohara', role: 'Nobita' },
+      { name: 'Yumi Kakazu', role: 'Shizuka' },
+    ],
+    isTheatrical: true,
+    isAnimeTheatrical: true,
+    slug: 'doraemon-nobita-va-lau-dai-duoi-day-bien-phien-ban-moi',
+    streamSource: 'kkphim',
+    officialDistributor: 'Toho / CJ CGV Vietnam',
+    watchProviders: [OFFICIAL_VN_PROVIDERS.POPS_ANIME, OFFICIAL_VN_PROVIDERS.NETFLIX],
+  },
 
   // -------------------------------------------------------------------------
   // 3. CẬU BÉ BÚT CHÌ SHIN-CHAN (CRAYON SHIN-CHAN)
@@ -417,8 +452,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Phần phim hoạt hình 3D CG lịch sử đầu tiên sau 7 năm sản xuất kỳ công!',
     synopsis:
       'Một ánh sáng trắng bí ẩn từ vũ trụ rơi trúng người Shinnosuke, truyền cho cậu bé nguồn siêu năng lực kỳ diệu điều khiển đồ vật bay lượn bằng... cặp mông! Cùng lúc đó, một thanh niên bất mãn với xã hội cũng bị tia sáng đen bắn trúng và quyết tâm hủy diệt thế giới. Shin-chan và gia đình Nohara bước vào trận đại chiến bảo vệ hòa bình nhân loại.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/biRLtgt3t8MwxeLRRJkf1BsHoeq.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/Ah9H6Sj434nJiZpTPQrovHaEePV.jpg',
+    backdropUrl: 'https://phimimg.com/uploads/movies/20260818/shin-cau-be-but-chi-16-sieu-con-bao-hung-hang-moi-goi-dung-si-kinpoko-thumb.webp',
+    posterUrl: 'https://phimimg.com/uploads/movies/20260818/shin-cau-be-but-chi-16-sieu-con-bao-hung-hang-moi-goi-dung-si-kinpoko-poster.webp',
     trailerUrl: 'https://www.youtube.com/watch?v=wX0pY5q2r8U',
     youtubeKey: 'wX0pY5q2r8U',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
@@ -456,8 +491,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Khi Goku và Vegeta vắng mặt, Gohan và Piccolo thức tỉnh sức mạnh tối thượng!',
     synopsis:
       'Đạo quân Ruy Băng Đỏ (Red Ribbon Army) năm xưa hồi sinh, chế tạo ra hai người máy nhân tạo Gamma 1 và Gamma 2 tự xưng là siêu anh hùng công lý để báo thù gia đình Son Goku. Khi Pan bị bắt cóc, Piccolo khai mở dạng thức Cam (Orange Piccolo) cùng Son Gohan vượt giới hạn thành Thần Thú Gohan Beast để đè bẹp quái vật Cell Max.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/uR0FopHrAjDlG5q6PZB07a1JOva.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/1TIl7hssPbhfUXqAL3geaiE4gNT.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20241013-1/91111e599bd78a9fc80ae3f15b23ae29.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20241013-1/0fae7296f2e1a31e55deb61fe6db7a03.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=FHgm89hKpXU',
     youtubeKey: 'FHgm89hKpXU',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -492,8 +527,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Trận đại chiến hành tinh chấn động giữa ba chiến binh Saiyan thuần chủng!',
     synopsis:
       'Bộ phim do chính cố tác giả Akira Toriyama viết kịch bản, tái hiện lại số phận bi tráng của hành tinh Vegeta. Broly - siêu chiến binh Saiyan sở hữu sức mạnh đột biến khổng lồ - bị đày ải đến hành tinh hoang tàn Vampa. Khi Frieza mang Broly đến Trái Đất, Goku và Vegeta buộc phải thực hiện phép hợp thể Gogeta Blue để cản bước quái vật cuồng nộ.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/uR0FopHrAjDlG5q6PZB07a1JOva.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/fTy2tu7HbWLQ3vjOvNgHOlW5SDl.jpg',
+    backdropUrl: 'https://phimimg.com/uploads/movies/20261012/dragon-ball-super-beerus-thumb.webp',
+    posterUrl: 'https://phimimg.com/uploads/movies/20261012/dragon-ball-super-beerus-poster.webp',
     trailerUrl: 'https://www.youtube.com/watch?v=FHgm89hKpXU',
     youtubeKey: 'FHgm89hKpXU',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
@@ -532,8 +567,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Tình yêu cuối cùng, câu chuyện định mệnh kết nối hai trái tim Naruto và Hinata.',
     synopsis:
       'Hai năm sau Đại chiến Ninja lần thứ tư, mặt trăng bất ngờ tách quỹ đạo và lao về phía Trái Đất. Trong lúc làng Lá đối mặt nguy cơ diệt vong, Toneri Otsutsuki - hậu duệ của Lục Đạo Tiên Nhân trên mặt trăng - xuất hiện bắt cóc Hanabi và ép Hinata phải làm đám cưới. Naruto dốc trọn sinh mệnh cứu người con gái anh yêu.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/l8ubUlfzlB5R2j9cJ3CN7tj0gmd.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/x0CwUdcWWQgOb9tO8cW6jxyo9Zx.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250604-1/ba12f01d984089cf39643771999f14b9.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250604-1/4d040231dadbce1a312340480c69cfb2.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=tA3yE456Niw',
     youtubeKey: 'tA3yE456Niw',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -568,8 +603,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Kế thừa ý chí lửa rực cháy của các bậc phụ huynh thời đại mới!',
     synopsis:
       'Boruto cảm thấy bị cha mình - Hokage đệ Thất Naruto - bỏ rơi vì công việc quá bận rộn. Để chứng tỏ bản thân, cậu xin làm đệ tử của sư phụ Uchiha Sasuke và chuẩn bị cho kỳ thi Chuunin. Nhưng ngay lúc đó, tộc nhân gia tộc Otsutsuki ập tới tấn công làng Lá nhằm chiếm đoạt cửu vĩ Kurama.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/vEiDUw5a1wDZVR3PjZaq8AXhF3r.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/dDQKCkJk19ewY6a4PbzMNNcztAi.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231213-1/750bbebb9442a6819e34143deb2dc8e5.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231213-1/b307b73fa90fb62c252b019290c6e6e8.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=tA3yE456Niw',
     youtubeKey: 'tA3yE456Niw',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
@@ -608,8 +643,8 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     tagline: 'Giọng hát có thể thay đổi cả thế giới hay khúc ca hủy diệt của Uta?',
     synopsis:
       'Uta - ca sĩ nổi tiếng nhất thế giới biển cả lần đầu tiên lộ diện trước công chúng trong một buổi biểu diễn trực tiếp hoành tráng trên đảo Elegia. Luffy và băng Mũ Rơm bất ngờ nhận ra Uta chính là bạn thuở ấu thơ của cậu và cũng là con gái nuôi của Tứ Hoàng Shanks Tóc Đỏ.',
-    backdropUrl: 'https://image.tmdb.org/t/p/original/wghKvEjM7UzQzQcKnGbDjOyQO13.jpg',
-    posterUrl: 'https://image.tmdb.org/t/p/w780/gpzMYQQrDLSihHmCLHAKT8h30Oc.jpg',
+    backdropUrl: 'https://phimimg.com/upload/vod/20230922-1/61f686b92d5f29ed34ab75e998895b9b.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20230922-1/c787c4458260fac226233ec52ce4fa36.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=89JWRYEIG-s',
     youtubeKey: '89JWRYEIG-s',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
@@ -667,7 +702,7 @@ export async function fetchDynamicOfficialTheatrical(apiKey?: string): Promise<M
       tagline: 'Phim chiếu rạp chính thức tại Việt Nam',
       synopsis: m.overview || 'Tác phẩm điện ảnh chiếu rạp đỉnh cao.',
       backdropUrl: m.backdrop_path
-        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/original${m.backdrop_path}`
+        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w1280${m.backdrop_path}`
         : getFallbackBackdrop(['theatrical_vn']),
       posterUrl: m.poster_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w780${m.poster_path}`
@@ -732,7 +767,7 @@ export async function fetchDynamicAnimeCollection(
       tagline: `Tác phẩm điện ảnh chiếu rạp thương hiệu ${franchise.toUpperCase()}`,
       synopsis: p.overview || `Movie chiếu rạp ${p.title} chính thức.`,
       backdropUrl: p.backdrop_path
-        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/original${p.backdrop_path}`
+        ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w1280${p.backdrop_path}`
         : getFallbackBackdrop(['anime_theatrical'], franchise),
       posterUrl: p.poster_path
         ? `${SITE_CONFIG.cinema.tmdbImageBaseUrl}/w780${p.poster_path}`

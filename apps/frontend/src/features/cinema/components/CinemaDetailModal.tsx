@@ -14,7 +14,6 @@ import {
 import {
   handleImageFallback,
   getOptimizedImageUrl,
-  getFallbackPoster,
 } from '../utils/imageFallbacks'
 import { getGenreLabel } from '../utils/genreUtils'
 
@@ -278,10 +277,10 @@ export const CinemaDetailModal: React.FC = () => {
                     className="group p-2.5 rounded-sm bg-[#11131a] border border-[#181b24] hover:border-[#a51d35] transition-all cursor-pointer flex gap-3"
                   >
                     <img
-                      src={similar.posterUrl}
+                      src={getOptimizedImageUrl(similar.posterUrl, 'poster', similar.genres, similar.franchise)}
                       alt={similar.title}
                       referrerPolicy="no-referrer"
-                      onError={(e) => handleImageFallback(e, getFallbackPoster(similar.genres, similar.franchise), 'poster')}
+                      onError={(e) => handleImageFallback(e, similar, 'poster')}
                       className="w-14 h-20 object-cover rounded-xs"
                     />
                     <div className="flex-1 space-y-1">
