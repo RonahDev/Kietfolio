@@ -357,10 +357,10 @@ export const CinemaVideoPlayer: React.FC = () => {
 
         <div className="flex items-center gap-3">
           {/* Switch between HLS Stream and YouTube Trailer */}
-          {playingMovie.youtubeKey && (
+          {Boolean(playingMovie.youtubeKey) && (
             <button
               type="button"
-              onClick={() => setViewMode((prev) => (prev === 'video' ? 'youtube' : 'video'))}
+              onClick={() => setViewMode(viewMode === 'video' ? 'youtube' : 'video')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-[#a51d35]/60 text-xs font-mono font-bold text-white hover:bg-[#a51d35] transition-all cursor-pointer"
             >
               <span>{viewMode === 'video' ? 'XEM TRAILER' : 'BẢN PHIM'}</span>
