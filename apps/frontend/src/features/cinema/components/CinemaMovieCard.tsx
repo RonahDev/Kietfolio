@@ -53,7 +53,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
 
   return (
     <div
-      className="group relative flex-none w-[170px] sm:w-[220px] md:w-[250px] aspect-[2/3] rounded-sm overflow-hidden bg-[#11131a] border border-[#181b24] transition-transform duration-200 ease-out hover:scale-105 hover:z-20 hover:border-[#a51d35]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(165,29,53,0.3)] cursor-pointer will-change-transform transform-gpu"
+      className="group relative flex-none w-[142px] xs:w-[162px] sm:w-[210px] md:w-[240px] aspect-[2/3] rounded-sm overflow-hidden bg-[#11131a] border border-[#181b24] transition-transform duration-200 ease-out hover:scale-105 hover:z-20 hover:border-[#a51d35]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(165,29,53,0.3)] cursor-pointer will-change-transform transform-gpu snap-start"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => openMovieDetail(movie)}

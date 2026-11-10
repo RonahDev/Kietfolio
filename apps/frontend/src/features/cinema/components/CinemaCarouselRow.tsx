@@ -96,10 +96,10 @@ export const CinemaCarouselRow: React.FC<CinemaCarouselRowProps> = ({
           </button>
         )}
 
-        {/* Scrollable Track with GPU Containment */}
+        {/* Scrollable Track with GPU Containment and Snap Gliding */}
         <div
           ref={rowRef}
-          className="flex items-center gap-3 sm:gap-4 overflow-x-auto scrollbar-none py-4 px-1 overscroll-x-contain"
+          className="flex items-center gap-2.5 sm:gap-4 overflow-x-auto scrollbar-none py-4 px-1 overscroll-x-contain scroll-smooth snap-x snap-mandatory"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',

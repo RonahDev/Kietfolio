@@ -155,13 +155,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
             {/* Giant Typographic Architectural Display */}
             <div className="space-y-1">
               <div className="overflow-hidden py-1">
-                <h1 className="hero-title-text text-4xl sm:text-6xl md:text-7xl font-extrabold font-['Plus_Jakarta_Sans',sans-serif] tracking-tight text-[#f1f5f9] leading-[1.08] inline-block">
+                <h1 className="hero-title-text text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-extrabold font-['Plus_Jakarta_Sans',sans-serif] tracking-tight text-[#f1f5f9] leading-[1.08] inline-block break-words">
                   {profileData.fullName.toUpperCase()}
                 </h1>
               </div>
               <div className="flex items-center gap-3 pt-2">
                 <span className="hero-role-divider h-[2px] w-8 sm:w-12 bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
-                <span className="hero-role-text font-mono text-sm sm:text-base font-bold text-[#00d2ff] uppercase tracking-wider">
+                <span className="hero-role-text font-mono text-xs sm:text-sm md:text-base font-bold text-[#00d2ff] uppercase tracking-wider">
                   {scrambledRole}
                 </span>
               </div>
@@ -259,7 +259,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
         </div>
 
         {/* Bottom Bento Telemetry Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-3.5 pt-4">
           {HERO_TELEMETRY_METRICS.map((metric) => {
             const icons = {
               academics: <GraduationCap className="w-4 h-4 text-[#00d2ff]" />,

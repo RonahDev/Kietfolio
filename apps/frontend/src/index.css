@@ -238,7 +238,44 @@ p {
   }
 }
 
-.perf-low .animate-\[kenburns_18s_ease-out_infinite_alternate\] {
+.perf-low .animate-\[kenburns_18s_ease-out_infinite_alternate\],
+.perf-low .animate-\[kenburns_24s_ease-out_infinite_alternate\] {
   animation: none !important;
   transform: scale(1.05) !important;
 }
+
+/* Touch Scrolling & Momentum Optimization */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Fluid Typography Utilities */
+.text-fluid-hero {
+  font-size: clamp(2rem, 5.5vw + 1rem, 4.5rem);
+  line-height: 1.1;
+}
+
+.text-fluid-title {
+  font-size: clamp(1.5rem, 3.5vw + 0.5rem, 3rem);
+  line-height: 1.2;
+}
+
+/* Zero Frame Drop Hardware Acceleration */
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+/* Safe Area Insets for Modern Mobile Screens (iPhone Notch, Dynamic Island) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
