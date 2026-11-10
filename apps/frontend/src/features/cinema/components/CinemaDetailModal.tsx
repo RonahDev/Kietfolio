@@ -119,16 +119,18 @@ export const CinemaDetailModal: React.FC = () => {
                 <span>PHÁT NGAY</span>
               </button>
 
-              {activeMovie.trailerUrl && (
-                <a
-                  href={activeMovie.trailerUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#2d3139] text-[#f5f5f5] font-mono text-xs transition-colors"
-                >
-                  <span>TRAILER</span>
-                </a>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  closeMovieDetail()
+                  playMovie(activeMovie, { isTrailer: true })
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#d4af70]/40 text-[#d4af70] font-mono text-xs transition-colors cursor-pointer"
+                title="Xem trailer 4K trực tiếp trên web"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#d4af70]" />
+                <span>XEM TRAILER TRÊN WEB</span>
+              </button>
 
               <button
                 type="button"

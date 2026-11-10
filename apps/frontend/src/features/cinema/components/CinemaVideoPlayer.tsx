@@ -42,27 +42,18 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
   const [streamError, setStreamError] = useState<string | null>(null)
   const [isBuffering, setIsBuffering] = useState(true)
-  const [viewMode, setViewMode] = useState<'video' | 'youtube'>(() => {
-    if (!playingMovie?.videoStreamUrl && playingMovie?.youtubeKey) return 'youtube'
-    if (playingMovie?.streamSource === 'youtube') return 'youtube'
-    return 'video'
-  })
+  const [viewMode, setViewMode] = useState<'video' | 'youtube'>('video')
 
   useEffect(() => {
-    if (!playingMovie?.videoStreamUrl && playingMovie?.youtubeKey) {
-      setViewMode('youtube')
-    } else if (playingMovie?.streamSource === 'youtube') {
-      setViewMode('youtube')
-    } else if (playingMovie?.videoStreamUrl) {
-      setViewMode('video')
-    }
+    // Always default to high-performance in-web player
+    setViewMode('video')
   }, [playingMovie])
 
   // Derive active stream URL (either chosen episode or movie default)
   const activeStreamUrl =
     playingMovie?.episodes && playingMovie.episodes.length > 0
       ? playingMovie.episodes[currentEpIndex]?.linkM3u8 || playingMovie.videoStreamUrl
-      : playingMovie?.videoStreamUrl || ''
+      : playingMovie?.videoStreamUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'
 
   // Auto-hide controls during playback after 3.5s of inactivity
   const handleMouseMove = useCallback(() => {
@@ -270,18 +261,15 @@ export const CinemaVideoPlayer: React.FC = () => {
             referrerPolicy="origin-when-cross-origin"
             allowFullScreen
           />
-          {/* Quick External Link & Fallback Action Bar for YouTube */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#181b24] text-[11px] font-mono text-[#a1a1aa] z-30">
-            <span>Video không tự chạy?</span>
-            <a
-              href={playingMovie.trailerUrl || `https://www.youtube.com/watch?v=${playingMovie.youtubeKey}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#d4af70] hover:underline font-bold flex items-center gap-1"
-            >
-              Mở trực tiếp trên YouTube <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
+          {/* Quick Fallback Switcher back to In-Web Player */}
+          <button
+            type="button"
+            onClick={() => setViewMode('video')}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-xs font-mono font-bold text-white shadow-lg transition-all cursor-pointer z-30"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#d4af70]" />
+            <span>CHUYỂN SANG TRÌNH PHÁT WEB 4K</span>
+          </button>
         </div>
       ) : (
         /* View Mode: High-Performance HTML5 / HLS.js Video Element */
@@ -313,33 +301,36 @@ export const CinemaVideoPlayer: React.FC = () => {
         </div>
       )}
 
-      {/* Stream Error Alert Card with Fallback Options */}
+      {/* Stream Error Alert Card with In-Web Fallback Options */}
       {streamError && viewMode === 'video' && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md z-30 p-6">
           <div className="max-w-md w-full bg-[#11131a] border border-[#a51d35]/60 rounded-sm p-6 space-y-4 text-center shadow-[0_0_50px_rgba(165,29,53,0.5)]">
             <AlertCircle className="w-12 h-12 text-[#a51d35] mx-auto animate-pulse" />
             <h4 className="text-lg font-bold text-white font-['Plus_Jakarta_Sans',sans-serif]">
-              Không Thể Tải Luồng Phim Trực Tiếp
+              Đang Chuyển Đổi Luồng Phát
             </h4>
             <p className="text-xs text-[#a1a1aa] leading-relaxed">
               {streamError}
             </p>
             <div className="flex flex-col gap-2 pt-2">
-              {playingMovie.trailerUrl && (
-                <a
-                  href={playingMovie.trailerUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white text-xs font-mono font-bold transition-all"
-                >
-                  <span>MỞ TRAILER TRÊN YOUTUBE</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setStreamError(null)
+                  if (videoRef.current) {
+                    videoRef.current.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'
+                    videoRef.current.load()
+                    videoRef.current.play().catch(() => {})
+                  }
+                }}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white text-xs font-mono font-bold transition-all cursor-pointer"
+              >
+                <span>CHẠY LUỒNG DỰ PHÒNG 4K TRÊN WEB</span>
+              </button>
               <button
                 type="button"
                 onClick={closePlayer}
-                className="px-4 py-2 rounded-full bg-[#181b24] hover:bg-[#252a36] text-[#f5f5f5] text-xs font-mono transition-colors"
+                className="px-4 py-2 rounded-full bg-[#181b24] hover:bg-[#252a36] text-[#f5f5f5] text-xs font-mono transition-colors cursor-pointer"
               >
                 Đóng Trình Phát
               </button>

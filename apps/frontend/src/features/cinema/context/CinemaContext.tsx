@@ -32,7 +32,7 @@ interface CinemaContextValue {
   isConnectingStream: boolean
   openMovieDetail: (movie: MovieItem) => void
   closeMovieDetail: () => void
-  playMovie: (movie: MovieItem) => Promise<void> | void
+  playMovie: (movie: MovieItem, options?: { isTrailer?: boolean }) => Promise<void> | void
   closePlayer: () => void
   toggleWatchlist: (movieId: string) => void
   isInWatchlist: (movieId: string) => boolean
@@ -192,35 +192,39 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [])
 
   /**
-   * Hybrid Player Launcher:
-   * - If KKPhim title: on-demand resolves m3u8 playlist and episodes
-   * - If TMDb / Blockbuster: plays 4K stream or trailer
+   * Hybrid In-Web Player Launcher:
+   * - Immediately sets playingMovie for instantaneous player opening without latency
+   * - If movie has a KKPhim slug, asynchronously enriches with m3u8 playlist & episodes
    */
-  const playMovie = useCallback(async (movie: MovieItem) => {
-    if (movie.streamSource === 'kkphim' && movie.slug && !movie.videoStreamUrl) {
-      setIsConnectingStream(true)
-      try {
-        const details = await fetchKKPhimStreamDetails(movie.slug)
-        if (details) {
-          const enrichedMovie: MovieItem = {
-            ...movie,
-            videoStreamUrl: details.videoStreamUrl,
-            episodes: details.episodes,
-          }
-          setMovies((prev) =>
-            prev.map((m) => (m.id === movie.id ? enrichedMovie : m))
-          )
-          setPlayingMovie(enrichedMovie)
-          return
-        }
-      } catch (err) {
-        console.warn('[CinemaProvider]: Could not fetch KKPhim stream details, playing default:', err)
-      } finally {
-        setIsConnectingStream(false)
-      }
-    }
-
+  const playMovie = useCallback((movie: MovieItem, options?: { isTrailer?: boolean }) => {
+    // 1. Immediately open player with base movie data
     setPlayingMovie(movie)
+
+    // 2. If movie has a slug and user is playing full movie, enrich stream asynchronously
+    if (movie.slug && !options?.isTrailer && (!movie.episodes || movie.episodes.length === 0)) {
+      setIsConnectingStream(true)
+      fetchKKPhimStreamDetails(movie.slug)
+        .then((details) => {
+          if (details && details.videoStreamUrl) {
+            const enrichedMovie: MovieItem = {
+              ...movie,
+              videoStreamUrl: details.videoStreamUrl,
+              episodes: details.episodes,
+              streamSource: 'kkphim',
+            }
+            setMovies((prev) =>
+              prev.map((m) => (m.id === movie.id ? enrichedMovie : m))
+            )
+            setPlayingMovie((current) => (current?.id === movie.id ? enrichedMovie : current))
+          }
+        })
+        .catch((err) => {
+          console.warn('[CinemaProvider]: Could not fetch KKPhim stream details, using in-web fallback:', err)
+        })
+        .finally(() => {
+          setIsConnectingStream(false)
+        })
+    }
   }, [])
 
   const closePlayer = useCallback(() => {
