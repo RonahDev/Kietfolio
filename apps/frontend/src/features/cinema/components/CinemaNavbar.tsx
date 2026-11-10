@@ -74,8 +74,11 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
 
   const handleGenreSelect = (genreId: string) => {
     setSelectedGenre(genreId)
+    setActiveTab('all')
+    setSearchQuery('')
     setIsGenreOpen(false)
     setIsMobileMenuOpen(false)
+    setIsMobileGenreOpen(false)
   }
 
   return (

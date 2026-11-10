@@ -11,34 +11,34 @@
 
 // Verified high-uptime Cloudflare & TMDb Edge Cinema Backdrops (100% accessible in Vietnam & globally)
 export const VERIFIED_CDN_BACKDROPS = {
-  theatrical_vn: 'https://image.tmdb.org/t/p/w1280/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg', // Mai
-  anime: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg', // Conan Ngôi Sao 5 Cánh
-  conan: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
-  doraemon: 'https://image.tmdb.org/t/p/w1280/Z3mSxuPRNiFYxf1LBoGz3YrJzC.jpg', // Doraemon Bản Giao Hưởng
-  shin: 'https://image.tmdb.org/t/p/w1280/gutU32BiBxJvJdzLv5RWC9hQhNh.jpg', // Shin Cậu Bé Bút Chì 3D
-  dragonball: 'https://image.tmdb.org/t/p/w1280/sYLzRuEcwSz0L1Z92wQNrETHU9O.jpg', // Dragon Ball Super Hero
-  naruto: 'https://image.tmdb.org/t/p/w1280/l8ubUlfzlB5R2j9cJ3CN7tj0gmd.jpg', // The Last Naruto
-  onepiece: 'https://image.tmdb.org/t/p/w1280/wghKvEjM7UzQzQcKnGbDjOyQO13.jpg', // One Piece Film Red
-  cyberpunk: 'https://image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg', // Blade Runner 2049
-  action: 'https://image.tmdb.org/t/p/w1280/7I6VUdPj6tQECNHdviJkUHD2u89.jpg', // John Wick 4
-  drama: 'https://image.tmdb.org/t/p/w1280/wT3rtmVjc9aRtnJQTav1Tc0HQMS.jpg', // Mai / Drama
-  default: 'https://image.tmdb.org/t/p/w1280/4TMkOnI6rCYxqD059aeeQSBv5mc.jpg',
+  theatrical_vn: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg', // Lật Mặt 7
+  anime: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg', // Conan Ngôi Sao 5 Cánh 4K
+  conan: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
+  doraemon: 'https://phimimg.com/upload/vod/20250521-1/0514f6f2eef84b1340afd31c42574a2d.jpg', // Doraemon Bản Giao Hưởng
+  shin: 'https://phimimg.com/upload/vod/20241013-1/c2ba43105fe8b6938a1682f6ba94ad53.jpg',
+  dragonball: 'https://phimimg.com/uploads/movies/20261012/dragon-ball-super-beerus-thumb.webp',
+  naruto: 'https://phimimg.com/upload/vod/20250604-1/ba12f01d984089cf39643771999f14b9.jpg',
+  onepiece: 'https://phimimg.com/upload/vod/20230922-1/61f686b92d5f29ed34ab75e998895b9b.jpg',
+  cyberpunk: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg&output=webp',
+  action: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/7I6VUdPj6tQECNHdviJkUHD2u89.jpg&output=webp',
+  drama: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg',
+  default: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
 } as const
 
 // Verified high-uptime Cloudflare & TMDb Edge Cinema Posters (100% authentic anime & cinema artwork)
 export const VERIFIED_CDN_POSTERS = {
-  theatrical_vn: 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg', // Mai
-  anime: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg', // Conan Ngôi Sao 5 Cánh
-  conan: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg',
-  doraemon: 'https://image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg', // Doraemon Bản Giao Hưởng Địa Cầu
-  shin: 'https://image.tmdb.org/t/p/w780/lOAJYpX608aT0ApIv63ZTnol27Y.jpg', // Shin Cậu Bé Bút Chì Sushi Bay
-  dragonball: 'https://image.tmdb.org/t/p/w780/dwXmOYJVM1VIkkSXHY5zYSaLJLC.jpg', // Dragon Ball Super Hero
-  naruto: 'https://image.tmdb.org/t/p/w780/bAQ8O5Uw6FedtlCbJTutenzPVKd.jpg', // Naruto The Last
-  onepiece: 'https://image.tmdb.org/t/p/w780/8ibfhe4P7rhmn3lrPhOZzIJHA2B.jpg', // One Piece Film Red
-  cyberpunk: 'https://image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', // Blade Runner 2049
-  action: 'https://image.tmdb.org/t/p/w780/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg', // John Wick 4
-  drama: 'https://image.tmdb.org/t/p/w780/uK7OJICKSNIrhhbGNvh0TaV4M9a.jpg',
-  default: 'https://image.tmdb.org/t/p/w780/ctboIRYQHYJMge6M6fgcwrhREsj.jpg',
+  theatrical_vn: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/aSPg7viRKZUp6py0VLVTv6mo3GN.jpg&output=webp', // Lật Mặt 7
+  anime: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg', // Conan Ngôi Sao 5 Cánh
+  conan: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
+  doraemon: 'https://phimimg.com/upload/vod/20250521-1/3b5ed51c3fb1dca303cfedbbfd59c904.jpg', // Doraemon Bản Giao Hưởng
+  shin: 'https://phimimg.com/upload/vod/20241013-1/0fae7296f2e1a31e55deb61fe6db7a03.jpg',
+  dragonball: 'https://phimimg.com/uploads/movies/20261012/dragon-ball-super-beerus-poster.webp',
+  naruto: 'https://phimimg.com/upload/vod/20250604-1/4d040231dadbce1a312340480c69cfb2.jpg',
+  onepiece: 'https://phimimg.com/upload/vod/20230922-1/c787c4458260fac226233ec52ce4fa36.jpg',
+  cyberpunk: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg&output=webp',
+  action: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg&output=webp',
+  drama: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/aSPg7viRKZUp6py0VLVTv6mo3GN.jpg&output=webp',
+  default: 'https://phimimg.com/upload/vod/20241229-1/01a129f40195c588ebc3d00c225fa33c.jpg',
 } as const
 
 /**
@@ -161,7 +161,27 @@ export function getFallbackPoster(genres?: string[], franchise?: string): string
 }
 
 /**
+ * Convert an image URL (especially image.tmdb.org) to a resilient, high-speed Cloudflare Edge proxy
+ * that bypasses all Vietnamese ISP DNS blocks.
+ */
+export function toProxyUrl(url: string | undefined | null, width?: number): string {
+  if (!url || typeof url !== 'string' || url.trim() === '') return ''
+  const clean = url.trim()
+  if (clean.startsWith('data:')) return clean
+
+  // Handle TMDB URLs: wrap with Cloudflare edge proxy (wsrv.nl) to permanently bypass Vietnamese ISP DNS blocks
+  if (clean.includes('image.tmdb.org')) {
+    const rawPath = clean.replace(/^https?:\/\//, '')
+    const w = width ? `&w=${width}` : ''
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}${w}&output=webp`
+  }
+
+  return clean
+}
+
+/**
  * Transform image URLs through high-speed CDN proxy when needed
+ * Automatically shields all TMDB assets through high-speed Cloudflare edge proxy
  */
 export function getOptimizedImageUrl(
   url: string | undefined | null,
@@ -182,10 +202,12 @@ export function getOptimizedImageUrl(
     return cleanUrl
   }
 
-  // Handle TMDB URLs: normalize size
+  // Handle TMDB URLs: normalize size and route through Cloudflare Edge proxy to prevent ISP blocks
   if (cleanUrl.includes('image.tmdb.org')) {
     const size = type === 'backdrop' ? 'w1280' : 'w780'
-    return cleanUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`)
+    const normalized = cleanUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`)
+    const rawPath = normalized.replace(/^https?:\/\//, '')
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
   }
 
   // Handle direct KKPhim / phimimg CDN paths

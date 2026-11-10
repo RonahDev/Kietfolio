@@ -20,6 +20,7 @@ import { SkillsSection } from '@/features/skills'
 import { PrinciplesSection } from '@/features/principles'
 import { GuestbookSection } from '@/features/guestbook'
 import { ContactSection } from '@/features/contact'
+import { ChatWidget } from '@/features/chatbot'
 import { usePayment } from '@/features/payment/hooks/usePayment'
 
 // Code splitting & dynamic lazy loading for heavy on-demand modal features
@@ -279,6 +280,9 @@ export function AppContent() {
 
       {/* Google Authentication Gateway Modal */}
       <AuthModal />
+
+      {/* 24/7 Intelligent AI Assistant Chatbot */}
+      <ChatWidget />
 
       {/* On-demand lazy-loaded modals wrapped with lightweight Suspense fallback */}
       <Suspense fallback={null}>

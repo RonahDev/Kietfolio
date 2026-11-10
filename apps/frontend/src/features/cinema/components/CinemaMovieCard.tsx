@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import type { MovieItem } from '../types/cinema'
 import { useCinema } from '../hooks/useCinema'
 import { Play, Plus, Check, Info, Star, Film, Sparkles } from 'lucide-react'
-import { getOptimizedImageUrl, getFallbackPoster } from '../utils/imageFallbacks'
+import { getOptimizedImageUrl, getFallbackPoster, generateSvgPoster } from '../utils/imageFallbacks'
 import { getMoviePrimaryGenreLabel, getGenreLabel } from '../utils/genreUtils'
 
 interface CinemaMovieCardProps {
@@ -39,7 +39,13 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
     if (currentPoster !== fallback) {
       setCurrentPoster(fallback)
     } else {
-      setHasImageError(true)
+      // Stage 2: Fallback to tailored dynamic SVG Poster with title, year and rating
+      const svgFallback = generateSvgPoster(movie.title, movie.year, movie.rating)
+      if (currentPoster !== svgFallback) {
+        setCurrentPoster(svgFallback)
+      } else {
+        setHasImageError(true)
+      }
     }
   }
 
@@ -73,7 +79,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
           onLoad={() => setIsLoaded(true)}
           onError={handleCardImageError}
           className={`relative z-[1] w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
+            isLoaded || currentPoster.startsWith('data:') ? 'opacity-100' : 'opacity-0'
           }`}
         />
       )}

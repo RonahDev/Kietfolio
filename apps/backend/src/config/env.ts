@@ -52,5 +52,8 @@ export const config = {
     syncIntervalMinutes: parseInt(process.env.MOVIE_SYNC_INTERVAL_MINUTES || '360', 10),
     autoSyncEnabled: process.env.MOVIE_AUTO_SYNC_ENABLED !== 'false',
   },
+  ai: {
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
+  },
 } as const
 

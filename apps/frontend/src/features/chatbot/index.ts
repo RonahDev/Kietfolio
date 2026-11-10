@@ -1,0 +1,5 @@
+export { ChatWidget } from './components/ChatWidget'
+export { useChatbot } from './hooks/useChatbot'
+export * from './types/chat'
+export * from './services/chatbotEngine'
+export * from './data/knowledgeBase'

@@ -4,6 +4,7 @@ import { ProjectController } from '../controllers/project.controller'
 import { ContactController } from '../controllers/contact.controller'
 import { GuestbookController } from '../controllers/guestbook.controller'
 import { PaymentController } from '../controllers/payment.controller'
+import { ChatController } from '../controllers/chat.controller'
 import type { Request, Response, NextFunction } from 'express'
 
 function createMockResponse() {
@@ -166,5 +167,38 @@ describe('Backend Express Controllers Unit & Integration Tests', () => {
     const body = res.body as { success: boolean; data: unknown[] }
     expect(body.success).toBe(true)
     expect(Array.isArray(body.data)).toBe(true)
+  })
+
+  it('ChatController.query - returns contextual AI response for valid query', async () => {
+    const req = createMockRequest({
+      body: {
+        message: 'Mai Anh Kiệt là ai?',
+        language: 'vi',
+      },
+    })
+    const res = createMockResponse()
+
+    await ChatController.query(req, res as unknown as Response, mockNext)
+
+    expect(res.statusCode).toBe(200)
+    const body = res.body as { success: boolean; reply: string; source: string }
+    expect(body.success).toBe(true)
+    expect(body.reply).toContain('Mai Anh Kiệt')
+    expect(body.source).toBeDefined()
+  })
+
+  it('ChatController.query - rejects empty query with status 400', async () => {
+    const req = createMockRequest({
+      body: {
+        message: '   ',
+      },
+    })
+    const res = createMockResponse()
+
+    await ChatController.query(req, res as unknown as Response, mockNext)
+
+    expect(res.statusCode).toBe(400)
+    const body = res.body as { success: boolean; error: string }
+    expect(body.success).toBe(false)
   })
 })

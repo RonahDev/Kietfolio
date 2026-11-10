@@ -76,3 +76,21 @@ export const contactLimiter = rateLimit({
     error: 'Submission threshold reached. Please try sending again in 1 hour.',
   },
 })
+
+/**
+ * AI Chatbot Rate Limiter
+ */
+export const chatLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 40, // 40 queries per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'Too many chat requests. Please slow down and try again shortly.',
+  },
+})
+
+/** Alias for general api limiter */
+export const rateLimiter = apiLimiter
+

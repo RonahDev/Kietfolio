@@ -11,7 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { getOptimizedImageUrl, getFallbackBackdrop } from '../utils/imageFallbacks'
+import { getOptimizedImageUrl, getFallbackBackdrop, generateSvgBackdrop } from '../utils/imageFallbacks'
 import { getGenreLabel } from '../utils/genreUtils'
 
 export const CinemaHero: React.FC = () => {
@@ -56,7 +56,13 @@ export const CinemaHero: React.FC = () => {
     if (currentBackdrop !== fallback) {
       setCurrentBackdrop(fallback)
     } else {
-      setHasBackdropError(true)
+      // Stage 2: Fallback to dynamic SVG Canvas with movie title and tagline so it NEVER turns pitch black
+      const svgFallback = generateSvgBackdrop(activeMovie.title, activeMovie.tagline || '4K ULTRA HD THEATER')
+      if (currentBackdrop !== svgFallback) {
+        setCurrentBackdrop(svgFallback)
+      } else {
+        setHasBackdropError(true)
+      }
     }
   }
 
@@ -85,7 +91,7 @@ export const CinemaHero: React.FC = () => {
             onError={handleHeroBackdropError}
             alt={activeMovie.title}
             className={`relative z-0 w-full h-full object-cover object-center scale-105 animate-[kenburns_24s_ease-out_infinite_alternate] will-change-transform transform-gpu transition-opacity duration-700 ${
-              isBackdropLoaded ? 'opacity-95' : 'opacity-0'
+              isBackdropLoaded || currentBackdrop.startsWith('data:') ? 'opacity-95' : 'opacity-70'
             }`}
           />
         )}
