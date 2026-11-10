@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import {
   handleImageFallback,
-  getFallbackBackdrop,
+  getOptimizedImageUrl,
   getFallbackPoster,
 } from '../utils/imageFallbacks'
 
@@ -62,10 +62,10 @@ export const CinemaDetailModal: React.FC = () => {
         <div className="relative h-64 sm:h-80 w-full overflow-hidden flex-none bg-[#0c0e14]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#a51d35]/25 via-[#11131a] to-[#0c0e14]" />
           <img
-            src={activeMovie.backdropUrl}
+            src={getOptimizedImageUrl(activeMovie.backdropUrl, 'backdrop', activeMovie.genres, activeMovie.franchise)}
             alt={activeMovie.title}
             referrerPolicy="no-referrer"
-            onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise), 'backdrop')}
+            onError={(e) => handleImageFallback(e, activeMovie, 'backdrop')}
             className="relative z-0 w-full h-full object-cover object-center"
           />
           {/* Overlays */}

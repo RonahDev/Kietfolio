@@ -3,6 +3,7 @@ import os from 'node:os'
 import { app } from './app'
 import { config } from './config/env'
 import { testDbConnection, pool } from './db/pool'
+import { MovieSyncScheduler } from './services/movieSyncScheduler.service'
 
 const shouldEnableCluster =
   (config.env === 'production' || process.env.ENABLE_CLUSTER === 'true') &&
@@ -32,6 +33,11 @@ async function startWorker(workerId?: number) {
     if (!workerId || workerId === 1) {
       // eslint-disable-next-line no-console
       console.log(`⚡ [API Health Endpoint]: http://localhost:${config.port}/api/health`)
+      // Initialize background automated movie sync worker
+      MovieSyncScheduler.start().catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error('[MovieSyncScheduler Initialization Error]:', err)
+      })
     }
   })
 
@@ -39,6 +45,7 @@ async function startWorker(workerId?: number) {
   const shutdown = async (signal: string) => {
     // eslint-disable-next-line no-console
     console.log(`\n[Shutdown]: ${signal} received by PID ${process.pid}. Closing HTTP server...`)
+    MovieSyncScheduler.stop()
     server.close(async () => {
       try {
         await pool.end()

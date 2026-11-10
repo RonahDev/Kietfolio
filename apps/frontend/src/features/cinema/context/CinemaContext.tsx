@@ -12,6 +12,7 @@ import {
   fetchKKPhimStreamDetails,
   fetchTheatricalMovies,
   fetchTMDbNowPlayingVietnam,
+  fetchBackendLiveMovies,
 } from '../services/cinemaService'
 import { SITE_CONFIG } from '@/config'
 
@@ -110,12 +111,20 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async function loadHybridMovieCatalog() {
       setIsLoadingRemoteMovies(true)
       try {
-        const [tmdbTrending, kkphimVietnamese, theatricalKk, tmdbTheatrical, officialVnTheatrical] = await Promise.allSettled([
+        const [
+          tmdbTrending,
+          kkphimVietnamese,
+          theatricalKk,
+          tmdbTheatrical,
+          officialVnTheatrical,
+          backendLive,
+        ] = await Promise.allSettled([
           fetchTMDbTrendingMovies(),
           fetchKKPhimVietnameseMovies(),
           fetchTheatricalMovies(),
           fetchTMDbNowPlayingVietnam(),
           fetchDynamicOfficialTheatrical(),
+          fetchBackendLiveMovies(),
         ])
 
         if (!isMounted) return
@@ -125,6 +134,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const freshTheatricalMovies = theatricalKk.status === 'fulfilled' ? theatricalKk.value : []
         const freshTmdbTheatrical = tmdbTheatrical.status === 'fulfilled' ? tmdbTheatrical.value : []
         const freshOfficialVn = officialVnTheatrical.status === 'fulfilled' ? officialVnTheatrical.value : []
+        const freshBackendMovies = backendLive.status === 'fulfilled' ? backendLive.value : []
 
         // Merge with deduplication based on ID and Title
         setMovies((prev) => {
@@ -140,22 +150,27 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             map.set(m.id, m)
           }
 
-          // 3. Theatrical release movies (Hot cinema titles)
+          // 3. Live Synchronized Movies from PostgreSQL Backend (Auto-Ingested by Cron)
+          for (const m of freshBackendMovies) {
+            map.set(m.id, m)
+          }
+
+          // 4. Theatrical release movies (Hot cinema titles)
           for (const m of freshTheatricalMovies) {
             if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 4. TMDb Vietnam Now Playing
+          // 5. TMDb Vietnam Now Playing
           for (const m of freshTmdbTheatrical) {
             if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 5. TMDb trending movies (Priority for hero & trending)
+          // 6. TMDb trending movies (Priority for hero & trending)
           for (const m of freshTmdbMovies) {
             if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 6. KKPhim Vietnamese movies
+          // 7. KKPhim Vietnamese movies
           for (const m of freshKkphimMovies) {
             if (!map.has(m.id)) map.set(m.id, m)
           }

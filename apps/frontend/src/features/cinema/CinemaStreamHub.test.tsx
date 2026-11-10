@@ -16,6 +16,8 @@ vi.mock('./services/cinemaService', () => ({
   fetchTheatricalMovies: vi.fn().mockResolvedValue([]),
   fetchTMDbNowPlayingVietnam: vi.fn().mockResolvedValue([]),
   fetchKKPhimStreamDetails: vi.fn().mockResolvedValue(null),
+  fetchKKPhimMovieDetail: vi.fn().mockResolvedValue(null),
+  fetchBackendLiveMovies: vi.fn().mockResolvedValue([]),
 }))
 
 describe('CinemaStreamHub Component Suite', () => {

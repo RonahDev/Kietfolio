@@ -12,6 +12,7 @@ import { TaxonomiesController } from '../modules/taxonomies/taxonomies.controlle
 import { UsersAdminController } from '../modules/users/usersAdmin.controller'
 import { AnalyticsAdminController } from '../modules/analytics/analyticsAdmin.controller'
 import { SystemAdminController } from '../modules/system/systemAdmin.controller'
+import { MovieSyncAdminController } from '../modules/system/movieSyncAdmin.controller'
 
 export const adminRouter = Router()
 
@@ -82,3 +83,11 @@ adminRouter.get('/video-servers', requirePermission('system.video_monitor'), Sys
 adminRouter.get('/broken-links', requirePermission('system.video_monitor'), SystemAdminController.getBrokenLinksReport)
 adminRouter.get('/settings', requirePermission('system.settings'), SystemAdminController.getSettings)
 adminRouter.put('/settings', requirePermission('system.settings'), SystemAdminController.updateSettings)
+
+// -----------------------------------------------------------------------------
+// 8. AUTOMATED MOVIE SYNC & INGESTION ENGINE
+// -----------------------------------------------------------------------------
+adminRouter.get('/sync/status', requirePermission('system.settings'), MovieSyncAdminController.getStatus)
+adminRouter.post('/sync/trigger', requirePermission('movies.create'), MovieSyncAdminController.triggerSync)
+adminRouter.put('/sync/settings', requirePermission('system.settings'), MovieSyncAdminController.updateSettings)
+adminRouter.get('/sync/history', requirePermission('audit_logs.read'), MovieSyncAdminController.getHistory)

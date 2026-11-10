@@ -449,3 +449,54 @@ export async function fetchTMDbTrailerKey(tmdbId: number): Promise<string | null
     return null
   }
 }
+
+/**
+ * Fetch Dynamically Synchronized Movies from Kietfolio Backend PostgreSQL Catalog
+ * Pulls the latest automated ingestion releases fetched by the background cron worker
+ */
+export async function fetchBackendLiveMovies(): Promise<MovieItem[]> {
+  try {
+    const res = await fetch(`${SITE_CONFIG.apiBaseUrl}/api/movies?limit=50`, {
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    if (!data.success || !Array.isArray(data.data?.movies)) return []
+
+    return data.data.movies.map((m: any) => ({
+      id: m.id || m.slug,
+      title: m.titleVi || m.title,
+      originTitle: m.titleOrigin,
+      tagline: m.tagline || 'Tác phẩm điện ảnh đỉnh cao tự động nạp từ rạp',
+      synopsis: m.synopsis || '',
+      backdropUrl: m.backdropUrl,
+      posterUrl: m.posterUrl,
+      trailerUrl: m.trailerUrl || '',
+      youtubeKey: m.youtubeKey,
+      videoStreamUrl:
+        m.videoStreamUrl ||
+        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      streamSource: m.streamSource || 'hls',
+      year: m.releaseYear || 2024,
+      rating: m.rating || 8.8,
+      matchPercentage: Math.min(99, Math.round((m.rating || 8.5) * 10)),
+      maturityRating: m.ageRating || 'PG-13',
+      duration: m.duration || '2h 00m',
+      quality: m.quality || '4K ULTRA HD',
+      audio: m.audio || 'DOLBY ATMOS',
+      genres: Array.isArray(m.genres)
+        ? m.genres.map((g: any) => g.slug || g.id || g)
+        : ['action'],
+      director: m.director || 'Đang cập nhật',
+      cast: Array.isArray(m.castData)
+        ? m.castData
+        : [{ name: 'Diễn viên chính', role: 'Diễn xuất' }],
+      isTheatrical: Boolean(m.isTheatrical),
+      isFeaturedHero: Boolean(m.isFeatured),
+      isTrending: true,
+      slug: m.slug,
+    }))
+  } catch {
+    return []
+  }
+}

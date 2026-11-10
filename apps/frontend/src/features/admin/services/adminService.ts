@@ -263,4 +263,60 @@ export const adminService = {
   async updateSettings(settings: any) {
     return adminApi.put('admin/settings', { settings })
   },
+
+  // ---------------------------------------------------------------------------
+  // AUTOMATED MOVIE SYNC & INGESTION
+  // ---------------------------------------------------------------------------
+  async getSyncStatus() {
+    const res = await adminApi.get<{
+      success: boolean
+      data: {
+        isRunning: boolean
+        autoSyncEnabled: boolean
+        intervalMinutes: number
+        lastRunAt: string | null
+        nextRunAt: string | null
+        totalRuns: number
+        lastResult: any
+        sources: any
+      }
+    }>('admin/sync/status')
+    return res.data
+  },
+
+  async triggerSyncNow() {
+    return adminApi.post<{
+      success: boolean
+      message: string
+      data: any
+    }>('admin/sync/trigger', {})
+  },
+
+  async updateSyncSettings(settings: {
+    autoSyncEnabled?: boolean
+    intervalMinutes?: number
+    sources?: any
+  }) {
+    const res = await adminApi.put<{
+      success: boolean
+      message: string
+      data: any
+    }>('admin/sync/settings', settings)
+    return res.data
+  },
+
+  async getSyncHistory() {
+    const res = await adminApi.get<{
+      success: boolean
+      data: {
+        history: Array<{
+          id: string
+          timestamp: string
+          actorRole: string
+          details: any
+        }>
+      }
+    }>('admin/sync/history')
+    return res.data.history
+  },
 }

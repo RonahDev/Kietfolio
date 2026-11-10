@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import type { MovieItem } from '../types/cinema'
 import { useCinema } from '../hooks/useCinema'
-import { Play, Plus, Check, Info, Star, Film } from 'lucide-react'
-import { handleImageFallback, getFallbackPoster } from '../utils/imageFallbacks'
+import { Play, Plus, Check, Info, Star, Film, Sparkles } from 'lucide-react'
+import { handleImageFallback, getOptimizedImageUrl } from '../utils/imageFallbacks'
 
 interface CinemaMovieCardProps {
   movie: MovieItem
@@ -13,6 +13,15 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
   const [isHovered, setIsHovered] = useState(false)
   const isSaved = isInWatchlist(movie.id)
 
+  const optimizedPosterUrl = getOptimizedImageUrl(
+    movie.posterUrl,
+    'poster',
+    movie.genres,
+    movie.franchise
+  )
+
+  const hasTrailer = Boolean(movie.youtubeKey || (movie.trailerUrl && movie.trailerUrl.includes('youtu')))
+
   return (
     <div
       className="group relative flex-none w-[170px] sm:w-[220px] md:w-[250px] aspect-[2/3] rounded-sm overflow-hidden bg-[#11131a] border border-[#181b24] transition-transform duration-200 ease-out hover:scale-105 hover:z-20 hover:border-[#a51d35]/60 hover:shadow-[0_15px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(165,29,53,0.3)] cursor-pointer will-change-transform transform-gpu"
@@ -22,21 +31,21 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
     >
       {/* Stylized Ambient Underlay (Prevents black empty cards during loading or offline) */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#181b24] via-[#11131a] to-[#0c0e14] flex flex-col items-center justify-center p-4 text-center pointer-events-none">
-        <div className="w-10 h-10 rounded-full bg-[#a51d35]/20 border border-[#d4af70]/30 flex items-center justify-center mb-2">
+        <div className="w-10 h-10 rounded-full bg-[#a51d35]/20 border border-[#d4af70]/30 flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(165,29,53,0.3)]">
           <Film className="w-5 h-5 text-[#d4af70]" />
         </div>
         <span className="text-xs font-bold text-[#f5f5f5] line-clamp-2 px-2">{movie.title}</span>
-        <span className="text-[10px] font-mono text-[#a1a1aa] mt-1">{movie.year}</span>
+        <span className="text-[10px] font-mono text-[#d4af70] mt-1 font-semibold">★ {movie.rating} • {movie.year}</span>
       </div>
 
-      {/* Movie Poster Image with Resilient Fallback */}
+      {/* Movie Poster Image with Resilient Cloudflare CDN Proxy & Multi-Stage Fallback */}
       <img
-        src={movie.posterUrl}
+        src={optimizedPosterUrl}
         alt={movie.title}
         loading="lazy"
         decoding="async"
         referrerPolicy="no-referrer"
-        onError={(e) => handleImageFallback(e, getFallbackPoster(movie.genres, movie.franchise), 'poster')}
+        onError={(e) => handleImageFallback(e, movie, 'poster')}
         className="relative z-[1] w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110 will-change-transform transform-gpu"
       />
 
@@ -118,17 +127,34 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
 
         {/* Action Button Row */}
         <div className="flex items-center justify-between pt-2 border-t border-[#181b24]/80">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              playMovie(movie)
-            }}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white shadow-[0_0_12px_rgba(165,29,53,0.6)] hover:scale-105 active:scale-95 transition-transform duration-150 cursor-pointer"
-            title="Xem ngay"
-          >
-            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                playMovie(movie)
+              }}
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-white shadow-[0_0_12px_rgba(165,29,53,0.6)] hover:scale-105 active:scale-95 transition-transform duration-150 cursor-pointer"
+              title="Xem ngay trên web"
+            >
+              <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
+            </button>
+
+            {hasTrailer && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  playMovie(movie, { isTrailer: true })
+                }}
+                className="flex items-center justify-center px-2 py-1 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#d4af70]/40 text-[#d4af70] hover:text-white text-[10px] font-mono font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                title="Xem trailer trực tiếp trong web"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                TRAILER
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-1.5">
             <button

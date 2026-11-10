@@ -18,7 +18,20 @@ import {
   AlertCircle,
   ExternalLink,
 } from 'lucide-react'
-import { getFallbackBackdrop } from '../utils/imageFallbacks'
+import { getOptimizedImageUrl } from '../utils/imageFallbacks'
+
+/**
+ * Universal helper to extract standard 11-char YouTube video ID from various URL formats
+ */
+function extractYoutubeKey(keyOrUrl?: string | null): string | null {
+  if (!keyOrUrl) return null
+  const trimmed = keyOrUrl.trim()
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed
+  }
+  const match = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+  return match ? match[1] : null
+}
 
 export const CinemaVideoPlayer: React.FC = () => {
   const { playingMovie, closePlayer, isPlayingTrailer } = useCinema()
@@ -42,13 +55,22 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
   const [streamError, setStreamError] = useState<string | null>(null)
   const [isBuffering, setIsBuffering] = useState(true)
+
+  const resolvedYoutubeKey = extractYoutubeKey(playingMovie?.youtubeKey || playingMovie?.trailerUrl)
+
   const [viewMode, setViewMode] = useState<'video' | 'youtube'>(() => {
-    return isPlayingTrailer && playingMovie?.youtubeKey ? 'youtube' : 'video'
+    if (isPlayingTrailer && resolvedYoutubeKey) return 'youtube'
+    if (playingMovie?.isTheatrical && (!playingMovie?.episodes || playingMovie.episodes.length === 0) && resolvedYoutubeKey) {
+      return 'youtube'
+    }
+    return 'video'
   })
 
   useEffect(() => {
-    // If user explicitly launched trailer mode, open embedded trailer in web player
-    if (isPlayingTrailer && playingMovie?.youtubeKey) {
+    const yKey = extractYoutubeKey(playingMovie?.youtubeKey || playingMovie?.trailerUrl)
+    if (isPlayingTrailer && yKey) {
+      setViewMode('youtube')
+    } else if (playingMovie?.isTheatrical && (!playingMovie?.episodes || playingMovie.episodes.length === 0) && yKey) {
       setViewMode('youtube')
     } else {
       setViewMode('video')
@@ -256,32 +278,78 @@ export const CinemaVideoPlayer: React.FC = () => {
       onMouseMove={handleMouseMove}
       className="fixed inset-0 z-50 bg-black flex items-center justify-center select-none overflow-hidden"
     >
-      {/* View Mode: YouTube Embed Player */}
-      {viewMode === 'youtube' && playingMovie.youtubeKey ? (
+      {/* View Mode: YouTube Embed Player (In-Web 4K Trailer) */}
+      {viewMode === 'youtube' && resolvedYoutubeKey ? (
         <div className="w-full h-full flex flex-col items-center justify-center bg-black p-2 sm:p-6 relative">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${playingMovie.youtubeKey}?autoplay=1&controls=1&rel=0&modestbranding=1`}
-            title={playingMovie.title}
-            className="w-full h-full max-w-6xl aspect-video border-0 shadow-2xl rounded-sm"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="origin-when-cross-origin"
-            allowFullScreen
-          />
-          {/* Quick Fallback Switcher back to In-Web Player */}
-          <button
-            type="button"
-            onClick={() => setViewMode('video')}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#a51d35] hover:bg-[#c22240] text-xs font-mono font-bold text-white shadow-lg transition-all cursor-pointer z-30"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#d4af70]" />
-            <span>CHUYỂN SANG TRÌNH PHÁT WEB 4K</span>
-          </button>
+          {/* Permanent Floating Top Bar for Trailer View */}
+          <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-b from-black/95 via-black/70 to-transparent flex items-center justify-between z-40">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2 text-xs font-mono">
+                <span className="px-2 py-0.5 rounded-xs bg-[#a51d35] text-white font-bold text-[10px] tracking-wider uppercase flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#d4af70]" />
+                  TRAILER 4K CHÍNH HÃNG
+                </span>
+                <span className="text-[#d4af70] font-bold text-xs">{playingMovie.title}</span>
+              </div>
+              <p className="text-[11px] font-mono text-[#a1a1aa] hidden sm:block">
+                Phát trực tiếp trong web • Tiêu chuẩn 4K HDR
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              {(Boolean(playingMovie.videoStreamUrl) || Boolean(playingMovie.episodes?.length)) && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode('video')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#d4af70]/40 text-xs font-mono font-bold text-[#d4af70] transition-all cursor-pointer"
+                >
+                  <Play className="w-3 h-3 fill-[#d4af70]" />
+                  <span>XEM BẢN PHIM</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={closePlayer}
+                className="p-2 sm:p-2.5 rounded-full bg-black/70 border border-[#181b24] text-white hover:bg-[#a51d35] transition-colors cursor-pointer"
+                title="Đóng trình phát (Phím ESC)"
+              >
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="w-full h-full max-w-6xl flex items-center justify-center pt-14 pb-12 sm:pt-16 sm:pb-14">
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${resolvedYoutubeKey}?autoplay=1&controls=1&rel=0&modestbranding=1&enablejsapi=1`}
+              title={`${playingMovie.title} - Official Trailer`}
+              className="w-full h-full aspect-video border-0 shadow-[0_0_60px_rgba(165,29,53,0.35)] rounded-xs"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+
+          {/* Bottom Bar Info */}
+          <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3 z-30">
+            {playingMovie.watchProviders && playingMovie.watchProviders.length > 0 && (
+              <a
+                href={playingMovie.watchProviders[0]?.streamUrl || 'https://www.netflix.com/vn/'}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-[11px] font-mono font-bold text-emerald-300 hover:bg-emerald-900 transition-all cursor-pointer"
+              >
+                <span>XEM TRỌN BỘ TẠI {playingMovie.watchProviders[0]?.providerName.toUpperCase()}</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
         </div>
       ) : (
         /* View Mode: High-Performance HTML5 / HLS.js Video Element */
         <video
           ref={videoRef}
-          poster={playingMovie.backdropUrl || getFallbackBackdrop(playingMovie.genres, playingMovie.franchise)}
+          poster={getOptimizedImageUrl(playingMovie.backdropUrl, 'backdrop', playingMovie.genres, playingMovie.franchise)}
           autoPlay
           playsInline
           onTimeUpdate={() => {
