@@ -322,6 +322,7 @@ export const AdminMoviesPage: React.FC = () => {
                       <img
                         src={m.posterUrl}
                         alt={m.titleVi}
+                        referrerPolicy="no-referrer"
                         className="w-10 h-14 object-cover rounded-sm border border-[#2b2b31]"
                       />
                     </td>

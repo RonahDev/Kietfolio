@@ -113,6 +113,7 @@ export const AdminBannersPage: React.FC = () => {
                 <img
                   src={banner.imageUrl}
                   alt={banner.title}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />

@@ -64,7 +64,8 @@ export const CinemaDetailModal: React.FC = () => {
           <img
             src={activeMovie.backdropUrl}
             alt={activeMovie.title}
-            onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise))}
+            referrerPolicy="no-referrer"
+            onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise), 'backdrop')}
             className="relative z-1 w-full h-full object-cover object-center"
           />
           {/* Overlays */}
@@ -205,6 +206,7 @@ export const CinemaDetailModal: React.FC = () => {
                     <img
                       src={wp.logoPath}
                       alt={wp.providerName}
+                      referrerPolicy="no-referrer"
                       className="w-5 h-5 rounded-xs object-cover"
                     />
                     <span className="text-xs text-white font-medium group-hover:text-[#d4af70]">
@@ -264,7 +266,8 @@ export const CinemaDetailModal: React.FC = () => {
                     <img
                       src={similar.posterUrl}
                       alt={similar.title}
-                      onError={(e) => handleImageFallback(e, getFallbackPoster(similar.genres, similar.franchise))}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => handleImageFallback(e, getFallbackPoster(similar.genres, similar.franchise), 'poster')}
                       className="w-14 h-20 object-cover rounded-xs"
                     />
                     <div className="flex-1 space-y-1">

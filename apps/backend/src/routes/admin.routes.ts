@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { sessionAuth } from '../middlewares/sessionAuth.middleware'
 import { requirePermission } from '../middlewares/requirePermission'
 import { csrfProtection } from '../middlewares/csrfProtection.middleware'
+import { cacheResponse } from '../resilience/inMemoryCache'
 
 // Controllers
 import { DashboardController } from '../modules/admin/dashboard.controller'
@@ -21,14 +22,14 @@ adminRouter.use(csrfProtection)
 // -----------------------------------------------------------------------------
 // 1. DASHBOARD OVERVIEW
 // -----------------------------------------------------------------------------
-adminRouter.get('/dashboard/metrics', requirePermission('dashboard.view'), DashboardController.getMetrics)
+adminRouter.get('/dashboard/metrics', requirePermission('dashboard.view'), cacheResponse(15, 'dashboard'), DashboardController.getMetrics)
 
 // -----------------------------------------------------------------------------
 // 2. MOVIES & TV SERIES
 // -----------------------------------------------------------------------------
-adminRouter.get('/movies', requirePermission('movies.read'), MoviesController.listMovies)
+adminRouter.get('/movies', requirePermission('movies.read'), cacheResponse(30, 'movies'), MoviesController.listMovies)
 adminRouter.post('/movies', requirePermission('movies.create'), MoviesController.createMovie)
-adminRouter.get('/movies/:id', requirePermission('movies.read'), MoviesController.getMovieById)
+adminRouter.get('/movies/:id', requirePermission('movies.read'), cacheResponse(30, 'movies'), MoviesController.getMovieById)
 adminRouter.put('/movies/:id', requirePermission('movies.update'), MoviesController.updateMovie)
 adminRouter.delete('/movies/:id', requirePermission('movies.delete'), MoviesController.deleteMovie)
 adminRouter.patch('/movies/bulk-status', requirePermission('movies.publish'), MoviesController.bulkUpdateStatus)
@@ -36,7 +37,7 @@ adminRouter.patch('/movies/bulk-status', requirePermission('movies.publish'), Mo
 // -----------------------------------------------------------------------------
 // 3. EPISODES
 // -----------------------------------------------------------------------------
-adminRouter.get('/movies/:movieId/episodes', requirePermission('movies.read'), EpisodesController.listEpisodes)
+adminRouter.get('/movies/:movieId/episodes', requirePermission('movies.read'), cacheResponse(30, 'episodes'), EpisodesController.listEpisodes)
 adminRouter.post('/episodes', requirePermission('episodes.manage'), EpisodesController.createEpisode)
 adminRouter.put('/episodes/:id', requirePermission('episodes.manage'), EpisodesController.updateEpisode)
 adminRouter.delete('/episodes/:id', requirePermission('episodes.manage'), EpisodesController.deleteEpisode)
@@ -44,16 +45,16 @@ adminRouter.delete('/episodes/:id', requirePermission('episodes.manage'), Episod
 // -----------------------------------------------------------------------------
 // 4. TAXONOMIES: GENRES, CATEGORIES, BANNERS
 // -----------------------------------------------------------------------------
-adminRouter.get('/genres', requirePermission('taxonomies.manage'), TaxonomiesController.listGenres)
+adminRouter.get('/genres', requirePermission('taxonomies.manage'), cacheResponse(60, 'taxonomies'), TaxonomiesController.listGenres)
 adminRouter.post('/genres', requirePermission('taxonomies.manage'), TaxonomiesController.createGenre)
 adminRouter.delete('/genres/:id', requirePermission('taxonomies.manage'), TaxonomiesController.deleteGenre)
 
-adminRouter.get('/categories', requirePermission('taxonomies.manage'), TaxonomiesController.listCategories)
+adminRouter.get('/categories', requirePermission('taxonomies.manage'), cacheResponse(60, 'taxonomies'), TaxonomiesController.listCategories)
 adminRouter.post('/categories', requirePermission('taxonomies.manage'), TaxonomiesController.createCategory)
 adminRouter.put('/categories/:id', requirePermission('taxonomies.manage'), TaxonomiesController.updateCategory)
 adminRouter.delete('/categories/:id', requirePermission('taxonomies.manage'), TaxonomiesController.deleteCategory)
 
-adminRouter.get('/banners', requirePermission('taxonomies.manage'), TaxonomiesController.listBanners)
+adminRouter.get('/banners', requirePermission('taxonomies.manage'), cacheResponse(60, 'banners'), TaxonomiesController.listBanners)
 adminRouter.post('/banners', requirePermission('taxonomies.manage'), TaxonomiesController.createBanner)
 adminRouter.delete('/banners/:id', requirePermission('taxonomies.manage'), TaxonomiesController.deleteBanner)
 

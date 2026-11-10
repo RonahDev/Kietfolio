@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { prisma } from '../../config/prisma'
 import { AuthenticatedRequest } from '../../types'
 import { AuditLogService } from '../../services/auditLog.service'
+import { inMemoryCache } from '../../resilience/inMemoryCache'
 
 export class TaxonomiesController {
   // ==========================================
@@ -50,6 +51,8 @@ export class TaxonomiesController {
         },
       })
 
+      inMemoryCache.invalidatePrefix('taxonomies')
+
       res.status(201).json({ success: true, data: { genre } })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -60,6 +63,7 @@ export class TaxonomiesController {
     try {
       const { id } = req.params
       await prisma.genre.delete({ where: { id } })
+      inMemoryCache.invalidatePrefix('taxonomies')
       res.status(200).json({ success: true, message: 'Đã xóa thể loại thành công' })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -111,6 +115,8 @@ export class TaxonomiesController {
         },
       })
 
+      inMemoryCache.invalidatePrefix('taxonomies')
+
       res.status(201).json({ success: true, data: { category } })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -132,6 +138,8 @@ export class TaxonomiesController {
         },
       })
 
+      inMemoryCache.invalidatePrefix('taxonomies')
+
       res.status(200).json({ success: true, data: { category: updated } })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -142,6 +150,7 @@ export class TaxonomiesController {
     try {
       const { id } = req.params
       await prisma.category.delete({ where: { id } })
+      inMemoryCache.invalidatePrefix('taxonomies')
       res.status(200).json({ success: true, message: 'Đã xóa danh mục thành công' })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -206,6 +215,8 @@ export class TaxonomiesController {
         })
       }
 
+      inMemoryCache.invalidatePrefix('banners')
+
       res.status(201).json({ success: true, data: { banner } })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -216,6 +227,7 @@ export class TaxonomiesController {
     try {
       const { id } = req.params
       await prisma.banner.delete({ where: { id } })
+      inMemoryCache.invalidatePrefix('banners')
       res.status(200).json({ success: true, message: 'Đã xóa banner thành công' })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })

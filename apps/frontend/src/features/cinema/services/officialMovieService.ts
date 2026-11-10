@@ -258,7 +258,7 @@ export const OFFICIAL_THEATRICAL_ANIME_MOVIES: MovieItem[] = [
     synopsis:
       'Phần phim điện ảnh thứ 27 đại thắng phòng vé toàn cầu với hơn 15 tỷ Yên. Tại thành phố Hakodate phủ đầy tuyết trắng, Siêu đạo chích Kid gửi thư thông báo sẽ đánh cắp thanh kiếm Nhật cổ liên quan đến phó tướng Shinsengumi Hijikata Toshizo. Conan cùng đại thám tử miền Tây Hattori Heiji hợp lực giải mã bí ẩn động trời đằng sau báu vật gia tộc.',
     backdropUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1920&q=80',
-    posterUrl: 'https://upload.wikimedia.org/wikipedia/en/1/16/Detective_Conan_The_Million_Dollar_Pentagram_Poster.jpg',
+    posterUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
     trailerUrl: 'https://www.youtube.com/watch?v=WSI8Dw01_h0',
     youtubeKey: 'WSI8Dw01_h0',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',

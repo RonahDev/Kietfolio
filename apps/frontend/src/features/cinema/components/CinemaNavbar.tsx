@@ -320,6 +320,7 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               <img
                 src={user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=Kietteve'}
                 alt={user.displayName || 'User Avatar'}
+                referrerPolicy="no-referrer"
                 className="w-7 h-7 rounded-full border border-[#d4af70]/50 object-cover"
               />
             </div>

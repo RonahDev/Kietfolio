@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { prisma } from '../../config/prisma'
 import { AuthenticatedRequest } from '../../types'
 import { AuditLogService } from '../../services/auditLog.service'
+import { inMemoryCache } from '../../resilience/inMemoryCache'
 
 export class MoviesController {
   /**
@@ -13,7 +14,8 @@ export class MoviesController {
       const limit = Math.min(100, Math.max(1, parseInt((req.query.limit as string) || '15', 10)))
       const skip = (page - 1) * limit
 
-      const search = (req.query.search as string)?.trim() || ''
+      const rawSearch = (req.query.search as string)?.trim() || ''
+      const search = rawSearch.substring(0, 100).replace(/[\0\x08\x09\x1a\n\r"'\\]/g, '')
       const type = (req.query.type as string)?.trim() || ''
       const status = (req.query.status as string)?.trim() || ''
       const genre = (req.query.genre as string)?.trim() || ''
@@ -233,6 +235,8 @@ export class MoviesController {
         })
       }
 
+      inMemoryCache.invalidatePrefix('movies')
+
       res.status(201).json({ success: true, data: { movie } })
     } catch (error) {
       console.error('[MoviesController createMovie Error]:', error)
@@ -297,6 +301,8 @@ export class MoviesController {
         })
       }
 
+      inMemoryCache.invalidatePrefix('movies')
+
       res.status(200).json({ success: true, data: { movie: updatedMovie } })
     } catch (error) {
       console.error('[MoviesController updateMovie Error]:', error)
@@ -333,6 +339,8 @@ export class MoviesController {
         })
       }
 
+      inMemoryCache.invalidatePrefix('movies')
+
       res.status(200).json({ success: true, message: 'Đã xóa bộ phim thành công' })
     } catch (error) {
       res.status(500).json({ success: false, error: (error as Error).message })
@@ -355,6 +363,8 @@ export class MoviesController {
         where: { id: { in: movieIds } },
         data: { status },
       })
+
+      inMemoryCache.invalidatePrefix('movies')
 
       if (req.adminUser) {
         await AuditLogService.record({

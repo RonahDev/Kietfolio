@@ -45,7 +45,8 @@ export const CinemaHero: React.FC = () => {
         <img
           key={activeMovie.id}
           src={activeMovie.backdropUrl}
-          onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise))}
+          referrerPolicy="no-referrer"
+          onError={(e) => handleImageFallback(e, getFallbackBackdrop(activeMovie.genres, activeMovie.franchise), 'backdrop')}
           alt={activeMovie.title}
           className="relative z-1 w-full h-full object-cover object-center scale-105 animate-[kenburns_18s_ease-out_infinite_alternate] will-change-transform transform-gpu"
         />

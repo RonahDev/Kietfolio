@@ -1,34 +1,67 @@
 /**
  * Cinema Image Fallback Utilities
+ * Enterprise Multi-Mirror Fallback Engine
  * Provides resilient, high-availability image fallbacks for movie posters and backdrops
- * Includes genre-based artwork, franchise-specific visuals, and an offline SVG data-URI fallback
+ * Includes genre-based artwork, franchise-specific visuals, and zero-network SVG canvas fallbacks
  */
 
 // Offline-safe standalone SVG poster fallback (renders even with zero network connectivity)
 export const OFFLINE_POSTER_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" fill="none">
-  <rect width="600" height="900" fill="#0c0e14"/>
-  <rect x="20" y="20" width="560" height="860" rx="8" stroke="#a51d35" stroke-width="2" stroke-opacity="0.3"/>
-  <circle cx="300" cy="400" r="90" fill="#181b24" stroke="#d4af70" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M280 360L340 400L280 440V360Z" fill="#d4af70"/>
-  <text x="300" y="550" text-anchor="middle" fill="#f5f5f5" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" letter-spacing="2">KIETFLIX CINEMA</text>
-  <text x="300" y="590" text-anchor="middle" fill="#d4af70" font-family="monospace" font-size="14" letter-spacing="1">4K PREMIERE THEATER</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181b24"/>
+      <stop offset="50%" stop-color="#0e1017"/>
+      <stop offset="100%" stop-color="#08090d"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d061"/>
+      <stop offset="100%" stop-color="#d4af70"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#a51d35" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#a51d35" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="900" fill="url(#bg)"/>
+  <rect width="600" height="900" fill="url(#glow)"/>
+  <rect x="24" y="24" width="552" height="852" rx="12" stroke="#a51d35" stroke-width="2" stroke-opacity="0.4"/>
+  <circle cx="300" cy="380" r="85" fill="#11131a" stroke="url(#gold)" stroke-width="3"/>
+  <path d="M280 340L340 380L280 420V340Z" fill="url(#gold)"/>
+  <text x="300" y="530" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" letter-spacing="3">KIETFLIX CINEMA</text>
+  <text x="300" y="570" text-anchor="middle" fill="#d4af70" font-family="monospace" font-size="14" font-weight="bold" letter-spacing="2">4K PREMIERE THEATER</text>
+  <text x="300" y="610" text-anchor="middle" fill="#71717a" font-family="-apple-system, sans-serif" font-size="12">CHÍNH HÃNG CHIẾU RẠP</text>
 </svg>
 `)}`
 
-// Offline-safe standalone SVG backdrop fallback
+// Offline-safe standalone SVG backdrop fallback (16:9 widescreen cinema)
 export const OFFLINE_BACKDROP_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
-  <rect width="1920" height="1080" fill="#08090d"/>
-  <circle cx="960" cy="540" r="300" fill="#a51d35" fill-opacity="0.1" filter="blur(60px)"/>
-  <circle cx="960" cy="540" r="150" fill="#11131a" stroke="#d4af70" stroke-width="3" stroke-opacity="0.4"/>
-  <path d="M935 480L1015 540L935 600V480Z" fill="#d4af70"/>
-  <text x="960" y="750" text-anchor="middle" fill="#f5f5f5" font-family="system-ui, sans-serif" font-size="36" font-weight="900" letter-spacing="3">KIETFLIX ULTRA CINEMA</text>
-  <text x="960" y="800" text-anchor="middle" fill="#d4af70" font-family="monospace" font-size="18" letter-spacing="2">OFFICIAL THEATRICAL ARCHIVE</text>
+  <defs>
+    <linearGradient id="backBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14161f"/>
+      <stop offset="40%" stop-color="#0c0e14"/>
+      <stop offset="100%" stop-color="#06070a"/>
+    </linearGradient>
+    <radialGradient id="centerAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a51d35" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#a51d35" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldBack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d061"/>
+      <stop offset="100%" stop-color="#d4af70"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#backBg)"/>
+  <rect width="1920" height="1080" fill="url(#centerAura)"/>
+  <circle cx="960" cy="500" r="140" fill="#11131a" stroke="url(#goldBack)" stroke-width="4"/>
+  <path d="M930 440L1020 500L930 560V440Z" fill="url(#goldBack)"/>
+  <text x="960" y="720" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="900" letter-spacing="4">KIETFLIX ULTRA CINEMA</text>
+  <text x="960" y="775" text-anchor="middle" fill="#d4af70" font-family="monospace" font-size="20" font-weight="bold" letter-spacing="3">OFFICIAL THEATRICAL ARCHIVE</text>
 </svg>
 `)}`
 
-// High-Availability CDN Backdrops
+// High-Availability CDN Backdrops (Primary Mirror)
 export const FALLBACK_BACKDROPS = {
   default:
     'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80',
@@ -54,7 +87,7 @@ export const FALLBACK_BACKDROPS = {
     'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?auto=format&fit=crop&w=1920&q=80',
 } as const
 
-// High-Availability CDN Posters
+// High-Availability CDN Posters (Primary Mirror)
 export const FALLBACK_POSTERS = {
   default:
     'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80',
@@ -79,6 +112,12 @@ export const FALLBACK_POSTERS = {
   drama:
     'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
 } as const
+
+// Secondary Mirror Fallbacks (Fast Cloud CDN)
+export const SECONDARY_POSTER_FALLBACK =
+  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80'
+export const SECONDARY_BACKDROP_FALLBACK =
+  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80'
 
 /**
  * Get tailored backdrop fallback by franchise or genres
@@ -113,20 +152,35 @@ export function getFallbackPoster(genres?: string[], franchise?: string): string
 }
 
 /**
- * Robust image error handler that prevents infinite error loops
- * Falls back to tailored CDN URL first, then to inline SVG data URI if network fails
+ * Robust image error handler with multi-stage cascade:
+ * Stage 1: Try Primary tailored fallback with no-referrer
+ * Stage 2: Try Secondary global CDN mirror
+ * Stage 3: Instant offline SVG canvas art (Zero network required)
  */
 export function handleImageFallback(
   event: React.SyntheticEvent<HTMLImageElement, Event>,
-  fallbackUrl: string
+  fallbackUrl: string,
+  fallbackType: 'poster' | 'backdrop' = 'poster'
 ): void {
   const img = event.currentTarget
-  if (img.dataset.hasFallback) {
-    // If the primary fallback also failed (e.g., completely offline), fallback to the SVG data-URI
-    img.src = OFFLINE_POSTER_SVG
-    img.onerror = null
+  // Force no-referrer to bypass hotlink protection on CDNs
+  img.referrerPolicy = 'no-referrer'
+
+  if (!img.dataset.fallbackStage) {
+    // Stage 1: Primary tailored fallback
+    img.dataset.fallbackStage = 'primary'
+    img.src = fallbackUrl
     return
   }
-  img.dataset.hasFallback = 'true'
-  img.src = fallbackUrl
+
+  if (img.dataset.fallbackStage === 'primary') {
+    // Stage 2: Secondary mirror
+    img.dataset.fallbackStage = 'secondary'
+    img.src = fallbackType === 'backdrop' ? SECONDARY_BACKDROP_FALLBACK : SECONDARY_POSTER_FALLBACK
+    return
+  }
+
+  // Stage 3: Offline High-Res SVG Canvas fallback
+  img.src = fallbackType === 'backdrop' ? OFFLINE_BACKDROP_SVG : OFFLINE_POSTER_SVG
+  img.onerror = null
 }

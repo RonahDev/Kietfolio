@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { TaskQueue } from '../resilience/taskQueue'
 import { CircuitBreaker } from '../resilience/circuitBreaker'
 import { retryWithBackoff } from '../resilience/retryWithBackoff'
+import { InMemoryCache } from '../resilience/inMemoryCache'
 
 describe('Backend Resilience Engineering Test Suite', () => {
   describe('TaskQueue & Dead-Letter Queue (DLQ)', () => {
@@ -134,6 +135,57 @@ describe('Backend Resilience Engineering Test Suite', () => {
       ).rejects.toThrow('Persistent Database Deadlock')
 
       expect(fn).toHaveBeenCalledTimes(3) // 1 initial + 2 retries
+    })
+  })
+
+  describe('High-Performance L1 InMemoryCache & LRU Eviction', () => {
+    it('stores and retrieves cached items with valid ETag', () => {
+      const cache = new InMemoryCache(100)
+      cache.set('movie:conan', { title: 'Conan Movie 27' }, 60)
+
+      const cached = cache.get<{ title: string }>('movie:conan')
+      expect(cached).not.toBeNull()
+      expect(cached?.value.title).toBe('Conan Movie 27')
+      expect(cached?.etag).toMatch(/^W\/"[a-f0-9]{16}"$/)
+    })
+
+    it('evicts oldest items when maxEntries capacity is reached', () => {
+      const cache = new InMemoryCache(2)
+      cache.set('key1', 'val1', 60)
+      cache.set('key2', 'val2', 60)
+      cache.set('key3', 'val3', 60) // Evicts key1
+
+      expect(cache.get('key1')).toBeNull()
+      expect(cache.get('key2')?.value).toBe('val2')
+      expect(cache.get('key3')?.value).toBe('val3')
+      expect(cache.getTelemetry().evictions).toBe(1)
+    })
+
+    it('invalidates cache keys by prefix correctly', () => {
+      const cache = new InMemoryCache(100)
+      cache.set('movies:list:page1', [1, 2], 60)
+      cache.set('movies:detail:mai', { id: 'mai' }, 60)
+      cache.set('banners:hero', [{ id: 1 }], 60)
+
+      const removed = cache.invalidatePrefix('movies')
+      expect(removed).toBe(2)
+      expect(cache.get('movies:list:page1')).toBeNull()
+      expect(cache.get('movies:detail:mai')).toBeNull()
+      expect(cache.get('banners:hero')).not.toBeNull()
+    })
+
+    it('calculates telemetry hitRate accurately', () => {
+      const cache = new InMemoryCache(100)
+      cache.set('hitKey', 42, 60)
+
+      cache.get('hitKey') // Hit
+      cache.get('hitKey') // Hit
+      cache.get('missingKey') // Miss
+
+      const telemetry = cache.getTelemetry()
+      expect(telemetry.hits).toBe(2)
+      expect(telemetry.misses).toBe(1)
+      expect(telemetry.hitRate).toBe('66.7%')
     })
   })
 })

@@ -25,8 +25,8 @@ export function overloadProtectionMiddleware(req: Request, res: Response, next: 
     return next()
   }
 
-  // If event loop lag is critically high (> 180ms), shed traffic to preserve process integrity
-  if (eventLoopLag > 180) {
+  // If event loop lag is critically high (> 200ms), shed non-essential traffic to preserve process integrity
+  if (eventLoopLag > 200) {
     res.setHeader('Retry-After', '2')
     res.status(503).json({
       success: false,
@@ -36,20 +36,24 @@ export function overloadProtectionMiddleware(req: Request, res: Response, next: 
     return
   }
 
-  // Client abort tracking
+  // Client abort tracking using native destroyed state or cleanup listener
   let clientAborted = false
-  req.on('close', () => {
+  const onClose = () => {
     if (!res.writableEnded) {
       clientAborted = true
     }
+  }
+
+  req.once('close', onClose)
+  res.once('finish', () => {
+    req.removeListener('close', onClose)
   })
 
   // Attach aborted accessor to request
   Object.defineProperty(req, 'isAborted', {
-    get: () => clientAborted,
+    get: () => clientAborted || req.destroyed,
     configurable: true,
   })
 
   next()
 }
-

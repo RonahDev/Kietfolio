@@ -1,12 +1,14 @@
 import { Request, Response } from 'express'
 import { testDbConnection } from '../db/pool'
 import { taskQueue } from '../resilience/taskQueue'
+import { inMemoryCache } from '../resilience/inMemoryCache'
 
 export class HealthController {
   public static async getHealth(_req: Request, res: Response): Promise<void> {
     const isDbConnected = await testDbConnection()
     const memory = process.memoryUsage()
     const queueMetrics = taskQueue.getMetrics()
+    const cacheMetrics = inMemoryCache.getTelemetry()
 
     res.status(200).json({
       status: 'operational',
@@ -23,6 +25,7 @@ export class HealthController {
           activeWorkers: queueMetrics.activeWorkers,
           dlqCount: queueMetrics.deadLetterQueueCount,
         },
+        l1Cache: cacheMetrics,
       },
       telemetry: {
         rssMb: Math.round(memory.rss / 1024 / 1024),

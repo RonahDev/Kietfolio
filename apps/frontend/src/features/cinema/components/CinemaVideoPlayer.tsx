@@ -387,6 +387,7 @@ export const CinemaVideoPlayer: React.FC = () => {
               <img
                 src={playingMovie.watchProviders[0]?.logoPath}
                 alt={playingMovie.watchProviders[0]?.providerName}
+                referrerPolicy="no-referrer"
                 className="w-4 h-4 rounded-xs object-cover"
               />
               <span>XEM TRÊN {playingMovie.watchProviders[0]?.providerName.toUpperCase()}</span>
