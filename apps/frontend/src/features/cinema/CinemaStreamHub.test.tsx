@@ -70,7 +70,7 @@ describe('CinemaStreamHub Component Suite', () => {
     expect(screen.getByText(/Thịnh Hành & Đang Sốt/i)).toBeDefined()
     expect(screen.getByText(/Tuyệt Tác Điện Ảnh & Giải Thưởng/i)).toBeDefined()
     expect(screen.getByText(/Vũ Trụ Cyberpunk/i)).toBeDefined()
-    expect(screen.getByText(/Kỹ Thuật Hệ Thống & Logistics/i)).toBeDefined()
+    expect(screen.getAllByText(/Kỹ Thuật Hệ Thống & Logistics/i)[0]).toBeDefined()
   })
 
   it('filters movies when typing into the search input', async () => {

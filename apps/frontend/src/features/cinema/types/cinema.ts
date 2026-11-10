@@ -60,6 +60,17 @@ export interface CinemaGenre {
   id: string
   labelVi: string
   labelEn: string
+  groupId?: string
+  icon?: string
+  badge?: string
+}
+
+export interface CinemaGenreGroup {
+  id: string
+  labelVi: string
+  labelEn: string
+  icon?: string
+  genres: CinemaGenre[]
 }
 
 export type CinemaViewTab = 'all' | 'movies' | 'series' | 'theatrical' | 'trending' | 'watchlist'

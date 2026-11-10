@@ -1,28 +1,9 @@
 import type { MovieItem, CinemaGenre } from '../types/cinema'
+import { CINEMA_GENRE_GROUPS } from '../utils/genreUtils'
 
-export const CINEMA_GENRES: CinemaGenre[] = [
-  { id: 'all', labelVi: 'Tất cả thể loại', labelEn: 'All Genres' },
-  { id: 'theatrical_vn', labelVi: 'Phim Chiếu Rạp Việt Nam', labelEn: 'VN Theaters' },
-  { id: 'anime_theatrical', labelVi: 'Anime Chiếu Rạp', labelEn: 'Theatrical Anime' },
-  { id: 'action', labelVi: 'Hành Động & Kịch Tính', labelEn: 'Action & Thriller' },
-  { id: 'romance', labelVi: 'Tình Cảm & Lãng Mạn', labelEn: 'Romance' },
-  { id: 'drama', labelVi: 'Tâm Lý & Chính Kịch', labelEn: 'Drama' },
-  { id: 'comedy', labelVi: 'Hài Hước & Vui Nhộn', labelEn: 'Comedy' },
-  { id: 'horror', labelVi: 'Kinh Dị & Rùng Rợn', labelEn: 'Horror' },
-  { id: 'family', labelVi: 'Gia Đình & Tuổi Trẻ', labelEn: 'Family' },
-  { id: 'animation', labelVi: 'Hoạt Họa & Anime', labelEn: 'Animation' },
-  { id: 'adventure', labelVi: 'Phiêu Lưu & Khám Phá', labelEn: 'Adventure' },
-  { id: 'mystery', labelVi: 'Trinh Thám & Bí Ẩn', labelEn: 'Mystery & Detective' },
-  { id: 'sci-fi', labelVi: 'Khoa Học Viễn Tưởng', labelEn: 'Sci-Fi' },
-  { id: 'history', labelVi: 'Lịch Sử & Cổ Trang', labelEn: 'History & Epic' },
-  { id: 'conan', labelVi: 'Thám Tử Conan', labelEn: 'Detective Conan' },
-  { id: 'doraemon', labelVi: 'Doraemon Movie', labelEn: 'Doraemon' },
-  { id: 'shin', labelVi: 'Cậu Bé Bút Chì Shin', labelEn: 'Shin-chan' },
-  { id: 'dragonball', labelVi: 'Dragon Ball Movie', labelEn: 'Dragon Ball' },
-  { id: 'naruto', labelVi: 'Naruto & Boruto', labelEn: 'Naruto & Boruto' },
-  { id: 'cyberpunk', labelVi: 'Công Nghệ & Cyberpunk', labelEn: 'Cyberpunk & Tech' },
-  { id: 'logistics', labelVi: 'Kỹ Thuật & Logistics Doc', labelEn: 'Logistics Doc' },
-]
+export { CINEMA_GENRE_GROUPS }
+
+export const CINEMA_GENRES: CinemaGenre[] = CINEMA_GENRE_GROUPS.flatMap((group) => group.genres)
 
 export const CINEMA_MOVIES: MovieItem[] = [
   {

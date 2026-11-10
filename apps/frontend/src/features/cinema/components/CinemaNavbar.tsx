@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useCinema } from '../hooks/useCinema'
 import { useAuth } from '@/features/auth/hooks/useAuth'
-import { CINEMA_GENRES } from '../data/moviesData'
+import { CINEMA_GENRES, CINEMA_GENRE_GROUPS } from '../data/moviesData'
 import type { CinemaViewTab } from '../types/cinema'
 import {
   Film,
@@ -39,6 +39,8 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
   const [isGenreOpen, setIsGenreOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileGenreOpen, setIsMobileGenreOpen] = useState(false)
+  const genreDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,6 +49,20 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (genreDropdownRef.current && !genreDropdownRef.current.contains(event.target as Node)) {
+        setIsGenreOpen(false)
+      }
+    }
+    if (isGenreOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isGenreOpen])
 
   const handleTabClick = (tab: CinemaViewTab) => {
     setActiveTab(tab)
@@ -173,13 +189,13 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
             </button>
 
             {/* Genres Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={genreDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsGenreOpen(!isGenreOpen)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-sm text-xs font-mono tracking-wide transition-colors cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono tracking-wide transition-colors cursor-pointer ${
                   selectedGenre !== 'all'
-                    ? 'text-[#d4af70] font-bold'
+                    ? 'text-[#d4af70] font-bold bg-[#a51d35]/15 border border-[#a51d35]/40'
                     : 'text-[#a1a1aa] hover:text-[#f5f5f5]'
                 }`}
               >
@@ -188,27 +204,54 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
                     ? 'Thể Loại'
                     : CINEMA_GENRES.find((g) => g.id === selectedGenre)?.labelVi || 'Thể Loại'}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5" />
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    isGenreOpen ? 'rotate-180 text-[#d4af70]' : ''
+                  }`}
+                />
               </button>
 
               {isGenreOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-sm bg-[#11131a] border border-[#181b24] shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  {CINEMA_GENRES.map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => handleGenreSelect(g.id)}
-                      className={`w-full text-left px-4 py-2 text-xs font-mono flex items-center justify-between transition-colors cursor-pointer ${
-                        selectedGenre === g.id
-                          ? 'bg-[#a51d35]/20 text-[#d4af70] font-bold'
-                          : 'text-[#a1a1aa] hover:bg-[#181b24] hover:text-[#f5f5f5]'
-                      }`}
-                    >
-                      <span>{g.labelVi}</span>
-                      {selectedGenre === g.id && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#d4af70]" />
-                      )}
-                    </button>
+                <div className="absolute top-full left-0 mt-2 w-72 max-h-[28rem] overflow-y-auto rounded-md bg-[#0f1118]/98 backdrop-blur-xl border border-[#232734] shadow-[0_12px_40px_rgba(0,0,0,0.85)] py-2.5 z-50 divide-y divide-[#181b24] animate-in fade-in zoom-in-95 duration-150">
+                  {CINEMA_GENRE_GROUPS.map((group) => (
+                    <div key={group.id} className="py-2 first:pt-0 last:pb-0.5">
+                      {/* Section Title Header */}
+                      <div className="px-3.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#d4af70] font-bold select-none flex items-center justify-between">
+                        <span>{group.labelVi}</span>
+                        <span className="text-[9px] text-[#71717a] font-normal lowercase">({group.genres.length})</span>
+                      </div>
+
+                      {/* Items in this group */}
+                      <div className="space-y-0.5 mt-0.5">
+                        {group.genres.map((g) => {
+                          const isSelected = selectedGenre === g.id
+                          return (
+                            <button
+                              key={g.id}
+                              type="button"
+                              onClick={() => handleGenreSelect(g.id)}
+                              className={`w-full text-left px-3.5 py-1.5 text-xs font-mono flex items-center justify-between transition-colors cursor-pointer rounded-xs ${
+                                isSelected
+                                  ? 'bg-[#a51d35]/25 text-[#d4af70] font-bold border-l-2 border-[#d4af70]'
+                                  : 'text-[#a1a1aa] hover:bg-[#181b24] hover:text-[#f5f5f5]'
+                              }`}
+                            >
+                              <span className="truncate pr-2">{g.labelVi}</span>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                {g.badge && (
+                                  <span className="px-1.5 py-0.2 rounded-xs bg-[#a51d35] text-[9px] font-bold text-white uppercase">
+                                    {g.badge}
+                                  </span>
+                                )}
+                                {isSelected && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#d4af70]" />
+                                )}
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -407,6 +450,58 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
             >
               Danh Sách Của Tôi ({watchlist.length})
             </button>
+
+            {/* Mobile Categorized Genre Accordion */}
+            <div className="border-t border-[#181b24] pt-2">
+              <button
+                type="button"
+                onClick={() => setIsMobileGenreOpen(!isMobileGenreOpen)}
+                className="w-full p-2 rounded-sm text-left flex items-center justify-between text-[#a1a1aa] hover:text-white transition-colors"
+              >
+                <span className="font-bold">
+                  {selectedGenre === 'all'
+                    ? '📁 Chọn Thể Loại Phim'
+                    : `📁 ${CINEMA_GENRES.find((g) => g.id === selectedGenre)?.labelVi || 'Thể Loại'}`}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-200 ${
+                    isMobileGenreOpen ? 'rotate-180 text-[#d4af70]' : ''
+                  }`}
+                />
+              </button>
+
+              {isMobileGenreOpen && (
+                <div className="pl-1 pr-1 py-2 space-y-3 max-h-72 overflow-y-auto bg-[#0b0d13] rounded-sm mt-1 border border-[#1b1f2b]">
+                  {CINEMA_GENRE_GROUPS.map((group) => (
+                    <div key={group.id} className="space-y-1">
+                      <div className="text-[10px] font-mono uppercase text-[#d4af70] font-bold px-2 flex items-center justify-between">
+                        <span>{group.labelVi}</span>
+                        <span className="text-[9px] text-[#71717a] lowercase">({group.genres.length})</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1 px-1">
+                        {group.genres.map((g) => (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => {
+                              handleGenreSelect(g.id)
+                              setIsMobileMenuOpen(false)
+                            }}
+                            className={`p-1.5 text-[11px] rounded-xs text-left truncate transition-colors ${
+                              selectedGenre === g.id
+                                ? 'bg-[#a51d35] text-white font-bold'
+                                : 'text-[#a1a1aa] hover:bg-[#181b24] hover:text-white'
+                            }`}
+                          >
+                            {g.labelVi}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-2 border-t border-[#181b24] flex items-center justify-between">
