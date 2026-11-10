@@ -41,7 +41,21 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
   const [streamError, setStreamError] = useState<string | null>(null)
   const [isBuffering, setIsBuffering] = useState(true)
-  const [viewMode, setViewMode] = useState<'video' | 'youtube'>('video')
+  const [viewMode, setViewMode] = useState<'video' | 'youtube'>(() => {
+    if (!playingMovie?.videoStreamUrl && playingMovie?.youtubeKey) return 'youtube'
+    if (playingMovie?.streamSource === 'youtube') return 'youtube'
+    return 'video'
+  })
+
+  useEffect(() => {
+    if (!playingMovie?.videoStreamUrl && playingMovie?.youtubeKey) {
+      setViewMode('youtube')
+    } else if (playingMovie?.streamSource === 'youtube') {
+      setViewMode('youtube')
+    } else if (playingMovie?.videoStreamUrl) {
+      setViewMode('video')
+    }
+  }, [playingMovie])
 
   // Derive active stream URL (either chosen episode or movie default)
   const activeStreamUrl =
@@ -356,6 +370,25 @@ export const CinemaVideoPlayer: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Official Watch Provider Shortcut */}
+          {playingMovie.watchProviders && playingMovie.watchProviders.length > 0 && (
+            <a
+              href={playingMovie.watchProviders[0]?.streamUrl || 'https://www.netflix.com/vn/'}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/50 text-xs font-mono font-bold text-emerald-300 hover:bg-emerald-900 transition-all cursor-pointer"
+              title={`Xem bản quyền chính thức trên ${playingMovie.watchProviders[0]?.providerName}`}
+            >
+              <img
+                src={playingMovie.watchProviders[0]?.logoPath}
+                alt={playingMovie.watchProviders[0]?.providerName}
+                className="w-4 h-4 rounded-xs object-cover"
+              />
+              <span>XEM TRÊN {playingMovie.watchProviders[0]?.providerName.toUpperCase()}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+
           {/* Switch between HLS Stream and YouTube Trailer */}
           {Boolean(playingMovie.youtubeKey) && (
             <button

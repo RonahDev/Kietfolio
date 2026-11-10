@@ -2,6 +2,11 @@ import React, { createContext, useState, useEffect, useCallback, useMemo } from 
 import type { MovieItem, CinemaViewTab } from '../types/cinema'
 import { CINEMA_MOVIES } from '../data/moviesData'
 import {
+  OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES,
+  OFFICIAL_THEATRICAL_ANIME_MOVIES,
+  fetchDynamicOfficialTheatrical,
+} from '../services/officialMovieService'
+import {
   fetchTMDbTrendingMovies,
   fetchKKPhimVietnameseMovies,
   fetchKKPhimStreamDetails,
@@ -42,7 +47,11 @@ interface CinemaContextValue {
 const CinemaContext = createContext<CinemaContextValue | undefined>(undefined)
 
 export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [movies, setMovies] = useState<MovieItem[]>(CINEMA_MOVIES)
+  const [movies, setMovies] = useState<MovieItem[]>(() => [
+    ...OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES,
+    ...OFFICIAL_THEATRICAL_ANIME_MOVIES,
+    ...CINEMA_MOVIES,
+  ])
   const [activeMovie, setActiveMovie] = useState<MovieItem | null>(null)
   const [playingMovie, setPlayingMovie] = useState<MovieItem | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -99,11 +108,12 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async function loadHybridMovieCatalog() {
       setIsLoadingRemoteMovies(true)
       try {
-        const [tmdbTrending, kkphimVietnamese, theatricalKk, tmdbTheatrical] = await Promise.allSettled([
+        const [tmdbTrending, kkphimVietnamese, theatricalKk, tmdbTheatrical, officialVnTheatrical] = await Promise.allSettled([
           fetchTMDbTrendingMovies(),
           fetchKKPhimVietnameseMovies(),
           fetchTheatricalMovies(),
           fetchTMDbNowPlayingVietnam(),
+          fetchDynamicOfficialTheatrical(),
         ])
 
         if (!isMounted) return
@@ -112,32 +122,43 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const freshKkphimMovies = kkphimVietnamese.status === 'fulfilled' ? kkphimVietnamese.value : []
         const freshTheatricalMovies = theatricalKk.status === 'fulfilled' ? theatricalKk.value : []
         const freshTmdbTheatrical = tmdbTheatrical.status === 'fulfilled' ? tmdbTheatrical.value : []
+        const freshOfficialVn = officialVnTheatrical.status === 'fulfilled' ? officialVnTheatrical.value : []
 
         // Merge with deduplication based on ID and Title
         setMovies((prev) => {
           const map = new Map<string, MovieItem>()
 
-          // 1. Add Theatrical release movies (Hot cinema titles)
+          // 1. Official Curated & Theatrical Anime Movies
+          for (const m of OFFICIAL_THEATRICAL_ANIME_MOVIES) {
+            map.set(m.id, m)
+          }
+
+          // 2. Official Vietnamese Theatrical Releases
+          for (const m of freshOfficialVn) {
+            map.set(m.id, m)
+          }
+
+          // 3. Theatrical release movies (Hot cinema titles)
           for (const m of freshTheatricalMovies) {
-            map.set(m.id, m)
+            if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 2. Add TMDb Vietnam Now Playing (if API key active)
+          // 4. TMDb Vietnam Now Playing
           for (const m of freshTmdbTheatrical) {
-            map.set(m.id, m)
+            if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 3. Add TMDb trending movies (Priority for hero & trending)
+          // 5. TMDb trending movies (Priority for hero & trending)
           for (const m of freshTmdbMovies) {
-            map.set(m.id, m)
+            if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 4. Add KKPhim Vietnamese movies
+          // 6. KKPhim Vietnamese movies
           for (const m of freshKkphimMovies) {
-            map.set(m.id, m)
+            if (!map.has(m.id)) map.set(m.id, m)
           }
 
-          // 5. Keep existing curated showcase movies as rock-solid fallback
+          // 7. Keep existing curated showcase movies
           for (const m of prev) {
             if (!map.has(m.id)) {
               map.set(m.id, m)

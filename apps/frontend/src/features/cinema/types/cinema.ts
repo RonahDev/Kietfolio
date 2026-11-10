@@ -8,6 +8,13 @@ export interface MovieCastMember {
   avatarUrl?: string
 }
 
+export interface WatchProviderItem {
+  providerId: number
+  providerName: string
+  logoPath: string
+  streamUrl?: string
+}
+
 export interface MovieItem {
   id: string
   title: string
@@ -33,14 +40,18 @@ export interface MovieItem {
   isComingSoon?: boolean
   progressPercentage?: number
   similarMovieIds?: string[]
-  // Hybrid TMDb + KKPhim extended properties
+  // Hybrid TMDb + Official Stream extended properties
   tmdbId?: number
   slug?: string
   originTitle?: string
   isVietnamese?: boolean
   isTheatrical?: boolean
+  isAnimeTheatrical?: boolean
+  franchise?: 'doraemon' | 'conan' | 'shin' | 'dragonball' | 'naruto' | 'onepiece' | 'ghibli' | string
+  officialDistributor?: string
+  watchProviders?: WatchProviderItem[]
   youtubeKey?: string
-  streamSource?: 'hls' | 'youtube' | 'kkphim'
+  streamSource?: 'hls' | 'youtube' | 'official_channel' | 'kkphim'
   episodes?: Array<{ name: string; slug: string; linkM3u8: string }>
   currentEpisodeIndex?: number
 }

@@ -77,6 +77,25 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
     [movies]
   )
   const vietnameseMovies = useMemo(() => movies.filter((m) => m.isVietnamese), [movies])
+  const vnTheatricalMovies = useMemo(
+    () => movies.filter((m) => m.isTheatrical && m.isVietnamese),
+    [movies]
+  )
+  const animeTheatricalMovies = useMemo(
+    () =>
+      movies.filter(
+        (m) =>
+          m.isAnimeTheatrical ||
+          m.genres.includes('anime_theatrical') ||
+          m.genres.includes('doraemon') ||
+          m.genres.includes('conan') ||
+          m.genres.includes('shin') ||
+          m.genres.includes('dragonball') ||
+          m.genres.includes('naruto') ||
+          Boolean(m.franchise)
+      ),
+    [movies]
+  )
   const comingSoonMovies = useMemo(() => movies.filter((m) => m.isComingSoon), [movies])
 
   const isBrowsingAll = activeTab === 'all' && selectedGenre === 'all' && searchQuery.trim() === ''
@@ -96,7 +115,27 @@ const CinemaMainContent: React.FC<CinemaStreamHubProps> = ({ onBackToPortfolio }
           <>
             <CinemaHero />
 
-            {/* Theatrical Release Row (Phim Chiếu Rạp Mới Nhất Tại Việt Nam) */}
+            {/* Vietnamese Theatrical Releases Row (Phim Chiếu Rạp Việt Nam Chính Thống) */}
+            {vnTheatricalMovies.length > 0 && (
+              <CinemaCarouselRow
+                title="Phim Chiếu Rạp Việt Nam Đặc Sắc"
+                subtitle="Tuyển tập bom tấn rạp Việt: Mai, Lật Mặt 7, Đất Rừng Phương Nam, Mắt Biếc... kèm nền tảng bản quyền"
+                icon={<Film className="w-5 h-5 text-rose-500" />}
+                movies={vnTheatricalMovies}
+              />
+            )}
+
+            {/* Anime Theatrical Masterpieces Row */}
+            {animeTheatricalMovies.length > 0 && (
+              <CinemaCarouselRow
+                title="Đại Tiệc Anime Chiếu Rạp (Doraemon, Conan, Shin-chan, Dragon Ball, Naruto)"
+                subtitle="Trọn bộ các siêu phẩm hoạt hình chiếu rạp bản quyền chính hãng với trailer 4K sắc nét"
+                icon={<Sparkles className="w-5 h-5 text-[#d4af70]" />}
+                movies={animeTheatricalMovies}
+              />
+            )}
+
+            {/* Theatrical Release Row (Phim Chiếu Rạp Quốc Tế & Tổng Hợp) */}
             {theatricalMovies.length > 0 && (
               <CinemaCarouselRow
                 title="Phim Chiếu Rạp Mới Nhất Tại Việt Nam"

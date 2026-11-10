@@ -2,12 +2,19 @@ import type { MovieItem, CinemaGenre } from '../types/cinema'
 
 export const CINEMA_GENRES: CinemaGenre[] = [
   { id: 'all', labelVi: 'Tất cả thể loại', labelEn: 'All Genres' },
-  { id: 'cyberpunk', labelVi: 'Cyberpunk & Công Nghệ', labelEn: 'Cyberpunk & Tech' },
-  { id: 'sci-fi', labelVi: 'Khoa Học Viễn Tưởng', labelEn: 'Sci-Fi & Cosmos' },
+  { id: 'theatrical_vn', labelVi: 'Phim Chiếu Rạp Việt Nam', labelEn: 'VN Theaters' },
+  { id: 'anime_theatrical', labelVi: 'Anime Chiếu Rạp', labelEn: 'Theatrical Anime' },
+  { id: 'doraemon', labelVi: 'Doraemon Movie', labelEn: 'Doraemon' },
+  { id: 'conan', labelVi: 'Thám Tử Conan', labelEn: 'Detective Conan' },
+  { id: 'shin', labelVi: 'Cậu Bé Bút Chì Shin', labelEn: 'Shin-chan' },
+  { id: 'dragonball', labelVi: 'Dragon Ball Movie', labelEn: 'Dragon Ball' },
+  { id: 'naruto', labelVi: 'Naruto & Boruto', labelEn: 'Naruto & Boruto' },
+  { id: 'animation', labelVi: 'Hoạt Họa & Anime', labelEn: 'Animation' },
   { id: 'action', labelVi: 'Hành Động & Kịch Tính', labelEn: 'Action & Thriller' },
-  { id: 'logistics', labelVi: 'Kỹ Thuật & Logistics Doc', labelEn: 'Logistics & Systems Doc' },
-  { id: 'drama', labelVi: 'Tâm Lý & Chiêm Nghiệm', labelEn: 'Drama & Philosophy' },
-  { id: 'animation', labelVi: 'Hoạt Họa Nghệ Thuật', labelEn: 'Cinematic Animation' },
+  { id: 'sci-fi', labelVi: 'Khoa Học Viễn Tưởng', labelEn: 'Sci-Fi & Cosmos' },
+  { id: 'drama', labelVi: 'Tâm Lý & Xã Hội', labelEn: 'Drama' },
+  { id: 'cyberpunk', labelVi: 'Cyberpunk & Công Nghệ', labelEn: 'Cyberpunk & Tech' },
+  { id: 'logistics', labelVi: 'Kỹ Thuật & Logistics Doc', labelEn: 'Logistics Doc' },
 ]
 
 export const CINEMA_MOVIES: MovieItem[] = [

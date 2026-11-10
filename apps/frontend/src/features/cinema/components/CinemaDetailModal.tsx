@@ -7,6 +7,9 @@ import {
   Check,
   Star,
   Volume2,
+  ShieldCheck,
+  ExternalLink,
+  Sparkles,
 } from 'lucide-react'
 
 export const CinemaDetailModal: React.FC = () => {
@@ -66,12 +69,20 @@ export const CinemaDetailModal: React.FC = () => {
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2 text-xs font-mono">
                 <span className="px-2 py-0.5 rounded-xs bg-[#a51d35] text-white font-bold text-[10px]">
-                  {activeMovie.isTheatrical
+                  {activeMovie.isAnimeTheatrical
+                    ? 'ANIME CHIẾU RẠP'
+                    : activeMovie.isTheatrical
                     ? 'CHIẾU RẠP'
                     : activeMovie.streamSource === 'kkphim'
                     ? 'KKPHIM HLS'
                     : activeMovie.quality}
                 </span>
+                {activeMovie.franchise && (
+                  <span className="px-2 py-0.5 rounded-xs bg-[#d4af70]/20 border border-[#d4af70]/40 text-[#d4af70] font-bold text-[10px] uppercase flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    {activeMovie.franchise}
+                  </span>
+                )}
                 <span className="flex items-center gap-1 text-[#d4af70] font-bold">
                   <Star className="w-3.5 h-3.5 fill-[#d4af70]" />
                   {activeMovie.rating}
@@ -160,6 +171,47 @@ export const CinemaDetailModal: React.FC = () => {
               <span className="text-rose-400 font-semibold">{activeMovie.maturityRating}</span>
             </div>
           </div>
+
+          {/* Official Watch Providers Section (Bản quyền chính thống) */}
+          {activeMovie.watchProviders && activeMovie.watchProviders.length > 0 && (
+            <div className="p-4 rounded-sm bg-[#11131a] border border-[#d4af70]/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-[#d4af70] flex items-center gap-1.5 uppercase">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  Nền Tảng Phát Bản Quyền Hợp Pháp
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                  100% BẢN QUYỀN SẠCH
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {activeMovie.watchProviders.map((wp) => (
+                  <a
+                    key={wp.providerId}
+                    href={wp.streamUrl || 'https://www.netflix.com/vn/'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#181b24] hover:bg-[#222733] border border-[#2d3139] hover:border-[#d4af70] transition-all group"
+                  >
+                    <img
+                      src={wp.logoPath}
+                      alt={wp.providerName}
+                      className="w-5 h-5 rounded-xs object-cover"
+                    />
+                    <span className="text-xs text-white font-medium group-hover:text-[#d4af70]">
+                      {wp.providerName}
+                    </span>
+                    <ExternalLink className="w-3 h-3 text-[#71717a] group-hover:text-white" />
+                  </a>
+                ))}
+              </div>
+              {activeMovie.officialDistributor && (
+                <p className="text-[11px] font-mono text-[#71717a] pt-1">
+                  Đơn vị phát hành rạp: <span className="text-[#a1a1aa] font-semibold">{activeMovie.officialDistributor}</span>
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Cast & Crew Section */}
           <div className="space-y-3">
