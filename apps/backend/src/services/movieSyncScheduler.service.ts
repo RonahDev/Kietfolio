@@ -27,10 +27,14 @@ export class MovieSyncScheduler {
     includeKKPhimTheatrical: true,
     includeKKPhimAnime: true,
     includeTMDBTheatrical: true,
+    includeKKPhimSingle: false,
+    includeKKPhimSeries: false,
+    includeKKPhimAnimation: false,
     maxItemsPerSource: 24,
+    pagesPerSource: 2,
   }
 
-  private static intervalMinutes = config.cinema.syncIntervalMinutes || 360
+  private static intervalMinutes = config.cinema.syncIntervalMinutes || 60
   private static autoSyncEnabled = config.cinema.autoSyncEnabled
 
   /**

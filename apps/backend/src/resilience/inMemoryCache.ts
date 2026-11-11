@@ -88,6 +88,13 @@ export class InMemoryCache {
   }
 
   /**
+   * Alias for invalidatePrefix matching standard cache namespace semantics
+   */
+  public invalidateNamespace(namespace: string): number {
+    return this.invalidatePrefix(namespace)
+  }
+
+  /**
    * Clear entire cache
    */
   public clear(): void {

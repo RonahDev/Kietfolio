@@ -55,7 +55,11 @@ export interface SyncOptions {
   includeKKPhimTheatrical?: boolean
   includeKKPhimAnime?: boolean
   includeTMDBTheatrical?: boolean
+  includeKKPhimSingle?: boolean
+  includeKKPhimSeries?: boolean
+  includeKKPhimAnimation?: boolean
   maxItemsPerSource?: number
+  pagesPerSource?: number
   triggeredBy?: string
 }
 
@@ -85,26 +89,39 @@ export class MovieIngestionService {
   private static inMemoryMoviesStore = new Map<string, NormalizedMoviePayload>()
 
   /**
-   * Helper to execute HTTP GET with timeout
+   * Helper to execute HTTP GET with timeout and resilient retry
    */
-  private static async fetchJson<T>(url: string, timeoutMs = 8000): Promise<T | null> {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), timeoutMs)
-    try {
-      const res = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Kietfolio-Cinema-Bot/2.0 (Automated Movie Ingestion Engine)',
-          Accept: 'application/json',
-        },
-      })
-      if (!res.ok) return null
-      return (await res.json()) as T
-    } catch {
-      return null
-    } finally {
-      clearTimeout(timer)
+  private static async fetchJson<T>(url: string, timeoutMs = 8000, maxRetries = 2): Promise<T | null> {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), timeoutMs)
+      try {
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Kietfolio-Cinema-Bot/2.0 (Automated Movie Ingestion Engine)',
+            Accept: 'application/json',
+          },
+        })
+        if (!res.ok) {
+          if (attempt < maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)))
+            continue
+          }
+          return null
+        }
+        return (await res.json()) as T
+      } catch {
+        if (attempt < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)))
+          continue
+        }
+        return null
+      } finally {
+        clearTimeout(timer)
+      }
     }
+    return null
   }
 
   /**
@@ -170,14 +187,47 @@ export class MovieIngestionService {
   }
 
   /**
-   * 1. Ingest newly updated movies from KKPhim
+   * Enterprise Media Sanitizer: Overrides corrupted third-party hashes (e.g. KKPhim uploading Hijack 1971 under Doraemon)
    */
-  public static async fetchKKPhimNewReleases(limit = 24): Promise<NormalizedMoviePayload[]> {
-    const url = `${config.cinema.kkphimApiBaseUrl}/danh-sach/phim-moi-cap-nhat?page=1`
-    const data = await this.fetchJson<any>(url)
-    if (!data || !Array.isArray(data.items)) return []
+  public static sanitizeKkphimMedia(slug: string, rawPoster?: string, rawThumb?: string): { posterUrl: string; backdropUrl: string } {
+    let posterUrl = rawPoster?.startsWith('http')
+      ? rawPoster
+      : `https://phimimg.com/${rawPoster ? String(rawPoster).replace(/^\/+/, '') : ''}`
+    let backdropUrl = rawThumb?.startsWith('http')
+      ? rawThumb
+      : `https://phimimg.com/${rawThumb ? String(rawThumb).replace(/^\/+/, '') : ''}`
 
-    const items = data.items.slice(0, limit)
+    if (slug === 'doraemon-nobita-va-ban-giao-huong-dia-cau' || posterUrl.includes('3b5ed51c') || backdropUrl.includes('0514f6d0')) {
+      posterUrl = 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp'
+      backdropUrl = 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg&output=webp'
+    } else if (slug === 'doraemon-nobita-va-vung-dat-ly-tuong-tren-bau-troi' || posterUrl.includes('uux6M8z3') || backdropUrl.includes('zaAo7ytw')) {
+      posterUrl = 'https://phimimg.com/upload/vod/20250521-1/27f8594f3cb3fc39982d825896a8a9cf.jpg'
+      backdropUrl = 'https://phimimg.com/upload/vod/20250521-1/e0d158cdb1b12f7cae32426dc3695ee0.jpg'
+    } else if (slug === 'shin-cau-be-but-chi-31-dai-chien-sieu-nang-luc-sushi-bay') {
+      posterUrl = 'https://phimimg.com/upload/vod/20260402-1/56d3d6c53133e6e2f96fc19a35580b91.jpg'
+      backdropUrl = 'https://phimimg.com/upload/vod/20260402-1/0f07d9968e1b28a1c2dce38834255d16.jpg'
+    }
+
+    return { posterUrl, backdropUrl }
+  }
+
+  /**
+   * 1. Ingest newly updated movies from KKPhim with multi-page discovery
+   */
+  public static async fetchKKPhimNewReleases(limit = 24, pages = 2): Promise<NormalizedMoviePayload[]> {
+    const allItems: any[] = []
+
+    for (let p = 1; p <= pages; p++) {
+      const url = `${config.cinema.kkphimApiBaseUrl}/danh-sach/phim-moi-cap-nhat?page=${p}`
+      const data = await this.fetchJson<any>(url)
+      if (data && Array.isArray(data.items)) {
+        allItems.push(...data.items)
+      }
+    }
+
+    if (allItems.length === 0) return []
+
+    const items = allItems.slice(0, limit)
     const results: NormalizedMoviePayload[] = []
 
     // Fetch details in batches of 4 to prevent network throttling
@@ -187,6 +237,7 @@ export class MovieIngestionService {
       const batchPromises = batch.map(async (item: any) => {
         const detail = await this.fetchKKPhimDetail(item.slug)
         const isSeries = item.type === 'series' || (detail?.episodes && detail.episodes.length > 1)
+        const media = this.sanitizeKkphimMedia(item.slug, item.poster_url, item.thumb_url)
 
         const payload: NormalizedMoviePayload = {
           titleVi: item.name,
@@ -194,12 +245,8 @@ export class MovieIngestionService {
           slug: item.slug,
           type: isSeries ? 'tv_series' : 'movie',
           synopsis: detail?.synopsis || 'Phim mới cập nhật với chất lượng cao nhất.',
-          posterUrl: item.poster_url?.startsWith('http')
-            ? item.poster_url
-            : `${config.cinema.kkphimApiBaseUrl.replace('phimapi.com', 'phimimg.com')}/${item.poster_url}`,
-          backdropUrl: item.thumb_url?.startsWith('http')
-            ? item.thumb_url
-            : `${config.cinema.kkphimApiBaseUrl.replace('phimapi.com', 'phimimg.com')}/${item.thumb_url}`,
+          posterUrl: media.posterUrl,
+          backdropUrl: media.backdropUrl,
           videoStreamUrl: detail?.videoStreamUrl || undefined,
           streamSource: 'kkphim',
           releaseYear: item.year || new Date().getFullYear(),
@@ -214,7 +261,7 @@ export class MovieIngestionService {
           isTheatrical: false,
           isFeatured: false,
           genreIds: detail?.genres?.length ? detail.genres : ['action'],
-          categoryIds: ['trending'],
+          categoryIds: ['trending', 'new-releases'],
           episodes: detail?.episodes || [],
         }
         return payload
@@ -222,6 +269,61 @@ export class MovieIngestionService {
 
       const resolved = await Promise.all(batchPromises)
       results.push(...resolved)
+    }
+
+    return results
+  }
+
+  /**
+   * Helper to ingest from standard KKPhim category listing (e.g. phim-le, phim-bo, hoat-hinh)
+   */
+  public static async fetchKKPhimCategory(
+    categorySlug: 'phim-le' | 'phim-bo' | 'hoat-hinh',
+    categoryTag: string,
+    limit = 12
+  ): Promise<NormalizedMoviePayload[]> {
+    const url = `${config.cinema.kkphimApiBaseUrl}/v1/api/danh-sach/${categorySlug}?page=1`
+    const data = await this.fetchJson<any>(url)
+    const items = data?.data?.items || data?.items || []
+    if (!Array.isArray(items)) return []
+
+    const targetItems = items.slice(0, limit)
+    const results: NormalizedMoviePayload[] = []
+
+    for (const item of targetItems) {
+      const detail = await this.fetchKKPhimDetail(item.slug)
+      const media = this.sanitizeKkphimMedia(item.slug, item.poster_url, item.thumb_url)
+      const isSeries =
+        categorySlug === 'phim-bo' ||
+        item.type === 'series' ||
+        (detail?.episodes && detail.episodes.length > 1)
+
+      const payload: NormalizedMoviePayload = {
+        titleVi: item.name,
+        titleOrigin: item.origin_name || item.name,
+        slug: item.slug,
+        type: isSeries ? 'tv_series' : 'movie',
+        synopsis: detail?.synopsis || 'Nội dung chọn lọc chất lượng cao.',
+        posterUrl: media.posterUrl,
+        backdropUrl: media.backdropUrl,
+        videoStreamUrl: detail?.videoStreamUrl || undefined,
+        streamSource: 'kkphim',
+        releaseYear: item.year || new Date().getFullYear(),
+        duration: isSeries ? `${detail?.episodes?.length || 1} Tập` : '1h 50m',
+        rating: 8.7,
+        ageRating: 'PG-13',
+        quality: '1080P FULL HD',
+        audio: 'VIETSUB / THUYẾT MINH',
+        director: detail?.director || 'Đang cập nhật',
+        castData: detail?.castData || [],
+        status: 'published',
+        isTheatrical: false,
+        isFeatured: false,
+        genreIds: detail?.genres?.length ? detail.genres : ['action'],
+        categoryIds: [categoryTag, 'trending'],
+        episodes: detail?.episodes || [],
+      }
+      results.push(payload)
     }
 
     return results
@@ -241,18 +343,15 @@ export class MovieIngestionService {
 
     for (const item of targetItems) {
       const detail = await this.fetchKKPhimDetail(item.slug)
+      const media = this.sanitizeKkphimMedia(item.slug, item.poster_url, item.thumb_url)
       const payload: NormalizedMoviePayload = {
         titleVi: item.name,
         titleOrigin: item.origin_name || item.name,
         slug: item.slug,
         type: 'movie',
         synopsis: detail?.synopsis || 'Bom tấn chiếu rạp đỉnh cao.',
-        posterUrl: item.poster_url?.startsWith('http')
-          ? item.poster_url
-          : `https://phimimg.com/${item.poster_url}`,
-        backdropUrl: item.thumb_url?.startsWith('http')
-          ? item.thumb_url
-          : `https://phimimg.com/${item.thumb_url}`,
+        posterUrl: media.posterUrl,
+        backdropUrl: media.backdropUrl,
         videoStreamUrl: detail?.videoStreamUrl || undefined,
         streamSource: 'kkphim',
         releaseYear: item.year || new Date().getFullYear(),
@@ -299,18 +398,15 @@ export class MovieIngestionService {
 
       for (const item of items.slice(0, 3)) {
         const detail = await this.fetchKKPhimDetail(item.slug)
+        const media = this.sanitizeKkphimMedia(item.slug, item.poster_url, item.thumb_url)
         const payload: NormalizedMoviePayload = {
           titleVi: item.name,
           titleOrigin: item.origin_name || item.name,
           slug: item.slug,
           type: 'movie',
           synopsis: detail?.synopsis || `Siêu phẩm hoạt hình chiếu rạp ${item.name}`,
-          posterUrl: item.poster_url?.startsWith('http')
-            ? item.poster_url
-            : `https://phimimg.com/${item.poster_url}`,
-          backdropUrl: item.thumb_url?.startsWith('http')
-            ? item.thumb_url
-            : `https://phimimg.com/${item.thumb_url}`,
+          posterUrl: media.posterUrl,
+          backdropUrl: media.backdropUrl,
           videoStreamUrl: detail?.videoStreamUrl || undefined,
           streamSource: 'kkphim',
           releaseYear: item.year || 2024,
@@ -396,8 +492,8 @@ export class MovieIngestionService {
             update: {},
             create: {
               id: gid,
-              nameVi: gid.replace(/_/g, ' ').toUpperCase(),
-              nameEn: gid.replace(/_/g, ' '),
+              nameVi: gid.replace(/[-_]/g, ' ').toUpperCase(),
+              nameEn: gid.replace(/[-_]/g, ' '),
               slug: gid,
             },
           })
@@ -406,7 +502,27 @@ export class MovieIngestionService {
           })
       }
 
-      // 2. Check if movie already exists by slug or tmdbId
+      // 2. Ensure all Categories exist
+      if (movie.categoryIds && movie.categoryIds.length > 0) {
+        for (const cid of movie.categoryIds) {
+          await prisma.category
+            .upsert({
+              where: { id: cid },
+              update: {},
+              create: {
+                id: cid,
+                nameVi: cid.replace(/[-_]/g, ' ').toUpperCase(),
+                nameEn: cid.replace(/[-_]/g, ' '),
+                slug: cid,
+              },
+            })
+            .catch(() => {
+              // Ignore if exists
+            })
+        }
+      }
+
+      // 3. Check if movie already exists by slug or tmdbId
       const existing = await prisma.movie.findFirst({
         where: {
           OR: [{ slug: movie.slug }, ...(movie.tmdbId ? [{ tmdbId: movie.tmdbId }] : [])],
@@ -424,9 +540,51 @@ export class MovieIngestionService {
             backdropUrl: movie.backdropUrl || existing.backdropUrl,
             videoStreamUrl: movie.videoStreamUrl || existing.videoStreamUrl,
             rating: Math.max(existing.rating, movie.rating),
+            director: movie.director || existing.director,
+            castData: (movie.castData as any) || existing.castData,
             updatedAt: new Date(),
           },
         })
+
+        // Connect any new genres
+        for (const gid of movie.genreIds) {
+          await prisma.movieGenre
+            .upsert({
+              where: {
+                movieId_genreId: {
+                  movieId: existing.id,
+                  genreId: gid,
+                },
+              },
+              update: {},
+              create: {
+                movieId: existing.id,
+                genreId: gid,
+              },
+            })
+            .catch(() => {})
+        }
+
+        // Connect any new categories
+        if (movie.categoryIds && movie.categoryIds.length > 0) {
+          for (const cid of movie.categoryIds) {
+            await prisma.movieCategory
+              .upsert({
+                where: {
+                  movieId_categoryId: {
+                    movieId: existing.id,
+                    categoryId: cid,
+                  },
+                },
+                update: {},
+                create: {
+                  movieId: existing.id,
+                  categoryId: cid,
+                },
+              })
+              .catch(() => {})
+          }
+        }
 
         // Upsert episodes if provided
         if (movie.episodes && movie.episodes.length > 0) {
@@ -471,7 +629,7 @@ export class MovieIngestionService {
         return 'updated'
       }
 
-      // 3. Create new Movie record
+      // 4. Create new Movie record
       const createdMovie = await prisma.movie.create({
         data: {
           titleVi: movie.titleVi,
@@ -502,6 +660,14 @@ export class MovieIngestionService {
               genre: { connect: { id: gid } },
             })),
           },
+          categories:
+            movie.categoryIds && movie.categoryIds.length > 0
+              ? {
+                  create: movie.categoryIds.map((cid) => ({
+                    category: { connect: { id: cid } },
+                  })),
+                }
+              : undefined,
           episodes:
             movie.episodes && movie.episodes.length > 0
               ? {
@@ -547,7 +713,11 @@ export class MovieIngestionService {
       includeKKPhimTheatrical: true,
       includeKKPhimAnime: true,
       includeTMDBTheatrical: true,
+      includeKKPhimSingle: false,
+      includeKKPhimSeries: false,
+      includeKKPhimAnimation: false,
       maxItemsPerSource: 24,
+      pagesPerSource: 2,
       ...options,
     }
 
@@ -555,10 +725,10 @@ export class MovieIngestionService {
     const sources: string[] = []
     const errors: string[] = []
 
-    // 1. Source: KKPhim Newly Updated Movies
+    // 1. Source: KKPhim Newly Updated Movies (Multi-page automatic discovery)
     if (opts.includeKKPhimNew) {
       try {
-        const newReleases = await this.fetchKKPhimNewReleases(opts.maxItemsPerSource)
+        const newReleases = await this.fetchKKPhimNewReleases(opts.maxItemsPerSource, opts.pagesPerSource || 2)
         collectedMovies.push(...newReleases)
         sources.push('KKPhim Mới Cập Nhật')
       } catch (e) {
@@ -598,6 +768,39 @@ export class MovieIngestionService {
         }
       } catch (e) {
         errors.push(`TMDB Theatrical: ${(e as Error).message}`)
+      }
+    }
+
+    // 5. Optional Source: KKPhim Single Movies (Phim Lẻ)
+    if (opts.includeKKPhimSingle) {
+      try {
+        const single = await this.fetchKKPhimCategory('phim-le', 'single-movies', 12)
+        collectedMovies.push(...single)
+        sources.push('KKPhim Phim Lẻ Tuyển Chọn')
+      } catch (e) {
+        errors.push(`KKPhim Single: ${(e as Error).message}`)
+      }
+    }
+
+    // 6. Optional Source: KKPhim TV Series (Phim Bộ)
+    if (opts.includeKKPhimSeries) {
+      try {
+        const series = await this.fetchKKPhimCategory('phim-bo', 'series', 12)
+        collectedMovies.push(...series)
+        sources.push('KKPhim Phim Bộ Đỉnh Cao')
+      } catch (e) {
+        errors.push(`KKPhim Series: ${(e as Error).message}`)
+      }
+    }
+
+    // 7. Optional Source: KKPhim Animation (Hoạt Hình)
+    if (opts.includeKKPhimAnimation) {
+      try {
+        const anim = await this.fetchKKPhimCategory('hoat-hinh', 'animation', 12)
+        collectedMovies.push(...anim)
+        sources.push('KKPhim Hoạt Hình & Anime')
+      } catch (e) {
+        errors.push(`KKPhim Animation: ${(e as Error).message}`)
       }
     }
 

@@ -121,6 +121,21 @@ export class ErrorLogService {
   }
 
   /**
+   * Export structured diagnostic report
+   */
+  public static exportReport() {
+    const logs = [...errorLogsRingBuffer]
+    return {
+      exportedAt: new Date().toISOString(),
+      totalErrors: logs.length,
+      criticalCount: logs.filter((l) => l.level === 'critical').length,
+      errorCount: logs.filter((l) => l.level === 'error').length,
+      warnCount: logs.filter((l) => l.level === 'warn').length,
+      logs,
+    }
+  }
+
+  /**
    * Clear all non-system boot logs
    */
   public static clearLogs(): void {

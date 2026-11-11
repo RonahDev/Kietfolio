@@ -118,10 +118,15 @@ export class TaskQueue {
   }
 
   getMetrics() {
+    return this.getStats()
+  }
+
+  getStats() {
     return {
       pendingJobs: this.queue.length,
       activeWorkers: this.activeWorkers,
       maxConcurrency: this.maxConcurrency,
+      deadLetterCount: this.deadLetterQueue.length,
       deadLetterQueueCount: this.deadLetterQueue.length,
       recentDlqEntries: this.deadLetterQueue.slice(-5),
     }

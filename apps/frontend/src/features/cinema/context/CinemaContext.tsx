@@ -33,6 +33,7 @@ interface CinemaContextValue {
   isLoadingRemoteMovies: boolean
   isConnectingStream: boolean
   isPlayingTrailer: boolean
+  refreshCatalog: () => Promise<void>
   openMovieDetail: (movie: MovieItem) => void
   closeMovieDetail: () => void
   playMovie: (movie: MovieItem, options?: { isTrailer?: boolean }) => Promise<void> | void
@@ -105,107 +106,153 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [watchlist])
 
   // =========================================================================
-  // HYBRID DATA LOADER: TMDb API 4K Metadata + KKPhim Vietnamese Stream API
+  // HYBRID DATA LOADER: TMDb API 4K Metadata + KKPhim Stream + PostgreSQL Backend
   // =========================================================================
-  useEffect(() => {
-    let isMounted = true
+  const refreshCatalog = useCallback(async () => {
+    setIsLoadingRemoteMovies(true)
+    try {
+      const [
+        tmdbTrending,
+        kkphimVietnamese,
+        theatricalKk,
+        tmdbTheatrical,
+        officialVnTheatrical,
+        backendLive,
+      ] = await Promise.allSettled([
+        fetchTMDbTrendingMovies(),
+        fetchKKPhimVietnameseMovies(),
+        fetchTheatricalMovies(),
+        fetchTMDbNowPlayingVietnam(),
+        fetchDynamicOfficialTheatrical(),
+        fetchBackendLiveMovies(),
+      ])
 
-    async function loadHybridMovieCatalog() {
-      setIsLoadingRemoteMovies(true)
-      try {
-        const [
-          tmdbTrending,
-          kkphimVietnamese,
-          theatricalKk,
-          tmdbTheatrical,
-          officialVnTheatrical,
-          backendLive,
-        ] = await Promise.allSettled([
-          fetchTMDbTrendingMovies(),
-          fetchKKPhimVietnameseMovies(),
-          fetchTheatricalMovies(),
-          fetchTMDbNowPlayingVietnam(),
-          fetchDynamicOfficialTheatrical(),
-          fetchBackendLiveMovies(),
-        ])
+      const freshTmdbMovies = tmdbTrending.status === 'fulfilled' ? tmdbTrending.value : []
+      const freshKkphimMovies = kkphimVietnamese.status === 'fulfilled' ? kkphimVietnamese.value : []
+      const freshTheatricalMovies = theatricalKk.status === 'fulfilled' ? theatricalKk.value : []
+      const freshTmdbTheatrical = tmdbTheatrical.status === 'fulfilled' ? tmdbTheatrical.value : []
+      const freshOfficialVn = officialVnTheatrical.status === 'fulfilled' ? officialVnTheatrical.value : []
+      const freshBackendMovies = backendLive.status === 'fulfilled' ? backendLive.value : []
 
-        if (!isMounted) return
+      // Merge with resilient deduplication based on ID, Slug, and Title
+      setMovies((prev) => {
+        const map = new Map<string, MovieItem>()
+        const slugToId = new Map<string, string>()
+        const titleToId = new Map<string, string>()
 
-        const freshTmdbMovies = tmdbTrending.status === 'fulfilled' ? tmdbTrending.value : []
-        const freshKkphimMovies = kkphimVietnamese.status === 'fulfilled' ? kkphimVietnamese.value : []
-        const freshTheatricalMovies = theatricalKk.status === 'fulfilled' ? theatricalKk.value : []
-        const freshTmdbTheatrical = tmdbTheatrical.status === 'fulfilled' ? tmdbTheatrical.value : []
-        const freshOfficialVn = officialVnTheatrical.status === 'fulfilled' ? officialVnTheatrical.value : []
-        const freshBackendMovies = backendLive.status === 'fulfilled' ? backendLive.value : []
+        const addMovie = (m: MovieItem) => {
+          if (!m || !m.title) return
+          const normSlug = (m.slug || '').toLowerCase().trim()
+          const normTitle = (m.title || '').toLowerCase().trim()
 
-        // Merge with deduplication based on ID and Title
-        setMovies((prev) => {
-          const map = new Map<string, MovieItem>()
+          // Check if movie already registered by slug, title or ID
+          const existingId =
+            (normSlug && slugToId.get(normSlug)) ||
+            (normTitle && titleToId.get(normTitle)) ||
+            (map.has(m.id) ? m.id : null)
 
-          // 1. Official Curated & Theatrical Anime Movies
-          for (const m of OFFICIAL_THEATRICAL_ANIME_MOVIES) {
-            map.set(m.id, m)
-          }
-
-          // 2. Official Action & Thriller Blockbusters
-          for (const m of OFFICIAL_ACTION_THRILLER_MOVIES) {
-            map.set(m.id, m)
-          }
-
-          // 2. Official Vietnamese Theatrical Releases
-          for (const m of freshOfficialVn) {
-            map.set(m.id, m)
-          }
-
-          // 3. Live Synchronized Movies from PostgreSQL Backend (Auto-Ingested by Cron)
-          for (const m of freshBackendMovies) {
-            map.set(m.id, m)
-          }
-
-          // 4. Theatrical release movies (Hot cinema titles)
-          for (const m of freshTheatricalMovies) {
-            if (!map.has(m.id)) map.set(m.id, m)
-          }
-
-          // 5. TMDb Vietnam Now Playing
-          for (const m of freshTmdbTheatrical) {
-            if (!map.has(m.id)) map.set(m.id, m)
-          }
-
-          // 6. TMDb trending movies (Priority for hero & trending)
-          for (const m of freshTmdbMovies) {
-            if (!map.has(m.id)) map.set(m.id, m)
-          }
-
-          // 7. KKPhim Vietnamese movies
-          for (const m of freshKkphimMovies) {
-            if (!map.has(m.id)) map.set(m.id, m)
-          }
-
-          // 7. Keep existing curated showcase movies
-          for (const m of prev) {
-            if (!map.has(m.id)) {
-              map.set(m.id, m)
+          if (existingId) {
+            const existing = map.get(existingId)
+            if (existing) {
+              // If existing is official, keep official verified assets (posters, backdrops, metadata)
+              // but enrich with live video stream URL if existing lacks one
+              if (!existing.videoStreamUrl && m.videoStreamUrl) {
+                existing.videoStreamUrl = m.videoStreamUrl
+              }
+              if (!existing.trailerUrl && m.trailerUrl) {
+                existing.trailerUrl = m.trailerUrl
+              }
             }
+            return
           }
 
-          return Array.from(map.values())
-        })
-      } catch (err) {
-        console.warn('[CinemaProvider]: Error fetching remote cinema catalog:', err)
-      } finally {
-        if (isMounted) {
-          setIsLoadingRemoteMovies(false)
+          map.set(m.id, m)
+          if (normSlug) slugToId.set(normSlug, m.id)
+          if (normTitle) titleToId.set(normTitle, m.id)
         }
-      }
-    }
 
-    loadHybridMovieCatalog()
+        // 1. Official Curated & Theatrical Anime Movies (Absolute Priority for Anime Artwork)
+        for (const m of OFFICIAL_THEATRICAL_ANIME_MOVIES) {
+          addMovie(m)
+        }
 
-    return () => {
-      isMounted = false
+        // 2. Official Action & Thriller Blockbusters (Absolute Priority for Action Artwork)
+        for (const m of OFFICIAL_ACTION_THRILLER_MOVIES) {
+          addMovie(m)
+        }
+
+        // 3. Official Vietnamese Theatrical Releases (Absolute Priority for VN Cinema)
+        for (const m of freshOfficialVn) {
+          addMovie(m)
+        }
+        for (const m of OFFICIAL_VIETNAMESE_THEATRICAL_MOVIES) {
+          addMovie(m)
+        }
+
+        // 4. Live Synchronized Movies from PostgreSQL Backend
+        for (const m of freshBackendMovies) {
+          addMovie(m)
+        }
+
+        // 5. Theatrical release movies from KKPhim
+        for (const m of freshTheatricalMovies) {
+          addMovie(m)
+        }
+
+        // 6. TMDb Vietnam Now Playing
+        for (const m of freshTmdbTheatrical) {
+          addMovie(m)
+        }
+
+        // 7. TMDb trending movies (Priority for hero & trending)
+        for (const m of freshTmdbMovies) {
+          addMovie(m)
+        }
+
+        // 8. KKPhim Vietnamese movies
+        for (const m of freshKkphimMovies) {
+          addMovie(m)
+        }
+
+        // 9. Keep existing curated showcase movies
+        for (const m of prev) {
+          addMovie(m)
+        }
+
+        return Array.from(map.values())
+      })
+    } catch (err) {
+      console.warn('[CinemaProvider]: Error fetching remote cinema catalog:', err)
+    } finally {
+      setIsLoadingRemoteMovies(false)
     }
   }, [])
+
+  // Initial fetch and automatic background synchronization
+  useEffect(() => {
+    refreshCatalog()
+
+    // Periodically check for newly ingested movies every 15 minutes
+    const AUTO_REFRESH_INTERVAL_MS = 15 * 60 * 1000
+    const timer = setInterval(() => {
+      refreshCatalog()
+    }, AUTO_REFRESH_INTERVAL_MS)
+
+    // Window visibility listener: silently refresh when user returns to tab after >5 mins
+    let lastRefreshTime = Date.now()
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastRefreshTime > 5 * 60 * 1000) {
+        lastRefreshTime = Date.now()
+        refreshCatalog()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [refreshCatalog])
 
   const openMovieDetail = useCallback((movie: MovieItem) => {
     setActiveMovie(movie)
@@ -308,6 +355,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       isLoadingRemoteMovies,
       isConnectingStream,
       isPlayingTrailer,
+      refreshCatalog,
       openMovieDetail,
       closeMovieDetail,
       playMovie,
@@ -334,6 +382,7 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       isLoadingRemoteMovies,
       isConnectingStream,
       isPlayingTrailer,
+      refreshCatalog,
       openMovieDetail,
       closeMovieDetail,
       playMovie,

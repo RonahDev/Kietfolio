@@ -52,6 +52,8 @@ const AdminLayoutContent: React.FC<AdminLayoutContentProps> = ({ onBackToCinema 
         return <AdminTaxonomiesPage initialTab="categories" />
       case 'banners':
         return <AdminBannersPage />
+      case 'auto_sync':
+        return <AdminSystemPage initialSubTab="auto_sync" />
       case 'users':
       case 'rbac':
         return <AdminUsersPage />

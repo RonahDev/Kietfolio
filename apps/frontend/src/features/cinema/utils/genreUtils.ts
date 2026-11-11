@@ -130,6 +130,8 @@ export const GENRE_ALIAS_MAP: Record<string, string> = {
   'phieu-luu': 'adventure',
   'bi-an': 'mystery',
   'trinh-tham': 'mystery',
+  'hinh-su': 'mystery',
+  'toi-pham': 'mystery',
   'khoa-hoc': 'sci-fi',
   'vien-tuong': 'sci-fi',
   'khoa-hoc-vien-tuong': 'sci-fi',
@@ -144,7 +146,8 @@ export const GENRE_ALIAS_MAP: Record<string, string> = {
   scifi: 'sci-fi',
   science_fiction: 'sci-fi',
   thriller: 'action',
-  crime: 'action',
+  crime: 'mystery',
+  detective: 'mystery',
   fantasy: 'adventure',
   war: 'history',
   documentary: 'logistics',
@@ -203,7 +206,16 @@ export function getMoviePrimaryGenreLabel(genres?: string[]): string {
  * Supports both canonical IDs, aliases, and special collections
  */
 export function isMovieMatchingGenre(
-  movie: { genres?: string[]; franchise?: string; isTheatrical?: boolean; isVietnamese?: boolean; isAnimeTheatrical?: boolean },
+  movie: {
+    title?: string
+    originTitle?: string
+    slug?: string
+    genres?: string[]
+    franchise?: string
+    isTheatrical?: boolean
+    isVietnamese?: boolean
+    isAnimeTheatrical?: boolean
+  },
   selectedGenreId: string
 ): boolean {
   if (!selectedGenreId || selectedGenreId === 'all') {
@@ -232,7 +244,20 @@ export function isMovieMatchingGenre(
   // 3. Franchise filters (Conan, Doraemon, Shin, Dragon Ball, Naruto, One Piece)
   if (['conan', 'doraemon', 'shin', 'dragonball', 'naruto', 'onepiece'].includes(target)) {
     if (movie.franchise === target) return true
-    return Boolean(movie.genres?.some((g) => normalizeGenreSlug(g) === target))
+    if (movie.genres?.some((g) => normalizeGenreSlug(g) === target)) return true
+
+    const titleLower = (movie.title || '').toLowerCase()
+    const slugLower = (movie.slug || '').toLowerCase()
+    const originLower = (movie.originTitle || '').toLowerCase()
+
+    if (target === 'doraemon' && (titleLower.includes('doraemon') || slugLower.includes('doraemon') || originLower.includes('doraemon'))) return true
+    if (target === 'conan' && (titleLower.includes('conan') || slugLower.includes('conan') || originLower.includes('conan'))) return true
+    if (target === 'shin' && (titleLower.includes('shin') || slugLower.includes('shin') || originLower.includes('shinchan'))) return true
+    if (target === 'dragonball' && (titleLower.includes('dragon ball') || titleLower.includes('dragonball') || slugLower.includes('dragon-ball') || slugLower.includes('bay-vien-ngoc-rong'))) return true
+    if (target === 'naruto' && (titleLower.includes('naruto') || slugLower.includes('naruto') || titleLower.includes('boruto') || slugLower.includes('boruto'))) return true
+    if (target === 'onepiece' && (titleLower.includes('one piece') || slugLower.includes('one-piece') || titleLower.includes('hải tặc'))) return true
+
+    return false
   }
 
   // 4. Animation general filter (Anime / Hoạt Hình)
@@ -247,7 +272,15 @@ export function isMovieMatchingGenre(
     )
   }
 
-  // 5. Standard Content Genre filters (Action, Romance, Drama, Comedy, Horror, etc.)
+  // 5. Action & Thriller filter: Pure action blockbusters (excludes anime comedies/children cartoons & detective anime)
+  if (target === 'action') {
+    if (movie.franchise === 'shin' || movie.franchise === 'doraemon' || movie.franchise === 'conan') {
+      return false
+    }
+    return Boolean(movie.genres?.some((g) => normalizeGenreSlug(g) === 'action'))
+  }
+
+  // 6. Standard Content Genre filters (Romance, Drama, Comedy, Horror, Family, Adventure, Mystery, Sci-Fi, History, etc.)
   if (!movie.genres || movie.genres.length === 0) return false
 
   return movie.genres.some((g) => normalizeGenreSlug(g) === target)

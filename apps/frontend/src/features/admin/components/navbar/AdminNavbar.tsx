@@ -27,6 +27,7 @@ const TAB_TITLES: Record<AdminTab, { title: string; category: string }> = {
   genres: { title: 'Quản Lý Thể Loại', category: 'Content' },
   categories: { title: 'Danh Mục & Bộ Sưu Tập', category: 'Content' },
   banners: { title: 'Quản Lý Banners Trang Chủ', category: 'Content' },
+  auto_sync: { title: 'Tự Động Hóa Lấy Phim (Auto Sync)', category: 'Content' },
   users: { title: 'Người Dùng & Hội Viên VIP', category: 'Users' },
   rbac: { title: 'Ma Trận Phân Quyền (RBAC)', category: 'Users' },
   analytics: { title: 'Thống Kê Lưu Lượng Truy Cập', category: 'Analytics' },

@@ -49,7 +49,7 @@ export const config = {
     tmdbBaseUrl: process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3',
     tmdbImageBaseUrl: process.env.TMDB_IMAGE_BASE_URL || 'https://image.tmdb.org/t/p',
     kkphimApiBaseUrl: process.env.KKPHIM_API_BASE_URL || 'https://phimapi.com',
-    syncIntervalMinutes: parseInt(process.env.MOVIE_SYNC_INTERVAL_MINUTES || '360', 10),
+    syncIntervalMinutes: parseInt(process.env.MOVIE_SYNC_INTERVAL_MINUTES || '60', 10),
     autoSyncEnabled: process.env.MOVIE_AUTO_SYNC_ENABLED !== 'false',
   },
   ai: {

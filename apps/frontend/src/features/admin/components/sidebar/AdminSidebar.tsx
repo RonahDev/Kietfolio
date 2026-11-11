@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
+  Bot,
 } from 'lucide-react'
 
 export type AdminTab =
@@ -28,6 +29,7 @@ export type AdminTab =
   | 'genres'
   | 'categories'
   | 'banners'
+  | 'auto_sync'
   | 'users'
   | 'rbac'
   | 'analytics'
@@ -71,6 +73,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         { id: 'genres' as AdminTab, label: 'Thể Loại Phim', icon: Tags },
         { id: 'categories' as AdminTab, label: 'Danh Mục & Bộ Sưu Tập', icon: Layers },
         { id: 'banners' as AdminTab, label: 'Banner Trang Chủ', icon: Image },
+        { id: 'auto_sync' as AdminTab, label: 'Tự Động Nạp Phim (Auto Sync)', icon: Bot },
       ],
     },
     {

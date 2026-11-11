@@ -6,6 +6,7 @@ import {
   Edit,
   Star,
   X,
+  RefreshCw,
 } from 'lucide-react'
 import { adminService } from '../services/adminService'
 import type { AdminMovieItem } from '../types/admin'
@@ -22,6 +23,22 @@ export const AdminMoviesPage: React.FC = () => {
   const [selectedMovieIds, setSelectedMovieIds] = useState<string[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [editingMovie, setEditingMovie] = useState<AdminMovieItem | null>(null)
+  const [isSyncing, setIsSyncing] = useState<boolean>(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
+
+  const handleTriggerSync = async () => {
+    setIsSyncing(true)
+    setSyncMessage(null)
+    try {
+      const res = await adminService.triggerSyncNow()
+      setSyncMessage(res.message || 'Đồng bộ phim thành công!')
+      await loadMovies()
+    } catch (err) {
+      setSyncMessage(err instanceof Error ? err.message : 'Lỗi đồng bộ phim')
+    } finally {
+      setIsSyncing(false)
+    }
+  }
 
   // Form states
   const [formData, setFormData] = useState({
@@ -170,15 +187,42 @@ export const AdminMoviesPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#dc2626] to-[#7f1d1d] hover:opacity-95 text-white font-mono text-xs font-bold shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>THÊM PHIM MỚI</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            disabled={isSyncing}
+            onClick={handleTriggerSync}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-[#18181b] hover:bg-[#202024] border border-emerald-500/50 hover:border-emerald-500 text-emerald-400 font-mono text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+            title="Kích hoạt tự động lấy phim mới từ KKPhim & TMDB ngay lập tức"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'ĐANG ĐỒNG BỘ...' : 'ĐỒNG BỘ PHIM MỚI'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-[#dc2626] to-[#7f1d1d] hover:opacity-95 text-white font-mono text-xs font-bold shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all cursor-pointer self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>THÊM PHIM MỚI</span>
+          </button>
+        </div>
       </div>
+
+      {/* Sync Status Banner */}
+      {syncMessage && (
+        <div className="p-3.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center justify-between gap-3 animate-in fade-in duration-300">
+          <span>{syncMessage}</span>
+          <button
+            type="button"
+            onClick={() => setSyncMessage(null)}
+            className="text-emerald-400 hover:text-white cursor-pointer px-1.5"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Filter Toolbar */}
       <div className="p-4 rounded-lg bg-[#18181b] border border-[#2b2b31] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">

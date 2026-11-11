@@ -2,6 +2,21 @@ import { SITE_CONFIG } from '@/config'
 import type { MovieItem } from '../types/cinema'
 import { CINEMA_MOVIES } from '../data/moviesData'
 import { normalizeGenreSlug } from '../utils/genreUtils'
+import { CORRUPTED_CDN_HASH_OVERRIDE } from '../utils/imageFallbacks'
+
+/**
+ * Sanitize raw external media URL against known third-party CDN corruptions
+ */
+function sanitizeMediaUrl(rawUrl?: string, type: 'poster' | 'backdrop' = 'poster'): string {
+  if (!rawUrl || typeof rawUrl !== 'string') return ''
+  const clean = rawUrl.trim()
+  for (const [hashSnippet, override] of Object.entries(CORRUPTED_CDN_HASH_OVERRIDE)) {
+    if (clean.includes(hashSnippet)) {
+      return type === 'backdrop' ? override.backdrop : override.poster
+    }
+  }
+  return clean
+}
 
 // TMDb Response Data Contracts
 interface TMDbMovieDto {
@@ -139,13 +154,16 @@ export async function fetchTheatricalMovies(): Promise<MovieItem[]> {
     }
 
     return items.slice(0, 15).map((item) => {
-      const posterUrl = item.poster_url?.startsWith('http')
+      const rawPoster = item.poster_url?.startsWith('http')
         ? item.poster_url
         : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.poster_url}`
 
-      const backdropUrl = item.thumb_url?.startsWith('http')
+      const rawBackdrop = item.thumb_url?.startsWith('http')
         ? item.thumb_url
         : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.thumb_url}`
+
+      const posterUrl = sanitizeMediaUrl(rawPoster, 'poster')
+      const backdropUrl = sanitizeMediaUrl(rawBackdrop, 'backdrop')
 
       const isVn = item.country?.some(
         (c) => c.slug === 'viet-nam' || c.name?.toLowerCase().includes('việt nam')
@@ -347,13 +365,16 @@ export async function fetchKKPhimVietnameseMovies(): Promise<MovieItem[]> {
     }
 
     return data.items.slice(0, 12).map((item) => {
-      const posterUrl = item.poster_url?.startsWith('http')
+      const rawPoster = item.poster_url?.startsWith('http')
         ? item.poster_url
         : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.poster_url}`
 
-      const backdropUrl = item.thumb_url?.startsWith('http')
+      const rawBackdrop = item.thumb_url?.startsWith('http')
         ? item.thumb_url
         : `${SITE_CONFIG.cinema.kkphimImageBaseUrl}/${item.thumb_url}`
+
+      const posterUrl = sanitizeMediaUrl(rawPoster, 'poster')
+      const backdropUrl = sanitizeMediaUrl(rawBackdrop, 'backdrop')
 
       return {
         id: `kk-${item.slug}`,
@@ -475,8 +496,8 @@ export async function fetchBackendLiveMovies(): Promise<MovieItem[]> {
       originTitle: m.titleOrigin,
       tagline: m.tagline || 'Tác phẩm điện ảnh đỉnh cao tự động nạp từ rạp',
       synopsis: m.synopsis || '',
-      backdropUrl: m.backdropUrl,
-      posterUrl: m.posterUrl,
+      backdropUrl: sanitizeMediaUrl(m.backdropUrl, 'backdrop'),
+      posterUrl: sanitizeMediaUrl(m.posterUrl, 'poster'),
       trailerUrl: m.trailerUrl || '',
       youtubeKey: m.youtubeKey,
       videoStreamUrl:
