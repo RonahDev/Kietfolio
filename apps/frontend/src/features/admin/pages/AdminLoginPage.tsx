@@ -12,10 +12,12 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [dismissError, setDismissError] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
+    setDismissError(false)
 
     if (!email.trim() || !password) {
       setFormError('Vui lòng nhập đầy đủ Email và Mật khẩu quản trị.')
@@ -29,7 +31,10 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
     setEmail('admin@kietfolio.dev')
     setPassword('SecretAdminKey@2005')
     setFormError(null)
+    setDismissError(true)
   }
+
+  const activeError = formError || (!dismissError ? error : null)
 
   return (
     <div className="min-h-screen w-full bg-[#09090b] text-[#fafafa] flex flex-col justify-center items-center p-4 relative overflow-hidden select-none">
@@ -65,10 +70,10 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
         </div>
 
         {/* Error Notification */}
-        {(formError || error) && (
+        {activeError && (
           <div className="p-3 rounded-md bg-rose-950/40 border border-rose-700/60 flex items-start gap-2.5 text-xs text-rose-300">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-            <span>{formError || error}</span>
+            <span>{activeError}</span>
           </div>
         )}
 

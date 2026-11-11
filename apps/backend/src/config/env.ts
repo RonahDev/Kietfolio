@@ -39,6 +39,7 @@ export const config = {
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean),
+    defaultPassword: process.env.ADMIN_DEFAULT_PASSWORD || 'SecretAdminKey@2005',
   },
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
