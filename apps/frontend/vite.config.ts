@@ -56,7 +56,21 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 1200,
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('three')) return 'vendor-three'
+            if (id.includes('recharts')) return 'vendor-charts'
+            if (id.includes('hls.js')) return 'vendor-player'
+            if (id.includes('gsap')) return 'vendor-gsap'
+            if (id.includes('lucide-react')) return 'vendor-icons'
+            if (id.includes('react') || id.includes('scheduler')) return 'vendor-react'
+          }
+        },
+      },
+    },
   },
   test: {
     globals: true,

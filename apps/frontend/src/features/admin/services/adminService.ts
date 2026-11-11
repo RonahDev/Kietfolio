@@ -31,30 +31,39 @@ function getLocalFallbackMovies(): AdminMovieItem[] {
   for (const m of allMovies) {
     if (!m.id || seen.has(m.id)) continue
     seen.add(m.id)
+    const raw = m as unknown as Record<string, unknown>
     result.push({
       id: m.id,
-      titleVi: m.titleVi || (m as any).title || 'Phim Chiếu Rạp 4K',
-      titleOrigin: (m as any).titleEn || (m as any).titleOriginal || m.titleVi,
-      slug: (m as any).slug || m.id,
-      type: (m as any).type === 'series' || (m as any).type === 'tv' ? 'tv_series' : 'movie',
-      synopsis: m.synopsis || (m as any).overview || '',
+      titleVi: (raw.titleVi as string) || (raw.title as string) || 'Phim Chiếu Rạp 4K',
+      titleOrigin:
+        (raw.titleEn as string) ||
+        (raw.titleOriginal as string) ||
+        (raw.title as string) ||
+        (raw.titleVi as string),
+      slug: (raw.slug as string) || m.id,
+      type: raw.type === 'series' || raw.type === 'tv' ? 'tv_series' : 'movie',
+      synopsis:
+        (raw.synopsis as string) ||
+        (raw.overview as string) ||
+        (raw.description as string) ||
+        '',
       posterUrl: m.posterUrl || '',
       backdropUrl: m.backdropUrl || m.posterUrl || '',
       trailerUrl: m.trailerUrl || '',
-      youtubeKey: (m as any).youtubeKey || '',
-      videoStreamUrl: (m as any).videoStreamUrl || (m as any).streamUrl || '',
+      youtubeKey: (raw.youtubeKey as string) || '',
+      videoStreamUrl: (raw.videoStreamUrl as string) || (raw.streamUrl as string) || '',
       streamSource: 'hls',
-      releaseYear: m.releaseYear || 2024,
+      releaseYear: (raw.releaseYear as number) || (raw.year as number) || 2024,
       duration: m.duration || '120 phút',
       rating: m.rating || 8.5,
-      ageRating: m.ageRating || 'T18',
+      ageRating: (raw.ageRating as string) || 'T18',
       quality: m.quality || '4K UHD',
       audio: m.audio || 'Dolby Atmos',
-      director: (m as any).director || 'Đang cập nhật',
+      director: (raw.director as string) || 'Đang cập nhật',
       status: 'published',
       isTheatrical: Boolean(m.isTheatrical),
-      isFeatured: Boolean((m as any).isFeatured || (m as any).isTrending),
-      viewCount: m.viewCount || 25000,
+      isFeatured: Boolean(raw.isFeatured || raw.isTrending),
+      viewCount: (raw.viewCount as number) || 25000,
       genres: (m.genres || []).map((g: any) =>
         typeof g === 'string'
           ? { id: g, nameVi: g }
@@ -674,6 +683,7 @@ export const adminService = {
           location: 'Ho Chi Minh City, VN',
           status: 'online',
           latencyMs: 8,
+          loadPercent: 18,
         },
         {
           id: 'srv_cf_hanoi',
@@ -683,6 +693,7 @@ export const adminService = {
           location: 'Hanoi, VN',
           status: 'online',
           latencyMs: 12,
+          loadPercent: 24,
         },
         {
           id: 'srv_viettel_cloud',
@@ -692,6 +703,7 @@ export const adminService = {
           location: 'Da Nang, VN',
           status: 'online',
           latencyMs: 14,
+          loadPercent: 31,
         },
         {
           id: 'srv_vnpt_sin',
@@ -701,6 +713,7 @@ export const adminService = {
           location: 'Singapore, SG',
           status: 'online',
           latencyMs: 28,
+          loadPercent: 42,
         },
       ]
     }

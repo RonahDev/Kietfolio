@@ -32,7 +32,7 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
     )
     setIsLoaded(false)
     setHasImageError(false)
-  }, [movie.id, movie.posterUrl])
+  }, [movie.id, movie.posterUrl, movie.genres, movie.franchise])
 
   const handleCardImageError = () => {
     const fallback = getFallbackPoster(movie.genres, movie.franchise)

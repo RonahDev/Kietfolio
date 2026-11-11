@@ -183,7 +183,8 @@ All capabilities are backed by verifiable real-world production metrics:
     keywords: [
       'tu van phim', 'xem gi', 'phim hay', 'goi y phim', 'recommend', 'toi nay xem gi',
       'toi nay xem phim gi', 'xem phim gi hay', 'tu van xem phim', 'tu van', 'goi y',
-      'phim hot', 'the loai', 'chieu rap'
+      'phim hot', 'the loai', 'chieu rap', 'tu van cho toi toi nay xem phim gi hay',
+      'toi nay xem phim gi hay', 'tu van cho toi', 'xem phim gi'
     ],
     intentCategory: 'cinema',
     responseVi: `🍿 **Gợi Ý & Tư Vấn Phim Theo Sở Thích trên CinemaStreamHub:**
@@ -647,8 +648,8 @@ CinemaStreamHub operates under **full transparency, strict legal compliance, and
     keywords: [
       'vip', 'mua vip', 'quyen loi vip', 'gia vip', 'dac quyen', 'nang cap vip',
       'tai khoan vip', '4k', 'dolby atmos', 'khong quang cao', 'server vip',
-      'vip cinemastream', 'vip cinemastreamhub', 'quyen loi tai khoan vip',
-      'quyen loi vip cinemastreamhub', 'dac quyen vip'
+      'quyen loi tai khoan vip cinemastream la gi', 'quyen loi tai khoan vip cinemastream',
+      'quyen loi vip cinemastream', 'tai khoan vip cinemastream', 'quyen loi tai khoan vip'
     ],
     intentCategory: 'vip',
     responseVi: `👑 **Tư Vấn Đặc Quyền & Quyền Lợi Gói Hội Viên VIP CinemaStream:**
@@ -895,8 +896,7 @@ For Recruiters, Engineering Leads, and Hiring Managers:
     id: 'experience_spx',
     intentCategory: 'spx_logistics',
     keywords: [
-      'spx', 'kinh nghiem spx', 'kinh nghiem lam viec tai spx', 'lam viec tai spx',
-      'shopee', 'shopee express', 'spx express', 'hub', '63bdg02', 'thu dau mot', 'dieu phoi',
+      'spx', 'shopee', 'shopee express', 'spx express', 'hub', '63bdg02', 'thu dau mot', 'dieu phoi',
       'dispatcher', 'kho bai', 'hau can', 'logistics', 'mega sale', 'don hang', 'buu kien', 'operation'
     ],
     responseVi: `📦 **Kinh Nghiệm Điều Phối Vận Hành Tại SPX Express (Hub 63BDG02 - Thủ Dầu Một):**
@@ -931,11 +931,10 @@ At a critical logistics hub in Southern Vietnam, Kiet engineered frontline opera
     id: 'cinema_stream_hub',
     intentCategory: 'cinema',
     keywords: [
-      'cinemastreamhub', 'cinemastream', 'gioi thieu ve nen tang phim cinemastreamhub',
-      'gioi thieu cinema', 'gioi thieu cinemastreamhub', 'nen tang cinemastreamhub',
-      'rap chieu phim 3d', 'man nhung 3d', 'threejs cinema', 'tinh nang cinema',
-      'cong nghe cinema', 'trai nghiem cinema', 'man nhung rap', 'cinemastreamhub la gi',
-      'trailer', 'trailer cinema'
+      'cinemastreamhub', 'cinemastream', 'nen tang cinemastream', 'man nhung 3d', 'spotlight rap',
+      'he thong chieu phim', 'rap chieu phim 3d', 'ky thuat cinemastream', 'curtain 3d',
+      'cinemastreamhub xem phim gi va co tinh nang gi', 'tinh nang cinemastreamhub',
+      'cinemastreamhub co tinh nang gi', 'nen tang cinemastreamhub'
     ],
     responseVi: `🎬 **CinemaStreamHub — Nền Tảng Điện Ảnh & Chiếu Rạp 4K:**
 
@@ -1071,9 +1070,8 @@ I am Mai Anh Kiet's AI Assistant, equipped with logical reasoning and verified m
   },
 ]
 
-export const FALLBACK_RESPONSE_VI = `🤖 **Tôi chưa hiểu rõ câu hỏi này, nhưng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn!**
+export const FALLBACK_RESPONSE_VI = `🤖 **Tôi chưa hiểu rõ câu hỏi này. Để tư vấn chính xác nhất, bạn có thể hỏi tôi về các chủ đề chuyên sâu sau:**
 
-Bạn có thể thử hỏi tôi về các chủ đề chuyên sâu sau:
 1. 📊 **Số liệu thực chứng & uy tín**: Chịu tải 2,000 CCU, P95 < 45ms, 198 testcases pass 100%, SLA kho SPX 99.9%.
 2. 🎬 **Tư vấn xem phim**: Gợi ý phim rạp Việt (Mai, Lật Mặt 7), bom tấn hành động (John Wick 4, Deadpool), anime Doraemon/Conan/Ghibli, đặc quyền gói VIP 4K.
 3. 📦 **Kinh nghiệm SPX Express**: Điều phối hơn 100,000 bưu kiện/ngày tại trạm Hub 63BDG02.
@@ -1082,9 +1080,8 @@ Bạn có thể thử hỏi tôi về các chủ đề chuyên sâu sau:
 
 *Hoặc bạn hãy bấm chọn một trong các gợi ý bên dưới để nhận câu trả lời tức thì nhé!*`
 
-export const FALLBACK_RESPONSE_EN = `🤖 **I didn't quite catch that, but I'm ready to assist you!**
+export const FALLBACK_RESPONSE_EN = `🤖 **I'm listening! To provide the most authoritative assistance, feel free to ask about:**
 
-Feel free to ask me about:
 1. 📊 **Verifiable Metrics & Proof**: 2,000 CCU load test, P95 < 45ms, 198 test suites pass 100%, 99.9% SPX SLA.
 2. 🎬 **Movie Advisory**: Curated theatrical blockbusters (Mai, Lat Mat 7, John Wick 4), anime universes, 4K & Dolby Atmos VIP perks.
 3. 📦 **SPX Express Track Record**: 100k+ daily parcels coordinated at Hub 63BDG02.

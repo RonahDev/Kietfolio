@@ -20,10 +20,14 @@ import { SkillsSection } from '@/features/skills'
 import { PrinciplesSection } from '@/features/principles'
 import { GuestbookSection } from '@/features/guestbook'
 import { ContactSection } from '@/features/contact'
-import { ChatWidget } from '@/features/chatbot'
 import { usePayment } from '@/features/payment/hooks/usePayment'
 
 // Code splitting & dynamic lazy loading for heavy on-demand modal features
+const ChatWidget = lazy(() =>
+  import('@/features/chatbot').then((m) => ({
+    default: m.ChatWidget,
+  }))
+)
 const AdminDashboardModal = lazy(() =>
   import('@/features/admin/components/AdminDashboardModal').then((m) => ({
     default: m.AdminDashboardModal,
@@ -281,11 +285,11 @@ export function AppContent() {
       {/* Google Authentication Gateway Modal */}
       <AuthModal />
 
-      {/* 24/7 Intelligent AI Assistant Chatbot */}
-      <ChatWidget />
-
-      {/* On-demand lazy-loaded modals wrapped with lightweight Suspense fallback */}
+      {/* On-demand lazy-loaded widgets & modals wrapped with lightweight Suspense fallback */}
       <Suspense fallback={null}>
+        {/* 24/7 Intelligent AI Assistant Chatbot */}
+        <ChatWidget />
+
         {/* Exclusive Admin Command Center Modal for Mai Anh Kiệt */}
         <AdminDashboardModal />
 

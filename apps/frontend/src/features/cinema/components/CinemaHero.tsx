@@ -48,7 +48,7 @@ export const CinemaHero: React.FC = () => {
       setIsBackdropLoaded(false)
       setHasBackdropError(false)
     }
-  }, [activeMovie?.id, activeMovie?.backdropUrl])
+  }, [activeMovie])
 
   const handleHeroBackdropError = () => {
     if (!activeMovie) return

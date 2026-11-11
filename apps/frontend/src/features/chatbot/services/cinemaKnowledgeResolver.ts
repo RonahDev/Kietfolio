@@ -5,7 +5,7 @@ import {
 } from '@/features/cinema/services/officialMovieService'
 import { CINEMA_MOVIES } from '@/features/cinema/data/moviesData'
 import type { MovieItem } from '@/features/cinema/types/cinema'
-import type { QuickReplyOption, ChatActionLink } from '../types/chat'
+import type { QuickReplyOption } from '../types/chat'
 import { removeVietnameseAccents } from './chatbotEngine'
 
 /**
@@ -40,7 +40,12 @@ export interface CinemaSearchResult {
   formattedResponseEn: string
   quickRepliesVi: QuickReplyOption[]
   quickRepliesEn: QuickReplyOption[]
-  actionLink: ChatActionLink
+  actionLink: {
+    labelVi: string
+    labelEn: string
+    url: string
+    isExternal?: boolean
+  }
 }
 
 /**
@@ -136,6 +141,32 @@ export function resolveCinemaQuery(query: string): CinemaSearchResult | null {
     )
     contextTitleVi = 'Tuyển Tập Bom Tấn Phá Án Thám Tử Lừng Danh Conan'
     contextTitleEn = 'Detective Conan Blockbuster Movie Franchise'
+  } else if (isShinQuery) {
+    matched = catalog.filter((m) =>
+      m.id.includes('shin') || m.title.toLowerCase().includes('shin')
+    )
+    contextTitleVi = 'Thương Hiệu Phim Chiếu Rạp Shin - Cậu Bé Bút Chì'
+    contextTitleEn = 'Crayon Shin-chan The Movie Collection'
+  } else if (isDragonBallQuery) {
+    matched = catalog.filter((m) =>
+      m.id.includes('dragon-ball') || m.title.toLowerCase().includes('dragon ball')
+    )
+    contextTitleVi = 'Tuyển Tập Siêu Phẩm Chiếu Rạp Dragon Ball Super'
+    contextTitleEn = 'Dragon Ball Super Theatrical Blockbusters'
+  } else if (isOnePieceQuery) {
+    matched = catalog.filter((m) =>
+      m.id.includes('one-piece') || m.title.toLowerCase().includes('one piece')
+    )
+    contextTitleVi = 'Đại Hải Trình One Piece The Movie (Luffy & Băng Mũ Rơm)'
+    contextTitleEn = 'One Piece The Movie Saga (Straw Hat Pirates)'
+  } else if (isOppenheimerQuery) {
+    matched = catalog.filter((m) => m.title.toLowerCase().includes('oppenheimer'))
+    contextTitleVi = 'Kiệt Tác 7 Giải Oscar: Oppenheimer (2023)'
+    contextTitleEn = '7-time Academy Award Winner: Oppenheimer (2023)'
+  } else if (isInterstellarQuery) {
+    matched = catalog.filter((m) => m.title.toLowerCase().includes('interstellar'))
+    contextTitleVi = 'Sử Thi Không Gian Vĩ Đại: Interstellar (Hố Sâu Vô Tận)'
+    contextTitleEn = 'Cosmic Sci-Fi Odyssey: Interstellar'
   } else if (isGhibliQuery) {
     matched = catalog.filter((m) =>
       ['anime-spirited-away-2001', 'anime-howls-moving-castle-2004', 'anime-my-neighbor-totoro-1988'].includes(m.id) ||
@@ -199,11 +230,11 @@ export function resolveCinemaQuery(query: string): CinemaSearchResult | null {
   // Format rich Markdown cards
   const movieListVi = uniqueMatched
     .map((m, index) => {
-      const year = m.releaseDate ? new Date(m.releaseDate).getFullYear() : '2024'
+      const year = m.year || 2024
       const rating = m.rating ? `${m.rating.toFixed(1)}/10` : '8.5/10'
       const genres = m.genres?.join(', ') || 'Chiếu Rạp, 4K'
-      const duration = m.duration ? `${m.duration} phút` : '110 phút'
-      const tagline = m.tagline ? `*“${m.tagline}”*` : `*${m.overview?.slice(0, 110)}...*`
+      const duration = m.duration || '110 phút'
+      const tagline = m.tagline ? `*“${m.tagline}”*` : `*${(m.synopsis || '').slice(0, 110)}...*`
 
       return `${index + 1}. 🎬 **${m.title}** (${year})
    - ⭐ **Đánh giá**: \`${rating}\` | ⏱️ **Thời lượng**: ${duration} | 🏷️ **Thể loại**: ${genres}
@@ -214,11 +245,11 @@ export function resolveCinemaQuery(query: string): CinemaSearchResult | null {
 
   const movieListEn = uniqueMatched
     .map((m, index) => {
-      const year = m.releaseDate ? new Date(m.releaseDate).getFullYear() : '2024'
+      const year = m.year || 2024
       const rating = m.rating ? `${m.rating.toFixed(1)}/10` : '8.5/10'
       const genres = m.genres?.join(', ') || 'Theatrical, 4K'
-      const duration = m.duration ? `${m.duration} mins` : '110 mins'
-      const tagline = m.tagline ? `*“${m.tagline}”*` : `*${m.overview?.slice(0, 110)}...*`
+      const duration = m.duration || '110 mins'
+      const tagline = m.tagline ? `*“${m.tagline}”*` : `*${(m.synopsis || '').slice(0, 110)}...*`
 
       return `${index + 1}. 🎬 **${m.title}** (${year})
    - ⭐ **Score**: \`${rating}\` | ⏱️ **Runtime**: ${duration} | 🏷️ **Genres**: ${genres}

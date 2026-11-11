@@ -18,6 +18,12 @@ import { useChatbot } from '../hooks/useChatbot'
 import { useLanguage } from '@/hooks'
 import type { QuickReplyOption } from '../types/chat'
 
+function navigateToHash(hash: string) {
+  if (typeof window !== 'undefined') {
+    window.location.hash = hash
+  }
+}
+
 export const ChatWidget: React.FC = () => {
   const { language } = useLanguage()
   const isEn = language === 'en'
@@ -80,19 +86,19 @@ export const ChatWidget: React.FC = () => {
   const handleActionClick = (url: string) => {
     if (url.startsWith('#')) {
       if (url === '#cinema') {
-        window.location.hash = '#cinema'
+        navigateToHash('#cinema')
       } else if (url === '#vip') {
         window.dispatchEvent(new CustomEvent('kietfolio:open-vip-modal'))
       } else {
         // If in cinema, switch back to portfolio first
         if (window.location.hash === '#cinema') {
-          window.location.hash = url
+          navigateToHash(url)
         } else {
           const el = document.querySelector(url)
           if (el) {
             el.scrollIntoView({ behavior: 'smooth' })
           } else {
-            window.location.hash = url
+            navigateToHash(url)
           }
         }
       }
