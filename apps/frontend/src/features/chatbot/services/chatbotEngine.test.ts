@@ -52,6 +52,49 @@ describe('Chatbot NLU & Local Knowledge Engine Suite', () => {
     expect(res.actionLink?.url).toBe('#contact')
   })
 
+  it('accurately resolves specific director queries with live catalog cards (Christopher Nolan)', () => {
+    const res = processLocalQuery('Có phim nào của Christopher Nolan không?', 'vi')
+    expect(res.text).toContain('Christopher Nolan')
+    expect(res.text).toContain('Oppenheimer')
+    expect(res.text).toContain('Interstellar')
+    expect(res.actionLink?.url).toBe('#cinema')
+  })
+
+  it('accurately cites official Box Office Vietnam all-time movie revenues', () => {
+    const res = processLocalQuery('Doanh thu các phim chiếu rạp Việt Nam là bao nhiêu?', 'vi')
+    expect(res.text).toContain('Mai (2024')
+    expect(res.text).toContain('551 tỷ VNĐ')
+    expect(res.text).toContain('Lật Mặt 7')
+    expect(res.text).toContain('482 tỷ VNĐ')
+    expect(res.text).toContain('Nhà Bà Nữ')
+    expect(res.text).toContain('475 tỷ VNĐ')
+    expect(res.actionLink?.url).toBe('#cinema')
+  })
+
+  it('accurately lists the complete Doraemon The Movie franchise on the platform', () => {
+    const res = processLocalQuery('Phim Doraemon có những phần nào?', 'vi')
+    expect(res.text).toContain('Bản Giao Hưởng Địa Cầu')
+    expect(res.text).toContain('Vùng Đất Lý Tưởng Trên Bầu Trời')
+    expect(res.text).toContain('Stand by Me Doraemon')
+    expect(res.actionLink?.url).toBe('#cinema')
+  })
+
+  it('accurately explains PostgreSQL 3-tier RBAC security and authentication', () => {
+    const res = processLocalQuery('Kiến trúc bảo mật và phân quyền PostgreSQL như thế nào?', 'vi')
+    expect(res.text).toContain('3 Cấp Độ')
+    expect(res.text).toContain('Bcrypt')
+    expect(res.text).toContain('HttpOnly')
+    expect(res.text).toContain('CSRF')
+  })
+
+  it('accurately explains video player shortcuts and 4K Dolby Atmos audio guide', () => {
+    const res = processLocalQuery('Hướng dẫn cách xem phim 4K không bị giật lag và bật Dolby Atmos?', 'vi')
+    expect(res.text).toContain('Dolby Atmos')
+    expect(res.text).toContain('Phím Cách')
+    expect(res.text).toContain('Toàn Màn Hình')
+    expect(res.actionLink?.url).toBe('#cinema')
+  })
+
   it('provides a polite fallback with quick replies for unrecognized queries', () => {
     const res = processLocalQuery('xyz123abc456qwe', 'vi')
     expect(res.text).toContain('Tôi chưa hiểu rõ câu hỏi này')

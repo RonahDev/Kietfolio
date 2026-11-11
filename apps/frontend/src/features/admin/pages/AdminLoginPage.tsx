@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Eye, EyeOff, Shield, Lock, Mail, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, Shield, Lock, Mail, ArrowRight, AlertCircle, ArrowLeft, Zap } from 'lucide-react'
 import { useAdminAuth } from '../context'
 
 interface AdminLoginPageProps {
@@ -8,8 +8,8 @@ interface AdminLoginPageProps {
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) => {
   const { login, isLoading, error } = useAdminAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@kietfolio.dev')
+  const [password, setPassword] = useState('SecretAdminKey@2005')
   const [showPassword, setShowPassword] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [dismissError, setDismissError] = useState(false)
@@ -25,6 +25,14 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
     }
 
     await login(email.trim(), password)
+  }
+
+  const handleOneClickLogin = async () => {
+    setEmail('admin@kietfolio.dev')
+    setPassword('SecretAdminKey@2005')
+    setFormError(null)
+    setDismissError(true)
+    await login('admin@kietfolio.dev', 'SecretAdminKey@2005')
   }
 
   const handleFillDemoAdmin = () => {
@@ -135,13 +143,24 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
             )}
           </button>
 
+          {/* One-Click Instant Master Admin Access */}
+          <button
+            type="button"
+            onClick={handleOneClickLogin}
+            disabled={isLoading}
+            className="w-full py-2.5 px-3 rounded-lg bg-emerald-950/60 border border-emerald-500/40 hover:bg-emerald-900/60 text-emerald-300 font-semibold transition-all text-xs font-mono flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+          >
+            <Zap className="w-3.5 h-3.5 text-emerald-400" />
+            <span>⚡ ĐĂNG NHẬP NHANH MASTER ADMIN (1 CHẠM)</span>
+          </button>
+
           {/* Quick Fill Demo Credentials */}
           <button
             type="button"
             onClick={handleFillDemoAdmin}
             className="w-full py-2 px-3 rounded-lg bg-[#18181b] border border-[#2b2b31] hover:border-[#dc2626]/50 text-[#a1a1aa] hover:text-white transition-colors text-[11px] font-mono flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <span>⚡ Điền nhanh tài khoản Quản trị viên (Master Admin)</span>
+            <span>🔄 Điền sẵn Email & Mật khẩu mẫu</span>
           </button>
         </form>
 

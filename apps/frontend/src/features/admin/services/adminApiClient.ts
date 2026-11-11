@@ -40,7 +40,20 @@ export class AdminApiClient {
     const data = await response.json().catch(() => ({}))
 
     if (!response.ok) {
-      const errorMsg = data?.error || `Request failed with status ${response.status}`
+      let errorMsg = data?.error
+      if (!errorMsg) {
+        if (response.status === 405) {
+          errorMsg = 'Yêu cầu không được hỗ trợ bởi máy chủ (405 Method Not Allowed).'
+        } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+          errorMsg = `Máy chủ backend hiện đang ngoại tuyến hoặc không thể kết nối (${response.status}).`
+        } else if (response.status === 404) {
+          errorMsg = 'Không tìm thấy máy chủ hoặc tài nguyên yêu cầu (404 Not Found).'
+        } else if (response.status === 401 || response.status === 403) {
+          errorMsg = `Phiên làm việc hết hạn hoặc không có quyền truy cập (${response.status}).`
+        } else {
+          errorMsg = `Yêu cầu thất bại với mã lỗi HTTP ${response.status}`
+        }
+      }
       throw new Error(errorMsg)
     }
 

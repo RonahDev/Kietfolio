@@ -9,6 +9,8 @@ import {
   SAFETY_RESPONSE_VI,
   SAFETY_RESPONSE_EN,
 } from '../data/knowledgeBase'
+import { resolveCinemaQuery } from './cinemaKnowledgeResolver'
+export { resolveCinemaQuery } from './cinemaKnowledgeResolver'
 
 /**
  * Remove Vietnamese diacritics / accents for robust fuzzy matching
@@ -164,7 +166,31 @@ export function processLocalQuery(query: string, language: 'vi' | 'en' = 'vi'): 
 
   const normalized = removeVietnameseAccents(query)
 
-  // Step 2: Logical Intent Scoring & Semantic Ranking
+  // Step 2: Specific Director or Title Entity Search (Live Catalog Resolver)
+  const isDirectMovieSearch =
+    normalized.includes('nolan') ||
+    normalized.includes('villeneuve') ||
+    normalized.includes('ghibli') ||
+    normalized.includes('makoto shinkai') ||
+    normalized.includes('exhuma') ||
+    normalized.includes('quat mo trung ma')
+
+  if (isDirectMovieSearch) {
+    const catalogResult = resolveCinemaQuery(query)
+    if (catalogResult) {
+      return {
+        text: isEn ? catalogResult.formattedResponseEn : catalogResult.formattedResponseVi,
+        quickReplies: isEn ? catalogResult.quickRepliesEn : catalogResult.quickRepliesVi,
+        actionLink: {
+          label: isEn ? catalogResult.actionLink.labelEn : catalogResult.actionLink.labelVi,
+          url: catalogResult.actionLink.url,
+          isExternal: catalogResult.actionLink.isExternal,
+        },
+      }
+    }
+  }
+
+  // Step 3: Logical Intent Scoring & Semantic Ranking
   let bestMatch: (typeof KNOWLEDGE_TOPICS)[0] | null = null
   let highestScore = 0
 
@@ -211,7 +237,21 @@ export function processLocalQuery(query: string, language: 'vi' | 'en' = 'vi'): 
     return { text, quickReplies, actionLink }
   }
 
-  // Step 3: Graceful Fallback with Guidance
+  // Step 4: Smart Cinema Catalog Fallback Search
+  const fallbackCinemaResult = resolveCinemaQuery(query)
+  if (fallbackCinemaResult) {
+    return {
+      text: isEn ? fallbackCinemaResult.formattedResponseEn : fallbackCinemaResult.formattedResponseVi,
+      quickReplies: isEn ? fallbackCinemaResult.quickRepliesEn : fallbackCinemaResult.quickRepliesVi,
+      actionLink: {
+        label: isEn ? fallbackCinemaResult.actionLink.labelEn : fallbackCinemaResult.actionLink.labelVi,
+        url: fallbackCinemaResult.actionLink.url,
+        isExternal: fallbackCinemaResult.actionLink.isExternal,
+      },
+    }
+  }
+
+  // Step 5: Graceful Fallback with Guidance
   return {
     text: isEn ? FALLBACK_RESPONSE_EN : FALLBACK_RESPONSE_VI,
     quickReplies: isEn ? DEFAULT_QUICK_REPLIES_EN : DEFAULT_QUICK_REPLIES_VI,
