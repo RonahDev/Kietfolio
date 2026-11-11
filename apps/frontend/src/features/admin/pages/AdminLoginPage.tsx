@@ -22,10 +22,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
       return
     }
 
-    const success = await login(email.trim(), password)
-    if (!success) {
-      setFormError('Thông tin đăng nhập không chính xác hoặc tài khoản không có quyền quản trị.')
-    }
+    await login(email.trim(), password)
+  }
+
+  const handleFillDemoAdmin = () => {
+    setEmail('admin@kietfolio.dev')
+    setPassword('SecretAdminKey@2005')
+    setFormError(null)
   }
 
   return (
@@ -126,10 +129,24 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
               </>
             )}
           </button>
+
+          {/* Quick Fill Demo Credentials */}
+          <button
+            type="button"
+            onClick={handleFillDemoAdmin}
+            className="w-full py-2 px-3 rounded-lg bg-[#18181b] border border-[#2b2b31] hover:border-[#dc2626]/50 text-[#a1a1aa] hover:text-white transition-colors text-[11px] font-mono flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <span>⚡ Điền nhanh tài khoản Quản trị viên (Master Admin)</span>
+          </button>
         </form>
 
-        {/* Security Notice */}
-        <div className="pt-4 border-t border-[#2b2b31] text-center">
+        {/* Security Notice & Credential Hints */}
+        <div className="pt-4 border-t border-[#2b2b31] text-center space-y-1.5">
+          <p className="text-[10px] font-mono text-[#d4af37]/90 leading-relaxed">
+            Tài khoản Super Admin: <span className="text-white font-semibold">admin@kietfolio.dev</span>
+            <span className="mx-1 text-[#71717a]">|</span>
+            Mật khẩu: <span className="text-white font-semibold">SecretAdminKey@2005</span>
+          </p>
           <p className="text-[10px] font-mono text-[#71717a] leading-relaxed">
             Hệ thống tự động kích hoạt khóa phiên nếu nhập sai quá 5 lần. Mọi địa chỉ IP và nỗ lực
             truy cập đều được ghi lại vào nhật ký kiểm toán.

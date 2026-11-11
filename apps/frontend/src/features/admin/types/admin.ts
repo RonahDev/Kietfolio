@@ -4,6 +4,7 @@ export interface AdminUser {
   displayName?: string
   photoUrl?: string
   role: 'super_admin' | 'admin' | 'content_manager' | 'moderator' | 'analyst' | string
+  status?: 'active' | 'suspended' | 'locked' | string
   permissions: string[]
 }
 

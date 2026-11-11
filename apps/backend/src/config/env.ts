@@ -2,6 +2,14 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const defaultDatabaseUrl =
+  process.env.DATABASE_URL ||
+  `postgresql://${process.env.DB_USER || 'kietfolio_user'}:${process.env.DB_PASSWORD || 'kietfolio_secure_password_2026'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'kietfolio_db'}?schema=public`
+
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = defaultDatabaseUrl
+}
+
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
@@ -18,9 +26,7 @@ export const config = {
     password: process.env.DB_PASSWORD || 'kietfolio_secure_password_2026',
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   },
-  databaseUrl:
-    process.env.DATABASE_URL ||
-    `postgresql://${process.env.DB_USER || 'kietfolio_user'}:${process.env.DB_PASSWORD || 'kietfolio_secure_password_2026'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'kietfolio_db'}?schema=public`,
+  databaseUrl: defaultDatabaseUrl,
   session: {
     cookieName: process.env.SESSION_COOKIE_NAME || '__Host-kietfolio_admin_session',
     secret: process.env.SESSION_SECRET || 'kietfolio-admin-session-ultra-secret-2026',
@@ -29,7 +35,7 @@ export const config = {
   },
   admin: {
     email: (process.env.ADMIN_EMAIL || 'kietteve22102005@gmail.com').toLowerCase(),
-    additionalEmails: (process.env.ADMIN_ADDITIONAL_EMAILS || 'kiet.maianh@gmail.com')
+    additionalEmails: (process.env.ADMIN_ADDITIONAL_EMAILS || 'kiet.maianh@gmail.com,admin@kietfolio.dev')
       .split(',')
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean),

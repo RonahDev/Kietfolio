@@ -45,7 +45,10 @@ export const SITE_CONFIG = {
   },
   admin: {
     email: getEnvString('VITE_ADMIN_EMAIL', 'kietteve22102005@gmail.com'),
-    additionalEmails: getEnvStringArray('VITE_ADMIN_ADDITIONAL_EMAILS', ['kiet.maianh@gmail.com']),
+    additionalEmails: getEnvStringArray('VITE_ADMIN_ADDITIONAL_EMAILS', [
+      'kiet.maianh@gmail.com',
+      'admin@kietfolio.dev',
+    ]),
     defaultPassword: getEnvString('VITE_ADMIN_PASSWORD', 'SecretAdminKey@2005'),
   },
   vip: {
