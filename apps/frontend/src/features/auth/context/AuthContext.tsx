@@ -710,6 +710,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(updatedUser)
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser))
 
+      // Persist to PostgreSQL database if backend is reachable
+      const jwtToken = localStorage.getItem(JWT_TOKEN_KEY)
+      if (jwtToken) {
+        fetch('/api/auth/upgrade-vip', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify({ plan }),
+        })
+          .then((res) => res.json())
+          .then((resData) => {
+            if (resData?.success && resData?.data?.token) {
+              localStorage.setItem(JWT_TOKEN_KEY, resData.data.token)
+            }
+          })
+          .catch(() => {})
+      }
+
       try {
         const existingRaw = localStorage.getItem(USERS_DB_KEY)
         const userList: UserRecord[] = existingRaw ? JSON.parse(existingRaw) : []

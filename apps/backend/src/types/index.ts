@@ -5,8 +5,10 @@ export interface UserPayload {
   email: string
   displayName?: string
   photoURL?: string
-  role: 'admin' | 'vip' | 'user'
+  role: 'super_admin' | 'admin' | 'vip' | 'user' | string
+  status?: 'active' | 'suspended' | 'pending' | string
   provider: 'google' | 'password'
+  vipExpiresAt?: string | null
 }
 
 export interface AdminUserPayload {

@@ -20,6 +20,9 @@
 \echo 'Executing Migration 006: High-Performance Composite & Partial Indexes...'
 \i /docker-entrypoint-initdb.d/migrations/006_optimize_composite_indexes.sql
 
+\echo 'Executing Migration 007: Setup Users RBAC & VIP Tier...'
+\i /docker-entrypoint-initdb.d/migrations/007_setup_users_rbac_vip.sql
+
 \echo 'Executing Seeds: Initial Database Content...'
 \i /docker-entrypoint-initdb.d/seeds/001_seed_initial_data.sql
 
