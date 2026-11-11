@@ -5,16 +5,25 @@ import { normalizeGenreSlug } from '../utils/genreUtils'
 import { CORRUPTED_CDN_HASH_OVERRIDE } from '../utils/imageFallbacks'
 
 /**
- * Sanitize raw external media URL against known third-party CDN corruptions
+ * Sanitize raw external media URL against known third-party CDN corruptions & route through wsrv.nl
  */
 function sanitizeMediaUrl(rawUrl?: string, type: 'poster' | 'backdrop' = 'poster'): string {
   if (!rawUrl || typeof rawUrl !== 'string') return ''
   const clean = rawUrl.trim()
+  if (clean.startsWith('data:')) return clean
+
   for (const [hashSnippet, override] of Object.entries(CORRUPTED_CDN_HASH_OVERRIDE)) {
     if (clean.includes(hashSnippet)) {
       return type === 'backdrop' ? override.backdrop : override.poster
     }
   }
+
+  // Wrap through Cloudflare Edge proxy wsrv.nl to bypass Vietnamese ISP DNS blocks
+  if ((clean.includes('image.tmdb.org') || clean.includes('phimimg.com')) && !clean.includes('wsrv.nl')) {
+    const rawPath = clean.replace(/^https?:\/\//, '')
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
+  }
+
   return clean
 }
 

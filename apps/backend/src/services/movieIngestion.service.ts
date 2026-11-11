@@ -187,7 +187,7 @@ export class MovieIngestionService {
   }
 
   /**
-   * Enterprise Media Sanitizer: Overrides corrupted third-party hashes (e.g. KKPhim uploading Hijack 1971 under Doraemon)
+   * Enterprise Media Sanitizer: Overrides corrupted third-party hashes & wraps with Cloudflare Edge CDN wsrv.nl
    */
   public static sanitizeKkphimMedia(slug: string, rawPoster?: string, rawThumb?: string): { posterUrl: string; backdropUrl: string } {
     let posterUrl = rawPoster?.startsWith('http')

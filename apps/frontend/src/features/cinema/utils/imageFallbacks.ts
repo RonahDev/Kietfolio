@@ -202,8 +202,9 @@ export function toProxyUrl(url: string | undefined | null, width?: number): stri
   const clean = url.trim()
   if (clean.startsWith('data:')) return clean
 
-  // Handle TMDB URLs: wrap with Cloudflare edge proxy (wsrv.nl) to permanently bypass Vietnamese ISP DNS blocks
-  if (clean.includes('image.tmdb.org')) {
+  // Handle TMDB and Phimimg URLs: wrap with Cloudflare edge proxy (wsrv.nl) to permanently bypass Vietnamese ISP DNS blocks
+  if (clean.includes('image.tmdb.org') || clean.includes('phimimg.com')) {
+    if (clean.includes('wsrv.nl')) return clean
     const rawPath = clean.replace(/^https?:\/\//, '')
     const w = width ? `&w=${width}` : ''
     return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}${w}&output=webp`
@@ -258,21 +259,24 @@ export function getOptimizedImageUrl(
 
   // Handle TMDB URLs: normalize size and route through Cloudflare Edge proxy to prevent ISP blocks
   if (cleanUrl.includes('image.tmdb.org')) {
+    if (cleanUrl.includes('wsrv.nl')) return cleanUrl
     const size = type === 'backdrop' ? 'w1280' : 'w780'
     const normalized = cleanUrl.replace(/\/t\/p\/(original|w\d+)\//, `/t/p/${size}/`)
     const rawPath = normalized.replace(/^https?:\/\//, '')
     return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
   }
 
-  // Handle direct KKPhim / phimimg CDN paths
+  // Handle direct KKPhim / phimimg CDN paths: proxy through wsrv.nl to prevent Vietnamese ISP throttling
   if (cleanUrl.includes('phimimg.com')) {
-    return cleanUrl
+    if (cleanUrl.includes('wsrv.nl')) return cleanUrl
+    const rawPath = cleanUrl.replace(/^https?:\/\//, '')
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
   }
 
   // Handle relative KKPhim CDN paths
   if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
     const normalizedPath = cleanUrl.replace(/^\/+/, '')
-    return `https://phimimg.com/${normalizedPath}`
+    return `https://wsrv.nl/?url=${encodeURIComponent(`phimimg.com/${normalizedPath}`)}&output=webp`
   }
 
   return cleanUrl
