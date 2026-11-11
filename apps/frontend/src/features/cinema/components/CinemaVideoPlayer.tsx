@@ -470,7 +470,7 @@ export const CinemaVideoPlayer: React.FC = () => {
           )}
 
           {/* Switch between HLS Stream and YouTube Trailer */}
-          {Boolean(playingMovie.youtubeKey) && (
+          {Boolean(resolvedYoutubeKey) && (
             <button
               type="button"
               onClick={() => setViewMode(viewMode === 'video' ? 'youtube' : 'video')}

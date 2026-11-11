@@ -49,7 +49,13 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
     }
   }
 
-  const hasTrailer = Boolean(movie.youtubeKey || (movie.trailerUrl && movie.trailerUrl.includes('youtu')))
+  const hasTrailer = Boolean(
+    movie.youtubeKey ||
+    (movie.trailerUrl &&
+      (movie.trailerUrl.includes('watch?v=') ||
+        movie.trailerUrl.includes('youtu.be/') ||
+        movie.trailerUrl.includes('embed/')))
+  )
 
   return (
     <div

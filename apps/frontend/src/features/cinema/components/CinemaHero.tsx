@@ -72,7 +72,10 @@ export const CinemaHero: React.FC = () => {
 
   const hasTrailer = Boolean(
     activeMovie.youtubeKey ||
-    (activeMovie.trailerUrl && activeMovie.trailerUrl.includes('youtu'))
+    (activeMovie.trailerUrl &&
+      (activeMovie.trailerUrl.includes('watch?v=') ||
+        activeMovie.trailerUrl.includes('youtu.be/') ||
+        activeMovie.trailerUrl.includes('embed/')))
   )
 
   return (

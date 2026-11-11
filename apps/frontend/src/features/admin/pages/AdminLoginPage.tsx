@@ -50,15 +50,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onBackToHome }) 
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[#dc2626]/15 via-transparent to-transparent blur-3xl pointer-events-none" />
       <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Back to Home Button */}
+      {/* Back to Home / Cinema Button */}
       {onBackToHome && (
         <button
           type="button"
           onClick={onBackToHome}
-          className="absolute top-6 left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#18181b] border border-[#2b2b31] text-xs font-mono text-[#a1a1aa] hover:text-white hover:border-[#dc2626] transition-all cursor-pointer"
+          className="absolute top-6 left-6 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#18181b] border border-[#2b2b31] text-xs font-mono text-[#a1a1aa] hover:text-white hover:border-[#dc2626] transition-all cursor-pointer z-20"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>VỀ TRANG CHỦ</span>
+          <span>VỀ RẠP CHIẾU (CINEMA)</span>
         </button>
       )}
 

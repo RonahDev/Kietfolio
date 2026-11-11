@@ -35,7 +35,7 @@ const AdminLayoutContent: React.FC<AdminLayoutContentProps> = ({ onBackToCinema 
   }
 
   if (!isAuthenticated) {
-    return <AdminLoginPage />
+    return <AdminLoginPage onBackToHome={onBackToCinema} />
   }
 
   const renderActiveTabContent = () => {

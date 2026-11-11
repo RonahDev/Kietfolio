@@ -21,6 +21,8 @@ vi.mock('./services/cinemaService', () => ({
 }))
 
 describe('CinemaStreamHub Component Suite', () => {
+  // 20s suite timeout for full JSDOM DOM tree rendering
+  vi.setConfig({ testTimeout: 20000 })
   beforeEach(() => {
     localStorage.clear()
     sessionStorage.setItem('kietfolio_cinema_curtain_seen', 'true') // skip intro by default in tests

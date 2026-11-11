@@ -14,6 +14,7 @@ import {
   fetchTheatricalMovies,
   fetchTMDbNowPlayingVietnam,
   fetchBackendLiveMovies,
+  fetchTMDbTrailerKey,
 } from '../services/cinemaService'
 import { SITE_CONFIG } from '@/config'
 
@@ -296,6 +297,25 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .finally(() => {
           setIsConnectingStream(false)
         })
+    }
+
+    // 3. If movie has a tmdbId and lacks an 11-char youtubeKey, enrich trailer key from TMDb
+    if (movie.tmdbId && !movie.youtubeKey) {
+      fetchTMDbTrailerKey(movie.tmdbId)
+        .then((key) => {
+          if (key) {
+            const enrichedMovie: MovieItem = {
+              ...movie,
+              youtubeKey: key,
+              trailerUrl: `https://www.youtube.com/watch?v=${key}`,
+            }
+            setMovies((prev) =>
+              prev.map((m) => (m.id === movie.id ? enrichedMovie : m))
+            )
+            setPlayingMovie((current) => (current?.id === movie.id ? enrichedMovie : current))
+          }
+        })
+        .catch(() => {})
     }
   }, [])
 
