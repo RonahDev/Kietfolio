@@ -61,10 +61,10 @@ export const AdminSystemPage: React.FC<AdminSystemPageProps> = ({ initialSubTab 
         ])
         if (st.status === 'fulfilled' && st.value) {
           setSyncStatus(st.value)
-          setSyncConfig((prev) => ({
+          setSyncConfig((prev: any) => ({
             autoSyncEnabled: st.value.autoSyncEnabled,
             intervalMinutes: st.value.intervalMinutes,
-            sources: st.value.sources || prev.sources,
+            sources: st.value.sources || prev?.sources,
           }))
         }
         if (hist.status === 'fulfilled' && Array.isArray(hist.value)) {
