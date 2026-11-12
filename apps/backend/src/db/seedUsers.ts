@@ -61,9 +61,18 @@ export async function seedUsersAndRoles(): Promise<void> {
         vipExpiresAt: null,
       },
       {
-        id: 'usr-admin-kiet',
+        id: 'usr-admin-kiet-personal',
         email: 'kietteve22102005@gmail.com',
-        displayName: 'Mai Anh Kiệt',
+        displayName: 'Mai Anh Kiệt (Personal)',
+        passwordHash: adminHash,
+        role: 'super_admin',
+        status: 'active',
+        vipExpiresAt: null,
+      },
+      {
+        id: 'usr-admin-kiet',
+        email: 'kiet.maianh@gmail.com',
+        displayName: 'Mai Anh Kiệt (Work)',
         passwordHash: adminHash,
         role: 'super_admin',
         status: 'active',
@@ -90,38 +99,26 @@ export async function seedUsersAndRoles(): Promise<void> {
     ]
 
     for (const u of usersData) {
-      await pool.query(
-        `INSERT INTO users (id, email, password_hash, display_name, role, status, provider, vip_expires_at, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, 'password', $7, NOW(), NOW())
-         ON CONFLICT (email) DO UPDATE
-         SET role = EXCLUDED.role,
-             password_hash = EXCLUDED.password_hash,
-             display_name = EXCLUDED.display_name,
-             status = EXCLUDED.status,
-             vip_expires_at = EXCLUDED.vip_expires_at,
-             updated_at = NOW()`,
-        [u.id, u.email, u.passwordHash, u.displayName, u.role, u.status, u.vipExpiresAt]
-      ).catch(async () => {
-        // Fallback to Prisma if pool fails
-        await prisma.user.upsert({
-          where: { email: u.email },
-          update: {
-            role: u.role,
-            passwordHash: u.passwordHash,
-            displayName: u.displayName,
-            status: u.status,
-            vipExpiresAt: u.vipExpiresAt,
-          },
-          create: {
-            id: u.id,
-            email: u.email,
-            passwordHash: u.passwordHash,
-            displayName: u.displayName,
-            role: u.role,
-            status: u.status,
-            vipExpiresAt: u.vipExpiresAt,
-          },
-        }).catch(() => {})
+      await prisma.user.upsert({
+        where: { email: u.email },
+        update: {
+          role: u.role,
+          passwordHash: u.passwordHash,
+          displayName: u.displayName,
+          status: u.status,
+          vipExpiresAt: u.vipExpiresAt,
+        },
+        create: {
+          id: u.id,
+          email: u.email,
+          passwordHash: u.passwordHash,
+          displayName: u.displayName,
+          role: u.role,
+          status: u.status,
+          vipExpiresAt: u.vipExpiresAt,
+        },
+      }).catch((err) => {
+        console.warn(`[Seed User ${u.email}]:`, err?.message || err)
       })
     }
 
