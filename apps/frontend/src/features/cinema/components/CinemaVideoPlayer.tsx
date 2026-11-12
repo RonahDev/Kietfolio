@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Hls from 'hls.js'
 import { useCinema } from '../hooks/useCinema'
+import { useAuth } from '@/hooks'
 import {
   Play,
   Pause,
@@ -17,6 +18,7 @@ import {
   Layers,
   AlertCircle,
   ExternalLink,
+  Crown,
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '../utils/imageFallbacks'
 
@@ -35,6 +37,7 @@ function extractYoutubeKey(keyOrUrl?: string | null): string | null {
 
 export const CinemaVideoPlayer: React.FC = () => {
   const { playingMovie, closePlayer, isPlayingTrailer } = useCinema()
+  const { isVip, isAdmin, openVipModal } = useAuth()
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -684,22 +687,39 @@ export const CinemaVideoPlayer: React.FC = () => {
                       Chất Lượng
                     </span>
                     <div className="space-y-1 text-[11px]">
-                      {['4K UHD', '1080p FHD', '720p HD'].map((q) => (
+                      {[
+                        { label: '4K UHD', vipOnly: true },
+                        { label: '1080p FHD', vipOnly: false },
+                        { label: '720p HD', vipOnly: false },
+                      ].map((q) => (
                         <button
-                          key={q}
+                          key={q.label}
                           type="button"
                           onClick={() => {
-                            setSelectedQuality(q)
+                            if (q.vipOnly && !isVip && !isAdmin) {
+                              openVipModal()
+                              setShowSettings(false)
+                              return
+                            }
+                            setSelectedQuality(q.label)
                             setShowSettings(false)
                           }}
-                          className={`w-full text-left px-2 py-1 rounded-xs flex items-center justify-between ${
-                            selectedQuality === q
+                          className={`w-full text-left px-2 py-1 rounded-xs flex items-center justify-between cursor-pointer ${
+                            selectedQuality === q.label
                               ? 'bg-[#a51d35]/20 text-[#d4af70] font-bold'
                               : 'text-[#a1a1aa] hover:bg-[#181b24]'
                           }`}
                         >
-                          <span>{q}</span>
-                          {selectedQuality === q && <Sparkles className="w-3 h-3 text-[#d4af70]" />}
+                          <span className="flex items-center gap-1.5">
+                            {q.label}
+                            {q.vipOnly && <Crown className="w-3 h-3 text-amber-400" />}
+                          </span>
+                          {q.vipOnly && !isVip && !isAdmin && (
+                            <span className="px-1.5 py-0.2 rounded-xs bg-amber-500/20 text-amber-300 font-bold text-[9px] border border-amber-500/30">
+                              NẠP VIP
+                            </span>
+                          )}
+                          {selectedQuality === q.label && <Sparkles className="w-3 h-3 text-[#d4af70]" />}
                         </button>
                       ))}
                     </div>

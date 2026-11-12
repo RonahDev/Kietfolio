@@ -260,18 +260,69 @@ export class AuthService {
   }
 
   /**
-   * Upgrade user to VIP (monthly or lifetime) with PostgreSQL persistence
+   * Upgrade user to VIP (monthly, quarterly, annual, lifetime) with PostgreSQL persistence & cumulative extension
    */
   public static async upgradeToVip(
     userIdOrEmail: string,
-    plan: 'monthly' | 'lifetime' = 'lifetime'
+    plan: 'monthly' | 'quarterly' | 'annual' | 'lifetime' | string = 'lifetime'
   ): Promise<{ user: UserPayload; token: string }> {
-    const expiresAt =
-      plan === 'monthly'
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        : null
+    const normalizedPlan = (plan || 'lifetime').toLowerCase()
+    let durationDays = 0
+
+    if (normalizedPlan.includes('quarterly')) {
+      durationDays = 90
+    } else if (normalizedPlan.includes('annual') || normalizedPlan.includes('yearly')) {
+      durationDays = 365
+    } else if (normalizedPlan.includes('monthly')) {
+      durationDays = 30
+    } else if (normalizedPlan.includes('lifetime')) {
+      durationDays = 0 // lifetime = null expiresAt
+    } else {
+      durationDays = 30
+    }
 
     try {
+      // 1. Check existing user to calculate smart cumulative expiration
+      const existingRes = await pool.query(
+        `SELECT id, email, display_name, photo_url, role, status, provider, vip_expires_at 
+         FROM users 
+         WHERE id = $1 OR email = LOWER(TRIM($1))`,
+        [userIdOrEmail]
+      )
+
+      if (existingRes.rows.length === 0) {
+        throw new Error('Không tìm thấy tài khoản người dùng để nâng cấp VIP.')
+      }
+
+      const existingUser = existingRes.rows[0]
+
+      // If user is admin/super_admin, preserve their role and return admin token
+      if (existingUser.role === 'admin' || existingUser.role === 'super_admin') {
+        const adminUser: UserPayload = {
+          uid: existingUser.id,
+          email: existingUser.email,
+          displayName: existingUser.display_name,
+          photoURL: existingUser.photo_url,
+          role: existingUser.role,
+          status: existingUser.status,
+          provider: existingUser.provider,
+          vipExpiresAt: null,
+        }
+        return { user: adminUser, token: this.generateToken(adminUser) }
+      }
+
+      let expiresAt: Date | null = null
+      if (durationDays > 0) {
+        let baseTime = Date.now()
+        if (existingUser.vip_expires_at) {
+          const currentExpiryTime = new Date(existingUser.vip_expires_at).getTime()
+          if (currentExpiryTime > baseTime) {
+            baseTime = currentExpiryTime
+          }
+        }
+        expiresAt = new Date(baseTime + durationDays * 24 * 60 * 60 * 1000)
+      }
+
       const res = await pool.query(
         `UPDATE users
          SET role = 'vip',
@@ -282,27 +333,16 @@ export class AuthService {
         [expiresAt, userIdOrEmail]
       )
 
-      if (res.rows.length === 0) {
-        // Maybe the user is already admin or not found
-        const existingRes = await pool.query(`SELECT id, email, display_name, photo_url, role, status, provider, vip_expires_at FROM users WHERE id = $1 OR email = LOWER(TRIM($1))`, [userIdOrEmail])
-        if (existingRes.rows.length === 0) {
-          throw new Error('Không tìm thấy tài khoản người dùng để nâng cấp VIP.')
-        }
-        const row = existingRes.rows[0]
-        const user: UserPayload = {
-          uid: row.id,
-          email: row.email,
-          displayName: row.display_name,
-          photoURL: row.photo_url,
-          role: row.role,
-          status: row.status,
-          provider: row.provider,
-          vipExpiresAt: row.vip_expires_at ? new Date(row.vip_expires_at).toISOString() : null,
-        }
-        return { user, token: this.generateToken(user) }
-      }
+      const row = res.rows[0] || existingUser
 
-      const row = res.rows[0]
+      // Maintain junction table user_roles
+      await pool.query(
+        `INSERT INTO user_roles (user_id, role_id)
+         VALUES ($1, 'vip')
+         ON CONFLICT (user_id, role_id) DO NOTHING`,
+        [row.id]
+      ).catch(() => {})
+
       const user: UserPayload = {
         uid: row.id,
         email: row.email,
@@ -324,6 +364,18 @@ export class AuthService {
       )
 
       if (targetUser) {
+        let expiresAt: Date | null = null
+        if (durationDays > 0) {
+          let baseTime = Date.now()
+          if (targetUser.vipExpiresAt) {
+            const currentExpTime = new Date(targetUser.vipExpiresAt).getTime()
+            if (currentExpTime > baseTime) {
+              baseTime = currentExpTime
+            }
+          }
+          expiresAt = new Date(baseTime + durationDays * 24 * 60 * 60 * 1000)
+        }
+
         if (targetUser.role !== 'admin' && targetUser.role !== 'super_admin') {
           targetUser.role = 'vip'
           targetUser.vipExpiresAt = expiresAt ? expiresAt.toISOString() : null

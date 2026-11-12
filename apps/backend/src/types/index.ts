@@ -48,6 +48,8 @@ export interface ContactMessage {
   read: boolean
 }
 
+export type VipPlanType = 'monthly' | 'quarterly' | 'annual' | 'lifetime'
+
 export interface PaymentRecord {
   id: string
   orderId: string
@@ -55,7 +57,7 @@ export interface PaymentRecord {
   donorName: string
   donorMessage?: string
   amount: number
-  orderType: 'coffee' | 'mentorship' | 'custom'
+  orderType: 'coffee' | 'mentorship' | 'custom' | 'vip_upgrade' | 'vip_monthly' | 'vip_quarterly' | 'vip_annual' | 'vip_lifetime' | string
   status: 'pending' | 'success' | 'failed'
   vnpTransactionNo?: string
   bankCode?: string
@@ -68,9 +70,10 @@ export interface CreatePaymentUrlPayload {
   amount: number
   donorName: string
   donorMessage?: string
-  orderType?: 'coffee' | 'mentorship' | 'custom'
+  orderType?: 'coffee' | 'mentorship' | 'custom' | 'vip_upgrade' | 'vip_monthly' | 'vip_quarterly' | 'vip_annual' | 'vip_lifetime' | string
   bankCode?: string
   language?: 'vn' | 'en'
+  userUid?: string
 }
 
 export interface ApiResponse<T = unknown> {

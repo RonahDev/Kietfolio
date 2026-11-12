@@ -53,6 +53,8 @@ export const SITE_CONFIG = {
   },
   vip: {
     priceMonthly: getEnvNumber('VITE_VIP_PRICE_MONTHLY', 99000),
+    priceQuarterly: getEnvNumber('VITE_VIP_PRICE_QUARTERLY', 249000),
+    priceAnnual: getEnvNumber('VITE_VIP_PRICE_ANNUAL', 699000),
     priceLifetime: getEnvNumber('VITE_VIP_PRICE_LIFETIME', 499000),
     promoCodes: getEnvStringArray('VITE_VIP_PROMO_CODES', [
       'KIETVIP2025',

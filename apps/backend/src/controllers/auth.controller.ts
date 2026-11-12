@@ -62,11 +62,20 @@ export class AuthController {
     }
 
     try {
-      const plan = req.body?.plan === 'monthly' ? 'monthly' : 'lifetime'
+      const plan = req.body?.plan || 'lifetime'
       const result = await AuthService.upgradeToVip(req.user.uid || req.user.email, plan)
+      const planLabel =
+        plan === 'monthly'
+          ? '30 ngày'
+          : plan === 'quarterly'
+          ? '90 ngày'
+          : plan === 'annual'
+          ? '1 năm'
+          : 'Trọn đời'
+
       res.status(200).json({
         success: true,
-        message: `Nâng cấp gói VIP (${plan === 'monthly' ? '30 ngày' : 'Trọn đời'}) thành công!`,
+        message: `Nâng cấp gói VIP (${planLabel}) thành công!`,
         data: result,
       })
     } catch (error) {

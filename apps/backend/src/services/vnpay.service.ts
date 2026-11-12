@@ -1,7 +1,8 @@
 import crypto from 'crypto'
 import { config } from '../config/env'
 import { pool } from '../db/pool'
-import { CreatePaymentUrlPayload, PaymentRecord } from '../types'
+import { CreatePaymentUrlPayload, PaymentRecord, UserPayload } from '../types'
+import { AuthService } from './auth.service'
 
 let memoryPayments: PaymentRecord[] = [
   {
@@ -61,7 +62,10 @@ export class VnpayService {
     const ip = clientIp.includes('::1') || clientIp.includes('127.0.0.1') ? '127.0.0.1' : clientIp
 
     // Construct order description
-    const orderDesc = payload.orderType === 'mentorship'
+    const isVipOrder = typeof payload.orderType === 'string' && payload.orderType.toLowerCase().startsWith('vip')
+    const orderDesc = isVipOrder
+      ? `Nap VIP Kietfolio: ${payload.donorName} (${payload.orderType})`
+      : payload.orderType === 'mentorship'
       ? `Dat lich tu van Mentorship 1-1: ${payload.donorName}`
       : `Ung ho Kietfolio: ${payload.donorName}`
 
@@ -98,10 +102,11 @@ export class VnpayService {
     const paymentUrl = `${config.vnpay.url}?${signData}&vnp_SecureHash=${signed}`
 
     // Save transaction state
+    const effectiveUserUid = userUid || payload.userUid || undefined
     const paymentRecord: PaymentRecord = {
       id: `pay-${Date.now()}`,
       orderId,
-      userUid,
+      userUid: effectiveUserUid,
       donorName: payload.donorName,
       donorMessage: payload.donorMessage || '',
       amount: payload.amount,
@@ -138,7 +143,8 @@ export class VnpayService {
   }
 
   /**
-   * Verifies the cryptographic hash returned by VNPay and updates database record
+   * Verifies the cryptographic hash returned by VNPay and updates database record.
+   * Automatically executes VIP upgrades if the payment order was for VIP subscription.
    */
   public static async verifyReturn(
     queryParams: Record<string, string>
@@ -151,6 +157,10 @@ export class VnpayService {
     transactionNo?: string
     bankCode?: string
     message: string
+    orderType?: string
+    isVipUpgrade?: boolean
+    user?: UserPayload
+    token?: string
   }> {
     const secureHash = queryParams.vnp_SecureHash
     const paramsToVerify = { ...queryParams }
@@ -176,6 +186,10 @@ export class VnpayService {
 
     const status: 'success' | 'failed' = isSuccess ? 'success' : 'failed'
 
+    let effectiveOrderType: string | undefined
+    let upgradedUser: UserPayload | undefined
+    let upgradedToken: string | undefined
+
     try {
       await pool.query(
         `UPDATE payments 
@@ -183,6 +197,37 @@ export class VnpayService {
          WHERE order_id = $5`,
         [status, transactionNo, bankCode, responseCode, orderId]
       )
+
+      if (isSuccess) {
+        const payRes = await pool.query(
+          `SELECT user_uid, order_type, amount FROM payments WHERE order_id = $1`,
+          [orderId]
+        )
+        if (payRes.rows.length > 0) {
+          const row = payRes.rows[0]
+          effectiveOrderType = row.order_type
+          const userUid = row.user_uid
+
+          if (effectiveOrderType && effectiveOrderType.toLowerCase().startsWith('vip') && userUid) {
+            let plan: 'monthly' | 'quarterly' | 'annual' | 'lifetime' = 'monthly'
+            const lowerType = effectiveOrderType.toLowerCase()
+
+            if (lowerType.includes('lifetime') || Number(row.amount) >= 450000) {
+              plan = 'lifetime'
+            } else if (lowerType.includes('annual') || lowerType.includes('yearly')) {
+              plan = 'annual'
+            } else if (lowerType.includes('quarterly') || Number(row.amount) >= 200000) {
+              plan = 'quarterly'
+            } else {
+              plan = 'monthly'
+            }
+
+            const upgradeResult = await AuthService.upgradeToVip(userUid, plan)
+            upgradedUser = upgradeResult.user
+            upgradedToken = upgradeResult.token
+          }
+        }
+      }
     } catch {
       // Memory fallback
     }
@@ -194,11 +239,38 @@ export class VnpayService {
       memTarget.bankCode = bankCode
       memTarget.responseCode = responseCode
       memTarget.updatedAt = new Date().toISOString()
+      effectiveOrderType = effectiveOrderType || memTarget.orderType
+
+      if (isSuccess && memTarget.orderType && memTarget.orderType.toLowerCase().startsWith('vip') && memTarget.userUid && !upgradedUser) {
+        try {
+          let plan: 'monthly' | 'quarterly' | 'annual' | 'lifetime' = 'monthly'
+          const lowerType = memTarget.orderType.toLowerCase()
+          if (lowerType.includes('lifetime') || memTarget.amount >= 450000) {
+            plan = 'lifetime'
+          } else if (lowerType.includes('annual')) {
+            plan = 'annual'
+          } else if (lowerType.includes('quarterly') || memTarget.amount >= 200000) {
+            plan = 'quarterly'
+          }
+
+          const upgradeResult = await AuthService.upgradeToVip(memTarget.userUid, plan)
+          upgradedUser = upgradeResult.user
+          upgradedToken = upgradeResult.token
+        } catch {
+          // ignore
+        }
+      }
     }
 
     let message = 'Giao dịch không hợp lệ'
     if (isValid) {
-      message = isSuccess ? 'Giao dịch thành công' : 'Giao dịch thất bại hoặc bị hủy'
+      if (isSuccess) {
+        message = upgradedUser
+          ? 'Nạp tiền và kích hoạt gói Hội viên VIP thành công!'
+          : 'Giao dịch thành công'
+      } else {
+        message = 'Giao dịch thất bại hoặc bị hủy'
+      }
     }
 
     return {
@@ -210,6 +282,10 @@ export class VnpayService {
       transactionNo,
       bankCode,
       message,
+      orderType: effectiveOrderType,
+      isVipUpgrade: Boolean(upgradedUser),
+      user: upgradedUser,
+      token: upgradedToken,
     }
   }
 

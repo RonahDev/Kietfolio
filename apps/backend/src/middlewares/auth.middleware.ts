@@ -30,6 +30,29 @@ export function verifyToken(req: AuthenticatedRequest, res: Response, next: Next
 }
 
 /**
+ * Optional token middleware: parses Bearer token if provided, but does not block if omitted
+ */
+export function optionalToken(req: AuthenticatedRequest, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1]
+    try {
+      const decoded = jwt.verify(token, config.jwt.secret) as UserPayload
+      if (decoded.role === 'vip' && decoded.vipExpiresAt) {
+        const expiry = new Date(decoded.vipExpiresAt)
+        if (expiry.getTime() < Date.now()) {
+          decoded.role = 'user'
+        }
+      }
+      req.user = decoded
+    } catch {
+      // ignore invalid optional token
+    }
+  }
+  next()
+}
+
+/**
  * Require specific user role or roles (e.g. 'admin', 'vip', 'user')
  */
 export function requireRole(...allowedRoles: string[]) {

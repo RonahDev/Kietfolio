@@ -11,7 +11,7 @@ import {
   isFirebaseConfigured,
   type User,
 } from '@/services/firebase'
-import { ADMIN_EMAIL, ADMIN_AUTHORIZED_EMAILS, type AuthUser, type UserRecord, type UserRole } from '../types/auth'
+import { ADMIN_EMAIL, ADMIN_AUTHORIZED_EMAILS, type AuthUser, type UserRecord, type UserRole, type AuthProviderType } from '../types/auth'
 import { SITE_CONFIG } from '@/config/site'
 import { AuthContext, type AuthModalMode } from './authTypes'
 
@@ -689,6 +689,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null)
   }, [])
 
+  // Global listener for automatic VIP activation via VNPay return / external webhook
+  useEffect(() => {
+    const handleVipUpgraded = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail?.user) {
+        const u = detail.user
+        const freshUser: AuthUser = {
+          uid: u.uid || u.id,
+          email: u.email || null,
+          displayName: u.displayName || u.display_name || null,
+          photoURL: u.photoURL || u.photo_url || null,
+          role: (u.role === 'admin' || u.role === 'super_admin' ? 'admin' : u.role === 'vip' ? 'vip' : 'member') as UserRole,
+          vipExpiresAt: u.vipExpiresAt || u.vip_expires_at || null,
+          provider: (u.provider === 'google' ? 'google' : u.provider === 'demo' ? 'demo' : 'email') as AuthProviderType,
+          lastLoginAt: u.lastLoginAt || new Date().toISOString(),
+        }
+        setUser(freshUser)
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(freshUser))
+      } else if (user) {
+        const freshUser: AuthUser = {
+          ...user,
+          role: user.role === 'admin' ? 'admin' : 'vip',
+        }
+        setUser(freshUser)
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(freshUser))
+      }
+      if (detail?.token) {
+        localStorage.setItem(JWT_TOKEN_KEY, detail.token)
+      }
+      triggerCelebratoryWhale()
+    }
+
+    window.addEventListener('kietfolio:vip-upgraded', handleVipUpgraded)
+    window.addEventListener('kietfolio:user-session-updated', handleVipUpgraded)
+
+    return () => {
+      window.removeEventListener('kietfolio:vip-upgraded', handleVipUpgraded)
+      window.removeEventListener('kietfolio:user-session-updated', handleVipUpgraded)
+    }
+  }, [user])
+
   const upgradeToVip = useCallback(
     async (plan: string = 'lifetime'): Promise<boolean> => {
       if (!user) {
@@ -696,10 +737,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false
       }
 
-      const expiresAt =
-        plan === 'monthly'
-          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          : null
+      let durationDays = 0
+      const normalizedPlan = (plan || 'lifetime').toLowerCase()
+      if (normalizedPlan.includes('quarterly')) durationDays = 90
+      else if (normalizedPlan.includes('annual') || normalizedPlan.includes('yearly')) durationDays = 365
+      else if (normalizedPlan.includes('monthly')) durationDays = 30
+      else if (normalizedPlan.includes('lifetime')) durationDays = 0
+      else durationDays = 30
+
+      const currentExpiryMs = user.vipExpiresAt ? new Date(user.vipExpiresAt).getTime() : 0
+      const baseMs = currentExpiryMs > Date.now() ? currentExpiryMs : Date.now()
+      const expiresAt = durationDays > 0 ? new Date(baseMs + durationDays * 24 * 60 * 60 * 1000).toISOString() : null
 
       const updatedUser: AuthUser = {
         ...user,
