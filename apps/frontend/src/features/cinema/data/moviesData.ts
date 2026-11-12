@@ -12,8 +12,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'When neural networks awaken, consciousness becomes the battlefield.',
     synopsis:
       'Trong tương lai gần khi các hệ thống phân tán AI chiếm lĩnh toàn bộ cơ sở hạ tầng toàn cầu, một kỹ sư kiến trúc hệ thống ngầm phát hiện ra một thực thể số tự sinh khởi chạy từ một node bị cô lập. Một cuộc rượt đuổi nghẹt thở xuyên qua mạng lưới điện toán đám mây và thực tại mở rộng bắt đầu.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s520QIq.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg&output=webp',
+    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg&output=webp',
+    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231014-1/19e1af28cf91bac65637b7089ac3a6a6.jpg&output=webp',
     trailerUrl: 'https://www.youtube.com/watch?v=bK6ldnjv520',
     youtubeKey: 'bK6ldnjv520',
     videoStreamUrl:
@@ -192,8 +192,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'When 100,000 packages meet a fractured conveyor belt at midnight.',
     synopsis:
       'Phim tài liệu kỹ thuật kịch tính ghi lại thời khắc nghẹt thở trong đợt Mega Sale 11.11. Trước nguy cơ sập luồng bốc dỡ hàng loạt và tắc nghẽn cục bộ, đội ngũ vận hành và kỹ sư phần mềm đã ứng biến tái phân luồng thủ công kết hợp thuật toán dự báo tải trọng để giải cứu toàn bộ đơn hàng trong đêm.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xJHokMbljvjADYdit5fK5VQsXEG.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg&output=webp',
+    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20240115-1/934cf5fa07b9a5e550aa1fa002e21ba9.jpg&output=webp',
+    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20240115-1/71ef73145db7cb9e2a87a0dbca5e28a5.jpg&output=webp',
     trailerUrl: 'https://www.youtube.com/watch?v=7xX_Ka3xHj0',
     youtubeKey: '7xX_Ka3xHj0',
     videoStreamUrl:
@@ -279,8 +279,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Coming Soon exclusively to Cinema Stream.',
     synopsis:
       'Bom tấn khoa học viễn tưởng sắp ra mắt về khoảnh khắc bước ngoặt khi công nghệ điện toán lượng tử kết hợp trí tuệ nhân tạo tổng quát (AGI) viết lại toàn bộ lịch sử tiến hóa nhân loại.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s520QIq.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg&output=webp',
+    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/r2JIG0IAnRAlzxO96544zOPofmr.jpg&output=webp',
+    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/fiVW06jE7z9YnO4trhaMEdclSiC.jpg&output=webp',
     trailerUrl: 'https://www.youtube.com/watch?v=EOV1q9oXh6k',
     youtubeKey: 'EOV1q9oXh6k',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',

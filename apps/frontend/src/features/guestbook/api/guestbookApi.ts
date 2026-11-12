@@ -48,18 +48,20 @@ export const guestbookApi = {
       try {
         const res = await apiClient.get<any[]>('guestbook')
         const raw = Array.isArray(res.data) ? res.data : []
-        return raw.map((item: any) => ({
-          id: item.id,
-          uid: item.uid || item.userUid || 'user',
-          name: item.name || 'Anonymous',
-          email: item.email || '',
-          avatarUrl: item.avatarUrl || item.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}`,
-          message: item.message || '',
-          role: (item.role || item.roleTitle || 'member') as UserRole,
-          timestamp: item.timestamp || new Date().toISOString(),
-          isVerifiedGoogle: Boolean(item.isVerifiedGoogle ?? item.isGoogleVerified),
-          isPinned: item.isPinned ?? false,
-        }))
+        if (raw.length > 0) {
+          return raw.map((item: any) => ({
+            id: item.id,
+            uid: item.uid || item.userUid || 'user',
+            name: item.name || 'Anonymous',
+            email: item.email || '',
+            avatarUrl: item.avatarUrl || item.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${item.id}`,
+            message: item.message || '',
+            role: (item.role || item.roleTitle || 'member') as UserRole,
+            timestamp: item.timestamp || new Date().toISOString(),
+            isVerifiedGoogle: Boolean(item.isVerifiedGoogle ?? item.isGoogleVerified),
+            isPinned: item.isPinned ?? false,
+          }))
+        }
       } catch (err) {
         console.warn('Failed to fetch remote guestbook, checking local storage:', err)
       }
