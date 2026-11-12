@@ -49,7 +49,7 @@ export class UsersAdminController {
               select: {
                 watchHistory: true,
                 comments: true,
-                paymentTransactions: true,
+                payments: true,
                 sessions: true,
               },
             },
@@ -65,7 +65,7 @@ export class UsersAdminController {
             ...u,
             watchCount: u._count.watchHistory,
             commentCount: u._count.comments,
-            transactionCount: u._count.paymentTransactions,
+            transactionCount: u._count.payments,
             activeSessionCount: u._count.sessions,
           })),
           pagination: {
@@ -96,7 +96,7 @@ export class UsersAdminController {
             orderBy: { lastWatchedAt: 'desc' },
             take: 10,
           },
-          paymentTransactions: {
+          payments: {
             orderBy: { createdAt: 'desc' },
             take: 10,
           },

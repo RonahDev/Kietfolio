@@ -48,13 +48,13 @@ export class DashboardController {
       ])
 
       // 2. Real Revenue Metrics (Aggregated from completed transactions)
-      const revenueAggregate = await prisma.paymentTransaction.aggregate({
+      const revenueAggregate = await prisma.payment.aggregate({
         where: { status: 'completed' },
         _sum: { amount: true },
         _count: { id: true },
       })
 
-      const todayRevenue = await prisma.paymentTransaction.aggregate({
+      const todayRevenue = await prisma.payment.aggregate({
         where: {
           status: 'completed',
           createdAt: { gte: todayStart },

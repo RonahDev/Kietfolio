@@ -35,7 +35,10 @@ model User {
   comments            Comment[]
   commentReports      CommentReport[]
   watchHistory        WatchHistory[]
-  paymentTransactions PaymentTransaction[]
+  payments            Payment[]
+  watchlist           Watchlist[]
+  guestbookEntries    GuestbookEntry[]
+  contactMessages     ContactMessage[]
   auditLogs           AuditLog[]
 
   @@index([role])
@@ -118,34 +121,42 @@ model LoginAttempt {
 // -----------------------------------------------------------------------------
 
 model Movie {
-  id             String    @id @default(uuid())
-  titleVi        String    @map("title_vi")
-  titleOrigin    String?   @map("title_origin")
-  slug           String    @unique
-  type           String    @default("movie") // "movie" | "tv_series"
-  synopsis       String?   @db.Text
-  posterUrl      String    @map("poster_url")
-  backdropUrl    String    @map("backdrop_url")
-  trailerUrl     String?   @map("trailer_url")
-  youtubeKey     String?   @map("youtube_key")
-  videoStreamUrl String?   @map("video_stream_url")
-  streamSource   String    @default("hls") @map("stream_source") // "hls" | "youtube" | "kkphim"
-  releaseYear    Int       @map("release_year")
-  duration       String?   // e.g. "148 min"
-  rating         Float     @default(8.5)
-  ageRating      String    @default("PG-13") @map("age_rating")
-  quality        String    @default("4K ULTRA HD")
-  audio          String    @default("DOLBY ATMOS")
-  director       String?
-  castData       Json?     @map("cast_data") // Array of { name, role, avatarUrl }
-  tmdbId         Int?      @map("tmdb_id")
-  status         String    @default("published") // "draft" | "published" | "hidden" | "scheduled"
-  isTheatrical   Boolean   @default(false) @map("is_theatrical")
-  isFeatured     Boolean   @default(false) @map("is_featured")
-  viewCount      BigInt    @default(0) @map("view_count")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
+  id                  String    @id @default(uuid())
+  titleVi             String    @map("title_vi")
+  titleOrigin         String?   @map("title_origin")
+  slug                String    @unique
+  type                String    @default("movie") // "movie" | "tv_series"
+  synopsis            String?   @db.Text
+  tagline             String?
+  posterUrl           String    @map("poster_url")
+  backdropUrl         String    @map("backdrop_url")
+  trailerUrl          String?   @map("trailer_url")
+  youtubeKey          String?   @map("youtube_key")
+  videoStreamUrl      String?   @map("video_stream_url")
+  streamSource        String    @default("hls") @map("stream_source") // "hls" | "youtube" | "kkphim"
+  releaseYear         Int       @map("release_year")
+  duration            String?   // e.g. "148 min"
+  rating              Float     @default(8.5)
+  matchPercentage     Int?      @default(95) @map("match_percentage")
+  ageRating           String    @default("PG-13") @map("age_rating")
+  quality             String    @default("4K ULTRA HD")
+  audio               String    @default("DOLBY ATMOS")
+  director            String?
+  castData            Json?     @map("cast_data") // Array of { name, role, avatarUrl }
+  tmdbId              Int?      @map("tmdb_id")
+  status              String    @default("published") // "draft" | "published" | "hidden" | "scheduled"
+  isTheatrical        Boolean   @default(false) @map("is_theatrical")
+  isVietnamese        Boolean   @default(false) @map("is_vietnamese")
+  isAnimeTheatrical   Boolean   @default(false) @map("is_anime_theatrical")
+  franchise           String?   // e.g. "doraemon", "conan", "shin", "dragonball", "naruto", "onepiece"
+  officialDistributor String?   @map("official_distributor")
+  watchProviders      Json?     @map("watch_providers")
+  similarMovieIds     Json?     @map("similar_movie_ids")
+  isFeatured          Boolean   @default(false) @map("is_featured")
+  viewCount           BigInt    @default(0) @map("view_count")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  deletedAt           DateTime? @map("deleted_at")
 
   // Relations
   genres         MovieGenre[]
@@ -154,12 +165,14 @@ model Movie {
   episodes       Episode[]
   comments       Comment[]
   watchHistory   WatchHistory[]
+  watchlist      Watchlist[]
   banners        Banner[]
   featuredMovies FeaturedMovie[]
 
-  @@index([status])
-  @@index([type])
-  @@index([isTheatrical])
+  @@index([status, type, releaseYear(sort: Desc)])
+  @@index([isTheatrical, status])
+  @@index([isVietnamese])
+  @@index([franchise])
   @@index([releaseYear])
   @@map("movies")
 }
@@ -344,24 +357,27 @@ model WatchHistory {
   @@map("watch_history")
 }
 
-model PaymentTransaction {
-  id              String    @id @default(uuid())
-  transactionCode String    @unique @map("transaction_code")
-  userId          String?   @map("user_id")
-  amount          Decimal   @db.Decimal(12, 2)
-  paymentMethod   String    @map("payment_method") // "vietcombank" | "momo" | "vnpay"
-  status          String    @default("pending") // "completed" | "pending" | "failed" | "refunded"
-  orderType       String    @default("coffee") @map("order_type") // "coffee" | "vip_upgrade" | "mentorship"
-  donorName       String?   @map("donor_name")
-  donorMessage    String?   @map("donor_message")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  completedAt     DateTime? @map("completed_at")
+model Payment {
+  id               String    @id @default(uuid())
+  orderId          String    @unique @map("order_id")
+  userId           String?   @map("user_uid")
+  donorName        String    @map("donor_name")
+  donorMessage     String?   @map("donor_message")
+  amount           Decimal   @db.Decimal(12, 2)
+  orderType        String    @default("coffee") @map("order_type") // "coffee" | "mentorship" | "vip_upgrade" | "custom"
+  status           String    @default("pending") // "pending" | "success" | "failed"
+  vnpTransactionNo String?   @map("vnp_transaction_no")
+  bankCode         String?   @map("bank_code")
+  responseCode     String?   @map("response_code")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  @@index([orderId])
   @@index([status])
-  @@index([paymentMethod])
-  @@map("payment_transactions")
+  @@index([createdAt(sort: Desc)])
+  @@map("payments")
 }
 
 // -----------------------------------------------------------------------------
@@ -436,4 +452,91 @@ model SystemSetting {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
+}
+
+// -----------------------------------------------------------------------------
+// 5. PORTFOLIO & COMMUNITY INTERACTION
+// -----------------------------------------------------------------------------
+
+model GuestbookEntry {
+  id               String   @id @default(uuid())
+  userUid          String?  @map("user_uid")
+  name             String
+  avatar           String?  @db.Text
+  roleTitle        String?  @map("role_title")
+  message          String   @db.Text
+  isGoogleVerified Boolean  @default(false) @map("is_google_verified")
+  isPinned         Boolean  @default(false) @map("is_pinned")
+  isApproved       Boolean  @default(true) @map("is_approved")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userUid], references: [id], onDelete: SetNull)
+
+  @@index([isApproved, isPinned(sort: Desc), createdAt(sort: Desc)])
+  @@map("guestbook_entries")
+}
+
+model ContactMessage {
+  id             String   @id @default(uuid())
+  userUid        String?  @map("user_uid")
+  name           String
+  email          String
+  subject        String
+  message        String   @db.Text
+  isVerifiedUser Boolean  @default(false) @map("is_verified_user")
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userUid], references: [id], onDelete: SetNull)
+
+  @@index([read, createdAt(sort: Desc)])
+  @@map("contact_messages")
+}
+
+model Project {
+  id                      String   @id
+  title                   String
+  subtitle                Json     // { en: string, vi: string }
+  category                String   // "creative" | "systems" | "fullstack" | "logistics"
+  statusBadge             Json     @map("status_badge") // { en: string, vi: string }
+  isFeatured              Boolean  @default(false) @map("is_featured")
+  problemStatement        Json     @map("problem_statement") // { en: string, vi: string }
+  solutionArchitecture    Json     @map("solution_architecture") // { en: string, vi: string }
+  keyEngineeringDecisions Json     @map("key_engineering_decisions") // { en: string[], vi: string[] }
+  techStack               String[] @map("tech_stack")
+  githubUrl               String   @map("github_url")
+  liveUrl                 String?  @map("live_url")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  @@index([isFeatured(sort: Desc)])
+  @@index([category])
+  @@map("projects")
+}
+
+model Watchlist {
+  userId    String   @map("user_id")
+  movieId   String   @map("movie_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@id([userId, movieId])
+  @@map("watchlist")
+}
+
+model ChatLog {
+  id            String   @id @default(uuid())
+  userId        String?  @map("user_id")
+  userRole      String?  @map("user_role")
+  query         String   @db.Text
+  reply         String   @db.Text
+  topicDetected String?  @map("topic_detected")
+  confidence    Float?
+  ipAddress     String?  @map("ip_address")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt(sort: Desc)])
+  @@index([topicDetected])
+  @@map("chat_logs")
 }

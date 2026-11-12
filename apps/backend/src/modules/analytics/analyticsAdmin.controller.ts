@@ -77,20 +77,20 @@ export class AnalyticsAdminController {
    */
   public static async getRevenueAnalytics(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const transactions = await prisma.paymentTransaction.findMany({
+      const transactions = await prisma.payment.findMany({
         where: { status: 'completed' },
         orderBy: { createdAt: 'desc' },
         take: 50,
       })
 
       // Aggregate totals
-      const totals = await prisma.paymentTransaction.aggregate({
+      const totals = await prisma.payment.aggregate({
         where: { status: 'completed' },
         _sum: { amount: true },
         _count: { id: true },
       })
 
-      const pendingTotals = await prisma.paymentTransaction.aggregate({
+      const pendingTotals = await prisma.payment.aggregate({
         where: { status: 'pending' },
         _sum: { amount: true },
         _count: { id: true },
@@ -124,7 +124,7 @@ export class AnalyticsAdminController {
             { method: 'Ví MoMo DeepLink', percentage: 32, amount: 14464000 },
             { method: 'VNPay Cổng Thanh Toán', percentage: 14, amount: 6328000 },
           ],
-          recentTransactions: transactions.map((t) => ({
+          recentTransactions: transactions.map((t: any) => ({
             ...t,
             amount: Number(t.amount),
           })),
@@ -173,7 +173,7 @@ export class AnalyticsAdminController {
       }
 
       if (type === 'revenue') {
-        const txs = await prisma.paymentTransaction.findMany({
+        const txs = await prisma.payment.findMany({
           orderBy: { createdAt: 'desc' },
           take: 500,
         })
@@ -181,8 +181,8 @@ export class AnalyticsAdminController {
         const header = 'ID,Transaction Code,Amount (VND),Method,Order Type,Status,Created At\n'
         const rows = txs
           .map(
-            (t) =>
-              `"${t.id}","${t.transactionCode}",${t.amount},"${t.paymentMethod}","${t.orderType}","${t.status}","${t.createdAt.toISOString()}"`
+            (t: any) =>
+              `"${t.id}","${t.transactionCode || t.vnpTransactionNo || ''}",${t.amount},"${t.paymentMethod || 'VNPay'}","${t.orderType || 'vip_upgrade'}","${t.status}","${t.createdAt.toISOString()}"`
           )
           .join('\n')
 
