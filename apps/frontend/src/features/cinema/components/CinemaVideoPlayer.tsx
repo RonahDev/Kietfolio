@@ -53,7 +53,7 @@ export const CinemaVideoPlayer: React.FC = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1)
   const [showSettings, setShowSettings] = useState(false)
   const [showEpisodes, setShowEpisodes] = useState(false)
-  const [selectedQuality, setSelectedQuality] = useState('4K UHD')
+  const [selectedQuality, setSelectedQuality] = useState(() => (isVip || isAdmin ? '4K UHD' : '1080p FHD'))
   const [selectedSubtitle, setSelectedSubtitle] = useState('Tiếng Việt')
   const [currentEpIndex, setCurrentEpIndex] = useState<number>(0)
   const [streamError, setStreamError] = useState<string | null>(null)
@@ -164,6 +164,16 @@ export const CinemaVideoPlayer: React.FC = () => {
   // Keyboard shortcuts (Space, F, M, ArrowLeft, ArrowRight, Escape)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault()
         togglePlay()

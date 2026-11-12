@@ -652,7 +652,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user])
 
   const isVip = useMemo(() => {
-    return Boolean(user && (user.role === 'vip' || isAdmin))
+    if (!user) return false
+    if (isAdmin) return true
+    if (user.role === 'vip') {
+      if (user.vipExpiresAt) {
+        const expiry = new Date(user.vipExpiresAt).getTime()
+        if (expiry < Date.now()) return false
+      }
+      return true
+    }
+    return false
   }, [user, isAdmin])
 
   const isMember = useMemo(() => {

@@ -191,24 +191,27 @@ export class VnpayService {
     let upgradedToken: string | undefined
 
     try {
-      await pool.query(
-        `UPDATE payments 
-         SET status = $1, vnp_transaction_no = $2, bank_code = $3, response_code = $4, updated_at = NOW()
-         WHERE order_id = $5`,
-        [status, transactionNo, bankCode, responseCode, orderId]
-      )
-
       if (isSuccess) {
         const payRes = await pool.query(
-          `SELECT user_uid, order_type, amount FROM payments WHERE order_id = $1`,
+          `SELECT user_uid, order_type, amount, status FROM payments WHERE order_id = $1`,
           [orderId]
         )
         if (payRes.rows.length > 0) {
           const row = payRes.rows[0]
+          const wasAlreadySuccess = row.status === 'success'
+
+          await pool.query(
+            `UPDATE payments 
+             SET status = $1, vnp_transaction_no = $2, bank_code = $3, response_code = $4, updated_at = NOW()
+             WHERE order_id = $5`,
+            [status, transactionNo, bankCode, responseCode, orderId]
+          )
+
           effectiveOrderType = row.order_type
           const userUid = row.user_uid
 
-          if (effectiveOrderType && effectiveOrderType.toLowerCase().startsWith('vip') && userUid) {
+          // Only perform cumulative upgrade if not already successfully processed (prevent double-spend / replay)
+          if (!wasAlreadySuccess && effectiveOrderType && effectiveOrderType.toLowerCase().startsWith('vip') && userUid) {
             let plan: 'monthly' | 'quarterly' | 'annual' | 'lifetime' = 'monthly'
             const lowerType = effectiveOrderType.toLowerCase()
 
@@ -226,13 +229,28 @@ export class VnpayService {
             upgradedUser = upgradeResult.user
             upgradedToken = upgradeResult.token
           }
+        } else {
+          await pool.query(
+            `UPDATE payments 
+             SET status = $1, vnp_transaction_no = $2, bank_code = $3, response_code = $4, updated_at = NOW()
+             WHERE order_id = $5`,
+            [status, transactionNo, bankCode, responseCode, orderId]
+          )
         }
+      } else {
+        await pool.query(
+          `UPDATE payments 
+           SET status = $1, vnp_transaction_no = $2, bank_code = $3, response_code = $4, updated_at = NOW()
+           WHERE order_id = $5`,
+          [status, transactionNo, bankCode, responseCode, orderId]
+        )
       }
     } catch {
       // Memory fallback
     }
 
     const memTarget = memoryPayments.find((p) => p.orderId === orderId)
+    const memAlreadySuccess = memTarget?.status === 'success'
     if (memTarget) {
       memTarget.status = status
       memTarget.vnpTransactionNo = transactionNo
@@ -241,7 +259,8 @@ export class VnpayService {
       memTarget.updatedAt = new Date().toISOString()
       effectiveOrderType = effectiveOrderType || memTarget.orderType
 
-      if (isSuccess && memTarget.orderType && memTarget.orderType.toLowerCase().startsWith('vip') && memTarget.userUid && !upgradedUser) {
+      // Prevent duplicate replay execution on memory store as well
+      if (isSuccess && !memAlreadySuccess && memTarget.orderType && memTarget.orderType.toLowerCase().startsWith('vip') && memTarget.userUid && !upgradedUser) {
         try {
           let plan: 'monthly' | 'quarterly' | 'annual' | 'lifetime' = 'monthly'
           const lowerType = memTarget.orderType.toLowerCase()
