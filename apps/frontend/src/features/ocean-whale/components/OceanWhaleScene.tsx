@@ -1,332 +1,249 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { usePerformance } from '@/hooks'
+import { isReducedMotion } from '@/animations'
+import {
+  buildProceduralHumpbackGeometry,
+  buildProceduralFlipperGeometry,
+  buildProceduralFlukeGeometry,
+  buildProceduralDorsalGeometry,
+} from '../utils/whaleGeometryBuilder'
 
 // =============================================================================
-// 1. PROCEDURAL ANATOMICAL HUMPBACK / BLUE WHALE GEOMETRY
-// =============================================================================
-
-/**
- * Creates an organic, streamlined spindle body for a majestic whale.
- * Designed with realistic anatomical profiles:
- * - Rostrum apex & upper jaw ridge
- * - Ventral pouch (throat groove region)
- * - Tapered caudal peduncle
- */
-function createWhaleBodyGeometry(): THREE.BufferGeometry {
-  const geom = new THREE.BufferGeometry()
-  const radialSegments = 24
-
-  // Longitudinal spine cross-sections: [z, yCenter, radiusX, radiusY, ventralSquash]
-  const spineProfiles = [
-    [7.2, -0.25, 0.35, 0.22, 1.0],  // 0: Snout tip / rostrum apex
-    [6.2, -0.15, 1.15, 0.75, 1.1],  // 1: Anterior rostrum
-    [4.8, 0.12, 1.85, 1.35, 1.25],  // 2: Upper jaw & eye ridges
-    [3.2, 0.25, 2.35, 1.85, 1.35],  // 3: Blowhole depression & throat pouch
-    [1.4, 0.15, 2.55, 2.15, 1.3],   // 4: Thorax / deepest chest
-    [-0.6, 0.05, 2.35, 2.05, 1.15], // 5: Midbody
-    [-2.2, 0.0, 1.95, 1.75, 1.05],  // 6: Posterior abdomen
-    [-3.6, 0.05, 1.55, 1.35, 1.0],  // 7: Trunk
-    [-4.8, 0.12, 1.12, 1.05, 1.0],  // 8: Dorsal fin base
-    [-5.8, 0.1, 0.75, 0.85, 0.95],  // 9: Anterior peduncle
-    [-6.7, 0.05, 0.45, 0.65, 0.9],  // 10: Caudal peduncle (laterally compressed)
-    [-7.3, 0.0, 0.28, 0.38, 0.9],   // 11: Fluke articulation mount
-  ]
-
-  const ringCount = spineProfiles.length
-  const vertices: number[] = []
-  const uvs: number[] = []
-  const indices: number[] = []
-
-  for (let i = 0; i < ringCount; i++) {
-    const [z, yc, rx, ry, vSquash] = spineProfiles[i]
-    const vCoord = i / (ringCount - 1)
-
-    for (let j = 0; j < radialSegments; j++) {
-      const angle = (j / radialSegments) * Math.PI * 2
-      const uCoord = j / radialSegments
-      const sinA = Math.sin(angle)
-      const cosA = Math.cos(angle)
-
-      const x = sinA * rx
-      // Organic ventral droop: lower half expands into the characteristic expandable throat pouch
-      const yMultiplier = cosA < 0 ? vSquash : 0.95
-      const y = yc + cosA * ry * yMultiplier
-
-      vertices.push(x, y, z)
-      uvs.push(uCoord, vCoord)
-    }
-  }
-
-  // Connect rings
-  for (let i = 0; i < ringCount - 1; i++) {
-    const rStart = i * radialSegments
-    const nextStart = (i + 1) * radialSegments
-    for (let j = 0; j < radialSegments; j++) {
-      const c = rStart + j
-      const n = rStart + ((j + 1) % radialSegments)
-      const cNext = nextStart + j
-      const nNext = nextStart + ((j + 1) % radialSegments)
-
-      indices.push(c, n, cNext)
-      indices.push(n, nNext, cNext)
-    }
-  }
-
-  // Front apex cap (snout)
-  const snoutIdx = vertices.length / 3
-  vertices.push(0, spineProfiles[0][1], spineProfiles[0][0] + 0.35)
-  uvs.push(0.5, 0)
-  for (let j = 0; j < radialSegments; j++) {
-    const c = j
-    const n = (j + 1) % radialSegments
-    indices.push(snoutIdx, c, n)
-  }
-
-  // Rear cap (tail mount)
-  const tailIdx = vertices.length / 3
-  const lastRStart = (ringCount - 1) * radialSegments
-  vertices.push(0, spineProfiles[ringCount - 1][1], spineProfiles[ringCount - 1][0] - 0.25)
-  uvs.push(0.5, 1)
-  for (let j = 0; j < radialSegments; j++) {
-    const c = lastRStart + j
-    const n = lastRStart + ((j + 1) % radialSegments)
-    indices.push(tailIdx, n, c)
-  }
-
-  geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
-  geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
-  geom.setIndex(indices)
-  geom.computeVertexNormals()
-  return geom
-}
-
-/**
- * Creates curved, aerodynamic pectoral flippers with leading edge tubercles.
- */
-function createWhaleFlipperGeometry(isLeft: boolean): THREE.BufferGeometry {
-  const shape = new THREE.Shape()
-  shape.moveTo(0, 0)
-  // Leading edge with gentle scalloped curves (tubercles)
-  shape.bezierCurveTo(0.7, -1.1, 1.25, -2.8, 1.05, -4.5)
-  shape.bezierCurveTo(0.9, -5.2, 0.45, -5.5, 0.05, -5.1) // Wing tip
-  shape.bezierCurveTo(-0.45, -4.3, -0.65, -2.5, -0.5, -1.2) // Trailing edge
-  shape.lineTo(0, 0)
-
-  const geom = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.14,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    steps: 1,
-    bevelSize: 0.04,
-    bevelThickness: 0.04,
-  })
-
-  if (!isLeft) {
-    geom.scale(-1, 1, 1)
-  }
-  geom.computeVertexNormals()
-  return geom
-}
-
-/**
- * Creates the bifurcated horizontal caudal tail fluke with central notch.
- */
-function createWhaleFlukeGeometry(): THREE.BufferGeometry {
-  const shape = new THREE.Shape()
-  shape.moveTo(0, 0)
-  // Right wing
-  shape.bezierCurveTo(1.5, 0.5, 3.2, 0.85, 3.8, 0.15) // Right wingtip
-  shape.bezierCurveTo(3.2, -0.55, 1.7, -1.0, 0.3, -0.75) // Trailing edge
-  shape.lineTo(0, -0.5) // Central notch
-  // Left wing
-  shape.lineTo(-0.3, -0.75)
-  shape.bezierCurveTo(-1.7, -1.0, -3.2, -0.55, -3.8, 0.15) // Left wingtip
-  shape.bezierCurveTo(-3.2, 0.85, -1.5, 0.5, 0, 0) // Leading edge
-
-  const geom = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.14,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    steps: 1,
-    bevelSize: 0.05,
-    bevelThickness: 0.04,
-  })
-
-  geom.rotateX(Math.PI / 2) // Orient horizontally
-  geom.center()
-  geom.computeVertexNormals()
-  return geom
-}
-
-/**
- * Creates the sleek falcate dorsal fin.
- */
-function createWhaleDorsalGeometry(): THREE.BufferGeometry {
-  const shape = new THREE.Shape()
-  shape.moveTo(0, 0)
-  shape.bezierCurveTo(0.12, 0.6, 0.4, 1.25, 0.8, 1.5) // Curved apex
-  shape.bezierCurveTo(0.5, 0.95, 0.2, 0.45, -0.5, 0)  // Trailing scoop
-  shape.lineTo(0, 0)
-
-  const geom = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.09,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    steps: 1,
-    bevelSize: 0.025,
-    bevelThickness: 0.025,
-  })
-  geom.computeVertexNormals()
-  return geom
-}
-
-// =============================================================================
-// 2. ADVANCED GPU SHADERS: WET ORGANIC WHALE SKIN & GERSTNER OCEAN WAVES
+// 1. PHOTOREALISTIC GLSL SHADERS: NOAA HUMPBACK PBR SKIN & OPTICAL WATER ABSORPTION
 // =============================================================================
 
 /**
- * Whale Wet Skin Vertex Shader
- * Deforms the spine with an authentic travelling kinematic wave (S-curve undulating swim)
- * entirely on GPU with 0 CPU overhead.
+ * Whale PBR Wet Skin Vertex Shader
+ * Deforms the NOAA skeletal spine and pectoral flippers using authentic cetacean kinematics.
+ * Runs 100% on GPU with analytical normal vector rotation for razor-sharp specular highlights.
  */
 const whaleVertexShader = `
   uniform float uTime;
+  uniform float uSwimPhase;
+  uniform float uSwimAmp;
+  uniform float uArch;
+  uniform float uFlipperFlap;
+  uniform vec3 uSunDirection;
+
+  attribute vec4 rig; // [axialZ (5.80 to -9.34), flipperIndex (0=body, 1=left, 2=right), flipperWeight, 0]
+
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   varying vec3 vWorldPosition;
   varying vec2 vUv;
-  varying float vSpineWeight;
+  varying float vAxialZ;
+  varying float vDepth;
 
   void main() {
     vUv = uv;
+    float restZ = rig.x;
+    vAxialZ = restZ;
+
     vec3 transformed = position;
+    vec3 transformedNormal = normal;
 
-    // Head remains stable (z > 2.0) while torso and tail undulate with increasing amplitude
-    float tailWeight = clamp((-position.z + 2.5) / 9.5, 0.0, 1.0);
-    vSpineWeight = tailWeight;
+    // --- Cetacean Kinematic Wave (Spine undulation) ---
+    // The massive rostrum and head (restZ > 1.0) stay steady with slight hydrodynamic recoil.
+    // The caudal trunk and peduncle (restZ <= 1.0) undulate with quadratic amplitude growth.
+    float d = max(0.0, 1.2 - restZ); // distance posterior to pectoral girdle
+    float flexEnv = pow(clamp(d / 10.5, 0.0, 1.0), 1.8);
 
-    // Travelling cetacean locomotion wave
-    float wavePhase = uTime * 3.4 + position.z * 0.42;
-    float verticalFlex = sin(wavePhase) * (0.55 * tailWeight * tailWeight);
-    float lateralFlex = cos(wavePhase * 0.5) * (0.16 * tailWeight);
+    // S-curve travelling harmonic wave
+    float strokePhase = uSwimPhase - d * 0.44;
+    float tailFlexY = (sin(strokePhase) + 0.22 * sin(strokePhase * 2.0)) * flexEnv * uSwimAmp * 1.55;
 
-    transformed.y += verticalFlex;
-    transformed.x += lateralFlex;
+    // Angle of attack lead on horizontal tail fluke (fluke leads stroke, pushing water back)
+    float flukeLead = 0.0;
+    if (restZ < -6.5) {
+      float flukeWeight = clamp((-restZ - 6.5) / 2.6, 0.0, 1.0);
+      flukeLead = sin(strokePhase + 1.25) * flukeWeight * uSwimAmp * 1.25;
+    }
 
-    // Dynamic normal distortion matching spinal bend
-    vec3 normalDistort = normal;
-    normalDistort.y += cos(wavePhase) * 0.22 * tailWeight;
-    normalDistort.x -= sin(wavePhase * 0.5) * 0.08 * tailWeight;
-    vNormal = normalize(normalMatrix * normalDistort);
+    // Subtle natural 3D organic lateral yaw
+    float tailFlexX = cos(strokePhase * 0.5) * flexEnv * uSwimAmp * 0.30;
+
+    // Dorsal Arching (characteristic hump when rolling over into a dive)
+    float archFlexY = -uArch * 2.4 * pow(clamp(d / 8.2, 0.0, 1.0), 1.4);
+
+    // Head subtle recoil against fluke power stroke
+    float headRecoil = 0.0;
+    if (restZ > 1.2) {
+      headRecoil = -sin(strokePhase) * 0.08 * uSwimAmp * clamp((restZ - 1.2) / 4.6, 0.0, 1.0);
+    }
+
+    transformed.y += tailFlexY + flukeLead + archFlexY + headRecoil;
+    transformed.x += tailFlexX;
+
+    // --- Pectoral Flipper Articulation ---
+    if (rig.y > 0.5) {
+      float isRight = step(1.5, rig.y);
+      float flipSign = isRight > 0.5 ? -1.0 : 1.0;
+      float flapAngle = uFlipperFlap * 0.24 * rig.z;
+      float spanDist = max(0.0, abs(position.x) - 1.05);
+
+      // Flapping roll and hydrodynamic pitch
+      transformed.y += sin(flapAngle) * spanDist * flipSign;
+      transformed.z -= (1.0 - cos(flapAngle)) * spanDist * 0.25;
+    }
+
+    // Dynamic normal distortion matching spinal curvature slope
+    float dSlope = cos(strokePhase) * 0.65 * flexEnv * uSwimAmp;
+    transformedNormal.y += dSlope;
+    transformedNormal.x -= sin(strokePhase * 0.5) * 0.15 * flexEnv * uSwimAmp;
+    vNormal = normalize(normalMatrix * transformedNormal);
 
     vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
     vViewPosition = -mvPosition.xyz;
-    vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
+    vec4 worldPos = modelMatrix * vec4(transformed, 1.0);
+    vWorldPosition = worldPos.xyz;
+    vDepth = worldPos.y; // depth relative to sea level (0.0)
 
     gl_Position = projectionMatrix * mvPosition;
   }
 `
 
 /**
- * Whale Wet Skin Fragment Shader
- * Solves the "plastic" look with:
+ * Whale PBR Wet Skin Fragment Shader
+ * Documentary Wildlife Cinematography:
+ * - Photographic texture mapping (albedo from real humpback photographic scans)
  * - Natural marine countershading (slate charcoal dorsal vs pleated ivory ventral)
- * - Procedural longitudinal throat pleats (ventral grooves)
- * - Glancing wet water sheen (Fresnel clearcoat)
- * - Subsurface scattering (bioluminescent oceanic cyan rim glow)
+ * - Dual-lobe specular highlights (sharp water film glint + soft skin sheen)
+ * - Dynamic sunlight caustics rippling across dorsal surfaces near water level
+ * - Optical depth absorption (red/amber attenuation in deep water)
+ * - Subsurface scattering along thin flipper edges and fluke tips
  */
 const whaleFragmentShader = `
+  uniform sampler2D uAlbedoMap;
+  uniform float uHasAlbedo;
   uniform vec3 uSunDirection;
+  uniform float uTime;
+  uniform float uWetness;
   uniform vec3 uDorsalColor;
   uniform vec3 uBellyColor;
-  uniform vec3 uWetSheenColor;
-  uniform float uTime;
+  uniform vec3 uAbyssColor;
 
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   varying vec3 vWorldPosition;
   varying vec2 vUv;
-  varying float vSpineWeight;
+  varying float vAxialZ;
+  varying float vDepth;
 
   void main() {
     vec3 normal = normalize(vNormal);
     vec3 viewDir = normalize(vViewPosition);
     vec3 sunDir = normalize(uSunDirection);
 
-    // Natural marine countershading: back faces upward into dark slate, belly faces down into cream
-    float dorsalBellyMix = smoothstep(-0.35, 0.55, normal.y);
-    vec3 skinBaseColor = mix(uBellyColor, uDorsalColor, dorsalBellyMix);
+    // 1. Base Albedo & Countershading
+    vec3 skinColor;
+    if (uHasAlbedo > 0.5) {
+      vec4 texel = texture2D(uAlbedoMap, vUv);
+      skinColor = texel.rgb;
+    } else {
+      // High-precision procedural countershading fallback
+      float dorsalBellyMix = smoothstep(-0.25, 0.45, normal.y);
+      skinColor = mix(uBellyColor, uDorsalColor, dorsalBellyMix);
 
-    // Procedural Ventral Grooves (throat pleats): fine longitudinal folds under the chest
-    if (vUv.y < 0.65 && normal.y < 0.2) {
-      float pleatWave = sin(vUv.x * 48.0 * 3.14159) * 0.5 + 0.5;
-      float pleatDepth = smoothstep(0.0, 0.4, -normal.y);
-      skinBaseColor = mix(skinBaseColor, skinBaseColor * 0.65, pleatWave * pleatDepth * 0.6);
+      // Ventral grooves (throat pleats) on lower thorax
+      if (vAxialZ > -2.0 && normal.y < 0.15) {
+        float pleatWave = sin(vUv.x * 56.0 * 3.14159) * 0.5 + 0.5;
+        float pleatDepth = smoothstep(0.0, 0.35, -normal.y);
+        skinColor = mix(skinColor, skinColor * 0.62, pleatWave * pleatDepth * 0.55);
+      }
+
+      // Mottled skin pigmentation noise
+      float mottling = sin(vWorldPosition.x * 3.2) * cos(vWorldPosition.z * 2.8) * 0.035;
+      skinColor += mottling;
     }
 
-    // Natural skin mottling texture
-    float mottle = sin(vWorldPosition.x * 4.0) * sin(vWorldPosition.z * 3.0) * 0.04;
-    skinBaseColor += mottle;
+    // 2. Soft Wrapped Diffuse Lighting (water scatters light into shadows)
+    float wrap = 0.32;
+    float NdotL = max(0.0, (dot(normal, sunDir) + wrap) / (1.0 + wrap));
+    vec3 diffuse = skinColor * (0.32 + 0.68 * NdotL);
 
-    // Diffuse directional sunlight
-    float NdotL = max(dot(normal, sunDir), 0.0);
-    vec3 diffuse = skinBaseColor * (0.35 + 0.65 * NdotL);
+    // 3. Underwater Caustics (Sunlight Refraction ripples near surface Y between -0.4 and -5.0)
+    if (vDepth < -0.1 && vDepth > -6.0) {
+      float depthFade = smoothstep(-6.0, -1.2, vDepth) * smoothstep(0.2, -0.6, vDepth);
+      float cTime = uTime * 1.8;
+      vec2 cCoord = vWorldPosition.xz * 0.45;
+      float c1 = sin(cCoord.x * 4.2 + cTime) * cos(cCoord.y * 3.8 - cTime);
+      float c2 = sin(cCoord.x * 2.4 - cCoord.y * 2.4 + cTime * 1.3);
+      float caustics = pow(max(0.0, (c1 + c2) * 0.5 + 0.5), 2.2) * 0.48 * depthFade * max(0.0, normal.y);
+      diffuse += vec3(0.12, 0.38, 0.48) * caustics;
+    }
 
-    // Dual-Layer Wet Sheen: Ocean water coating the whale's skin reflects sharp sunlight
-    vec3 halfVector = normalize(sunDir + viewDir);
-    float specAngle = max(dot(normal, halfVector), 0.0);
-    float wetSpecular = pow(specAngle, 64.0) * 1.4; // Sharp wet glint
-    float broadSpecular = pow(specAngle, 16.0) * 0.35; // Soft skin sheen
+    // 4. Dual-Lobe Specular Highlights (Photorealistic Wet Skin)
+    vec3 halfVec = normalize(sunDir + viewDir);
+    float NdotH = max(dot(normal, halfVec), 0.0);
+    // Lobe 1: Thin water film clearcoat glint
+    float sharpSpec = pow(NdotH, 96.0) * 1.85 * uWetness;
+    // Lobe 2: Soft mammalian skin sheen
+    float softSpec = pow(NdotH, 18.0) * 0.32;
+    vec3 specular = (vec3(0.92, 0.96, 1.0) * sharpSpec) + (vec3(0.4, 0.7, 0.85) * softSpec);
 
-    // Fresnel Effect (Subsurface Scattering & Water Rim Sheen)
-    float fresnel = pow(1.0 - max(dot(viewDir, normal), 0.0), 3.2);
-    vec3 rimGlow = uWetSheenColor * (fresnel * 0.75);
+    // 5. Fresnel Subsurface Scattering (Backlit thin tissue at fin tips & edges)
+    float fresnel = pow(1.0 - max(dot(viewDir, normal), 0.0), 4.2);
+    float sss = pow(max(0.0, dot(viewDir, -sunDir)), 3.0) * 0.45;
+    vec3 rimLight = vec3(0.02, 0.18, 0.28) * (fresnel * 0.85 + sss);
 
-    vec3 finalColor = diffuse + (wetSpecular + broadSpecular) * vec3(0.85, 0.95, 1.0) + rimGlow;
+    // 6. Optical Water Depth Absorption (Red/Amber attenuation in deep ocean)
+    float underwaterDepth = max(0.0, -vDepth);
+    vec3 waterAbsorption = exp(-vec3(0.18, 0.06, 0.02) * underwaterDepth);
+    diffuse *= waterAbsorption;
 
+    vec3 finalColor = diffuse + specular + rimLight;
     gl_FragColor = vec4(finalColor, 1.0);
   }
 `
 
+// =============================================================================
+// 2. PHOTOREALISTIC GERSTNER (TROCHOIDAL) OCEAN WAVE SIMULATION
+// =============================================================================
+
 /**
- * Gerstner Physical Ocean Wave Vertex Shader
- * Implements 4-harmonic Gerstner (Trochoidal) wave math on GPU:
- * sharp peaked crests and broad rounded troughs with exact analytical surface normals.
+ * Physical Gerstner Ocean Wave Vertex Shader
+ * 6-harmonic physical trochoidal ocean swells with analytical normals.
+ * Water particles travel in circular trochoidal orbits (sharp peaks, broad troughs).
+ * Includes dynamic wake displacement from whale surfacing.
  */
 const oceanVertexShader = `
   uniform float uTime;
+  uniform vec3 uWhalePos;
+  uniform float uWhaleWakeStrength;
+
   varying vec3 vWorldPosition;
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   varying float vElevation;
   varying float vWavePeak;
+  varying float vWhaleDist;
 
-  // Gerstner Wave generator function
-  vec3 calcGerstnerWave(vec4 waveParams, vec3 p, inout vec3 tangent, inout vec3 binormal) {
-    float steepness = waveParams.z;
-    float wavelength = waveParams.w;
+  // Gerstner Wave Displacement & Derivative Accumulator
+  vec3 calcGerstner(vec4 wave, vec3 pos, inout vec3 tangent, inout vec3 binormal) {
+    float steepness = wave.z;
+    float wavelength = wave.w;
     float k = 6.2831853 / wavelength;
     float c = sqrt(9.81 / k);
-    vec2 d = normalize(waveParams.xy);
-    float f = k * (dot(d, p.xz) - c * uTime * 0.55);
+    vec2 d = normalize(wave.xy);
+    float phase = k * (dot(d, pos.xz) - c * uTime * 0.48);
     float a = steepness / k;
 
     tangent += vec3(
-      -d.x * d.x * (steepness * sin(f)),
-      d.x * (steepness * cos(f)),
-      -d.x * d.y * (steepness * sin(f))
+      -d.x * d.x * (steepness * sin(phase)),
+      d.x * (steepness * cos(phase)),
+      -d.x * d.y * (steepness * sin(phase))
     );
     binormal += vec3(
-      -d.x * d.y * (steepness * sin(f)),
-      d.y * (steepness * cos(f)),
-      -d.y * d.y * (steepness * sin(f))
+      -d.x * d.y * (steepness * sin(phase)),
+      d.y * (steepness * cos(phase)),
+      -d.y * d.y * (steepness * sin(phase))
     );
 
     return vec3(
-      d.x * (a * cos(f)),
-      a * sin(f),
-      d.y * (a * cos(f))
+      d.x * (a * cos(phase)),
+      a * sin(phase),
+      d.y * (a * cos(phase))
     );
   }
 
@@ -334,21 +251,32 @@ const oceanVertexShader = `
     vec3 gridPos = position;
     vec3 tangent = vec3(1.0, 0.0, 0.0);
     vec3 binormal = vec3(0.0, 0.0, 1.0);
-    vec3 waveDisplacement = vec3(0.0);
+    vec3 waveDisp = vec3(0.0);
 
-    // 4 Harmonic Gerstner Ocean Swells [dirX, dirZ, steepness, wavelength]
-    waveDisplacement += calcGerstnerWave(vec4(0.707, 0.707, 0.32, 42.0), gridPos, tangent, binormal);
-    waveDisplacement += calcGerstnerWave(vec4(-0.35, 0.93, 0.26, 25.0), gridPos, tangent, binormal);
-    waveDisplacement += calcGerstnerWave(vec4(0.85, -0.52, 0.22, 13.0), gridPos, tangent, binormal);
-    waveDisplacement += calcGerstnerWave(vec4(-0.62, -0.78, 0.16, 6.5), gridPos, tangent, binormal);
+    // 6 Harmonic Ocean Swells [dirX, dirZ, steepness, wavelength]
+    waveDisp += calcGerstner(vec4(0.78, 0.62, 0.28, 54.0), gridPos, tangent, binormal);  // Primary swell
+    waveDisp += calcGerstner(vec4(-0.55, 0.83, 0.24, 32.0), gridPos, tangent, binormal); // Cross swell
+    waveDisp += calcGerstner(vec4(0.88, -0.47, 0.20, 18.0), gridPos, tangent, binormal); // Intermediate chop
+    waveDisp += calcGerstner(vec4(-0.42, -0.90, 0.16, 9.5), gridPos, tangent, binormal);  // Wind chop
+    waveDisp += calcGerstner(vec4(0.95, 0.31, 0.10, 4.2), gridPos, tangent, binormal);   // Capillary swell
+    waveDisp += calcGerstner(vec4(-0.71, 0.71, 0.06, 2.1), gridPos, tangent, binormal);  // Micro surface ripple
 
-    gridPos += waveDisplacement;
+    // Whale Dynamic Wake Displacement
+    float distToWhale = length(gridPos.xz - uWhalePos.xz);
+    vWhaleDist = distToWhale;
+    if (distToWhale < 16.0 && uWhaleWakeStrength > 0.01) {
+      float wakeFalloff = smoothstep(16.0, 0.0, distToWhale);
+      float wakeWave = sin(distToWhale * 1.5 - uTime * 4.0) * wakeFalloff * 0.45 * uWhaleWakeStrength;
+      waveDisp.y += wakeWave;
+    }
+
+    gridPos += waveDisp;
     vElevation = gridPos.y;
 
-    // Sharp crest peak indicator for dynamic whitecap foam
-    vWavePeak = clamp((waveDisplacement.y + 1.2) / 3.0, 0.0, 1.0);
+    // Jacobian sharp peak detector for dynamic breaking seafoam
+    vWavePeak = clamp((waveDisp.y + 1.4) / 3.4, 0.0, 1.0);
 
-    // Exact analytical wave normal
+    // Analytical cross-product normal
     vec3 computedNormal = normalize(cross(binormal, tangent));
     vNormal = normalize(normalMatrix * computedNormal);
 
@@ -361,68 +289,83 @@ const oceanVertexShader = `
 `
 
 /**
- * Physical Ocean Wave Fragment Shader
- * Computes deep abyss water absorption, sun specular reflections, and crest seafoam.
+ * Physical Gerstner Ocean Wave Fragment Shader
+ * - Natural oceanic deep-water gradient
+ * - Fresnel sky reflectance
+ * - Glistening sun specular trail
+ * - Dynamic whitecap breaking foam
+ * - Whale contact foam & parting water
+ * - Atmospheric horizon aerial fog
  */
 const oceanFragmentShader = `
   uniform vec3 uSunDirection;
   uniform vec3 uAbyssColor;
   uniform vec3 uShallowColor;
-  uniform vec3 uCrestCyan;
+  uniform vec3 uCrestTurquoise;
   uniform vec3 uFoamColor;
+  uniform float uWhaleWakeStrength;
 
   varying vec3 vWorldPosition;
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   varying float vElevation;
   varying float vWavePeak;
+  varying float vWhaleDist;
 
   void main() {
     vec3 normal = normalize(vNormal);
     vec3 viewDir = normalize(vViewPosition);
     vec3 sunDir = normalize(uSunDirection);
 
-    // Elevation depth blending
-    float depthMix = clamp((vElevation + 2.8) / 5.2, 0.0, 1.0);
-    vec3 waterColor = mix(uAbyssColor, uShallowColor, depthMix);
+    // 1. Natural Ocean Depth Gradient
+    float depthFactor = clamp((vElevation + 2.5) / 4.8, 0.0, 1.0);
+    vec3 waterColor = mix(uAbyssColor, uShallowColor, depthFactor);
 
-    // Subsurface Scattering at sunlit crests
-    float sss = pow(max(dot(viewDir, -sunDir), 0.0), 3.0) * depthMix;
-    waterColor = mix(waterColor, uCrestCyan, sss * 0.65);
+    // 2. Wave Peak Subsurface Scattering (Sun penetrating crests)
+    float sss = pow(max(dot(viewDir, -sunDir), 0.0), 3.2) * depthFactor;
+    waterColor = mix(waterColor, uCrestTurquoise, sss * 0.72);
 
-    // Fresnel Water Reflectance (Schlick's approximation)
-    float fresnel = pow(1.0 - max(dot(viewDir, normal), 0.0), 4.5);
-    vec3 skyReflection = mix(vec3(0.04, 0.18, 0.35), vec3(0.4, 0.85, 1.0), fresnel);
-    waterColor = mix(waterColor, skyReflection, fresnel * 0.7);
+    // 3. Fresnel Sky Reflection (Schlick approximation)
+    float fresnel = pow(1.0 - max(dot(viewDir, normal), 0.0), 4.8);
+    vec3 skyLight = mix(vec3(0.04, 0.12, 0.22), vec3(0.35, 0.75, 0.95), fresnel);
+    waterColor = mix(waterColor, skyLight, fresnel * 0.75);
 
-    // Sun Specular Glistening
+    // 4. Sun Specular Glistening Pathway
     vec3 halfVec = normalize(sunDir + viewDir);
-    float sunGlint = pow(max(dot(normal, halfVec), 0.0), 120.0) * 2.2;
-    waterColor += vec3(0.95, 0.98, 1.0) * sunGlint;
+    float sunGlint = pow(max(dot(normal, halfVec), 0.0), 140.0) * 2.8;
+    waterColor += vec3(0.96, 0.98, 1.0) * sunGlint;
 
-    // Dynamic Whitecap Seafoam on steep wave crests
-    float foamThreshold = 0.72;
-    float foamStrength = smoothstep(foamThreshold, 1.0, vWavePeak);
-    // Micro procedural foam turbulence noise
-    float foamNoise = sin(vWorldPosition.x * 6.0) * cos(vWorldPosition.z * 6.0) * 0.5 + 0.5;
-    foamStrength *= (0.7 + 0.3 * foamNoise);
-    waterColor = mix(waterColor, uFoamColor, foamStrength * 0.85);
+    // 5. Dynamic Whitecap Seafoam on steep crests
+    float foamThreshold = 0.74;
+    float foamIntensity = smoothstep(foamThreshold, 1.0, vWavePeak);
+    // Micro-bubble turbulence noise
+    float foamNoise = sin(vWorldPosition.x * 5.5) * cos(vWorldPosition.z * 5.5) * 0.5 + 0.5;
+    foamIntensity *= (0.65 + 0.35 * foamNoise);
 
-    // Smooth atmospheric horizon falloff
+    // 6. Whale Surface Contact Foam
+    if (vWhaleDist < 8.5 && uWhaleWakeStrength > 0.05) {
+      float contactFoam = smoothstep(8.5, 1.5, vWhaleDist) * uWhaleWakeStrength * 0.85;
+      foamIntensity = max(foamIntensity, contactFoam);
+    }
+
+    waterColor = mix(waterColor, uFoamColor, foamIntensity * 0.88);
+
+    // 7. Atmospheric Aerial Perspective Fog Falloff
     float dist = length(vWorldPosition.xz);
-    float fogAlpha = 1.0 - smoothstep(60.0, 120.0, dist);
+    float fogFactor = 1.0 - smoothstep(65.0, 140.0, dist);
 
-    gl_FragColor = vec4(waterColor, fogAlpha * 0.88);
+    gl_FragColor = vec4(waterColor, fogFactor * 0.92);
   }
 `
 
 // =============================================================================
-// 3. REACT THREE.JS LIFELIKE OCEAN WHALE COMPONENT
+// 3. REACT PHOTOREALISTIC OCEAN WHALE SCENE COMPONENT
 // =============================================================================
 
 export const OceanWhaleScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const [hasWebGL, setHasWebGL] = useState(true)
   const { tier } = usePerformance()
   const tierRef = useRef(tier)
 
@@ -444,23 +387,25 @@ export const OceanWhaleScene: React.FC = () => {
     const container = containerRef.current
     if (!container) return
 
-    // Scene & Camera
+    // 1. Scene & Cinematic Fog
     const scene = new THREE.Scene()
-    scene.fog = new THREE.FogExp2(0x020714, 0.012)
+    scene.fog = new THREE.FogExp2(0x030914, 0.010)
 
+    // 2. Documentary Camera
     const camera = new THREE.PerspectiveCamera(
-      50,
+      46,
       window.innerWidth / window.innerHeight,
       0.1,
-      250
+      300
     )
-    camera.position.set(0, 3.0, 24)
-    camera.lookAt(0, 0, 0)
+    camera.position.set(0, 3.6, 26)
+    camera.lookAt(0, -1.0, 0)
 
+    // 3. WebGL Renderer
     let renderer: THREE.WebGLRenderer
     try {
       renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: tierRef.current !== 'low',
         alpha: true,
         powerPreference: 'high-performance',
       })
@@ -482,38 +427,39 @@ export const OceanWhaleScene: React.FC = () => {
       renderer.domElement.style.pointerEvents = 'none'
       container.appendChild(renderer.domElement)
     } catch {
+      setHasWebGL(false)
       return
     }
 
-    // Directional Sunlight & Sky Environment
-    const sunDirection = new THREE.Vector3(14, 26, 18).normalize()
+    // 4. Natural Directional Sunlight & Marine Ambient Lighting
+    const sunDirection = new THREE.Vector3(16, 24, 20).normalize()
 
-    const ambientLight = new THREE.AmbientLight(0x0a1b2e, 2.4)
+    const ambientLight = new THREE.AmbientLight(0x071626, 2.2)
     scene.add(ambientLight)
 
-    const sunLight = new THREE.DirectionalLight(0xd0f0ff, 3.6)
-    sunLight.position.copy(sunDirection).multiplyScalar(40)
+    const sunLight = new THREE.DirectionalLight(0xe2f4ff, 3.8)
+    sunLight.position.copy(sunDirection).multiplyScalar(50)
     scene.add(sunLight)
 
-    const cyanRimLight = new THREE.DirectionalLight(0x00d2ff, 2.8)
-    cyanRimLight.position.set(-20, 10, -20)
-    scene.add(cyanRimLight)
+    const fillSkyLight = new THREE.DirectionalLight(0x0088b0, 1.6)
+    fillSkyLight.position.set(-25, 12, -18)
+    scene.add(fillSkyLight)
 
-    // =========================================================================
-    // 3A. GERSTNER OCEAN SURFACE MESH (Horizontal Sea Level)
-    // =========================================================================
+    // 5. Gerstner Physical Ocean Surface
     const waveSegments =
-      tierRef.current === 'high' ? 64 : tierRef.current === 'medium' ? 44 : 28
-    const oceanGeometry = new THREE.PlaneGeometry(220, 220, waveSegments, waveSegments)
-    oceanGeometry.rotateX(-Math.PI / 2) // Orient perfectly horizontal
+      tierRef.current === 'high' ? 72 : tierRef.current === 'medium' ? 52 : 36
+    const oceanGeometry = new THREE.PlaneGeometry(260, 260, waveSegments, waveSegments)
+    oceanGeometry.rotateX(-Math.PI / 2)
 
     const oceanUniforms = {
       uTime: { value: 0 },
       uSunDirection: { value: sunDirection },
-      uAbyssColor: { value: new THREE.Color(0x020a18) },    // Deep abyssal navy
-      uShallowColor: { value: new THREE.Color(0x062846) },  // Mid-ocean sapphire
-      uCrestCyan: { value: new THREE.Color(0x00c8e6) },     // Bioluminescent translucent crest
-      uFoamColor: { value: new THREE.Color(0xf1f9fe) },     // Crisp seafoam white
+      uWhalePos: { value: new THREE.Vector3(0, -10, 0) },
+      uWhaleWakeStrength: { value: 0 },
+      uAbyssColor: { value: new THREE.Color(0x020817) },       // Deep abyss navy
+      uShallowColor: { value: new THREE.Color(0x062544) },     // Mid ocean sapphire
+      uCrestTurquoise: { value: new THREE.Color(0x009cb8) },   // Sunlit translucent crest
+      uFoamColor: { value: new THREE.Color(0xf4faff) },        // Crisp seafoam white
     }
 
     const oceanMaterial = new THREE.ShaderMaterial({
@@ -525,20 +471,25 @@ export const OceanWhaleScene: React.FC = () => {
     })
 
     const oceanMesh = new THREE.Mesh(oceanGeometry, oceanMaterial)
-    oceanMesh.position.set(0, -5.2, 0)
+    oceanMesh.position.set(0, -4.5, 0)
     scene.add(oceanMesh)
 
-    // =========================================================================
-    // 3B. ORGANIC WHALE SHADER MATERIAL & ANATOMICAL RIG
-    // =========================================================================
+    // 6. Whale Rig Group & PBR Shader Material
     const whaleGroup = new THREE.Group()
 
     const whaleUniforms = {
       uTime: { value: 0 },
+      uSwimPhase: { value: 0 },
+      uSwimAmp: { value: 0.8 },
+      uArch: { value: 0 },
+      uFlipperFlap: { value: 0 },
       uSunDirection: { value: sunDirection },
-      uDorsalColor: { value: new THREE.Color(0x0d1e30) },   // Natural dark slate-charcoal
-      uBellyColor: { value: new THREE.Color(0x1e364e) },    // Pleated ivory-slate belly
-      uWetSheenColor: { value: new THREE.Color(0x00d2ff) }, // Bioluminescent wet clearcoat sheen
+      uAlbedoMap: { value: null as THREE.Texture | null },
+      uHasAlbedo: { value: 0.0 },
+      uWetness: { value: 1.0 },
+      uDorsalColor: { value: new THREE.Color(0x131b26) },   // Realistic slate-charcoal dorsal
+      uBellyColor: { value: new THREE.Color(0x3b4e63) },    // Ivory-slate countershaded belly
+      uAbyssColor: { value: new THREE.Color(0x020817) },
     }
 
     const whaleSkinMaterial = new THREE.ShaderMaterial({
@@ -548,83 +499,136 @@ export const OceanWhaleScene: React.FC = () => {
       side: THREE.DoubleSide,
     })
 
-    // Main Organic Body with GPU spinal flexure
-    const bodyGeometry = createWhaleBodyGeometry()
-    const bodyMesh = new THREE.Mesh(bodyGeometry, whaleSkinMaterial)
-    whaleGroup.add(bodyMesh)
+    // Setup initial anatomical geometry (procedural fallback ensures 0ms render readiness)
+    let currentBodyGeometry: THREE.BufferGeometry = buildProceduralHumpbackGeometry()
+    let whaleMesh = new THREE.Mesh(currentBodyGeometry, whaleSkinMaterial)
+    whaleGroup.add(whaleMesh)
 
-    // Dorsal Fin
-    const dorsalGeom = createWhaleDorsalGeometry()
-    const dorsalMesh = new THREE.Mesh(dorsalGeom, whaleSkinMaterial)
-    dorsalMesh.position.set(0, 1.45, -2.8)
-    whaleGroup.add(dorsalMesh)
-
-    // Articulated Left & Right Pectoral Flippers
+    // Procedural Pectoral Flippers and Caudal Fluke pivots
     const leftFlipperPivot = new THREE.Group()
-    leftFlipperPivot.position.set(2.0, -0.45, 2.6)
-    const leftFlipperGeom = createWhaleFlipperGeometry(true)
+    leftFlipperPivot.position.set(1.10, -0.29, 1.19)
+    const leftFlipperGeom = buildProceduralFlipperGeometry(true)
     const leftFlipper = new THREE.Mesh(leftFlipperGeom, whaleSkinMaterial)
-    leftFlipper.rotation.z = Math.PI / 3.4
+    leftFlipper.rotation.z = Math.PI / 3.2
     leftFlipperPivot.add(leftFlipper)
     whaleGroup.add(leftFlipperPivot)
 
     const rightFlipperPivot = new THREE.Group()
-    rightFlipperPivot.position.set(-2.0, -0.45, 2.6)
-    const rightFlipperGeom = createWhaleFlipperGeometry(false)
+    rightFlipperPivot.position.set(-1.10, -0.29, 1.19)
+    const rightFlipperGeom = buildProceduralFlipperGeometry(false)
     const rightFlipper = new THREE.Mesh(rightFlipperGeom, whaleSkinMaterial)
-    rightFlipper.rotation.z = -Math.PI / 3.4
+    rightFlipper.rotation.z = -Math.PI / 3.2
     rightFlipperPivot.add(rightFlipper)
     whaleGroup.add(rightFlipperPivot)
 
-    // Caudal Fluke Mount Pivot
-    const tailPedunclePivot = new THREE.Group()
-    tailPedunclePivot.position.set(0, 0, -6.6)
-    const flukeGeom = createWhaleFlukeGeometry()
+    const tailFlukePivot = new THREE.Group()
+    tailFlukePivot.position.set(0, 0, -8.6)
+    const flukeGeom = buildProceduralFlukeGeometry()
     const flukeMesh = new THREE.Mesh(flukeGeom, whaleSkinMaterial)
-    flukeMesh.position.set(0, 0, -1.0)
-    tailPedunclePivot.add(flukeMesh)
-    whaleGroup.add(tailPedunclePivot)
+    flukeMesh.position.set(0, 0, -0.8)
+    tailFlukePivot.add(flukeMesh)
+    whaleGroup.add(tailFlukePivot)
 
-    // Luminous Cybernetic Eye Nodes
-    const eyeGeom = new THREE.SphereGeometry(0.14, 12, 12)
-    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00ffff })
-    const leftEye = new THREE.Mesh(eyeGeom, eyeMat)
-    leftEye.position.set(1.5, 0.32, 4.4)
-    whaleGroup.add(leftEye)
+    const dorsalGeom = buildProceduralDorsalGeometry()
+    const dorsalMesh = new THREE.Mesh(dorsalGeom, whaleSkinMaterial)
+    dorsalMesh.position.set(0, 1.15, -5.6)
+    whaleGroup.add(dorsalMesh)
 
-    const rightEye = new THREE.Mesh(eyeGeom, eyeMat)
-    rightEye.position.set(-1.5, 0.32, 4.4)
-    whaleGroup.add(rightEye)
+    // Load High-Fidelity NOAA Humpback Whale Assets (Binary Model & Photographic Albedo)
+    let isNoaaModelLoaded = false
+    const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/$/, '') + '/models/whale/'
 
-    // =========================================================================
-    // 3C. BLOWHOLE MIST SPOUT & BREACH SPLASH PARTICLES
-    // =========================================================================
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.load(
+      baseUrl + 'humpback_albedo.png',
+      (tex) => {
+        tex.wrapS = THREE.RepeatWrapping
+        tex.wrapT = THREE.RepeatWrapping
+        tex.colorSpace = THREE.SRGBColorSpace
+        whaleUniforms.uAlbedoMap.value = tex
+        whaleUniforms.uHasAlbedo.value = 1.0
+      },
+      undefined,
+      (err) => {
+        // Fallback procedural shading handles it cleanly without error
+        console.warn('Albedo texture notice (using procedural fallback):', err)
+      }
+    )
 
-    // 1. Blowhole Vapor Spout (Exhalation mist when breaching surface)
-    const spoutCount = tierRef.current === 'high' ? 48 : 24
+    // Asynchronously fetch NOAA binary mesh and replace procedural geometry seamlessly
+    Promise.all([
+      fetch(baseUrl + 'humpback.json').then((r) => r.json()),
+      fetch(baseUrl + 'humpback.bin').then((r) => r.arrayBuffer()),
+    ])
+      .then(([manifest, bin]) => {
+        if (!manifest || !bin || !scene) return
+        const lv = tierRef.current === 'high' ? manifest.levels[0] : manifest.levels[1]
+        if (!lv) return
+
+        const noaaGeo = new THREE.BufferGeometry()
+        noaaGeo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(new Float32Array(bin, lv.position, lv.vertices * 3), 3)
+        )
+        noaaGeo.setAttribute(
+          'normal',
+          new THREE.BufferAttribute(new Int16Array(bin, lv.normal, lv.vertices * 3), 3, true)
+        )
+        noaaGeo.setAttribute(
+          'uv',
+          new THREE.BufferAttribute(new Float32Array(bin, lv.uv, lv.vertices * 2), 2)
+        )
+        noaaGeo.setAttribute(
+          'rig',
+          new THREE.BufferAttribute(new Float32Array(bin, lv.rig, lv.vertices * 4), 4)
+        )
+        noaaGeo.setIndex(
+          new THREE.BufferAttribute(new Uint32Array(bin, lv.index, lv.indices), 1)
+        )
+        noaaGeo.computeBoundingBox()
+        noaaGeo.computeBoundingSphere()
+
+        // Swap out mesh: NOAA model includes unified body, flippers, and fluke in one rigged draw call!
+        whaleGroup.remove(whaleMesh)
+        whaleGroup.remove(leftFlipperPivot)
+        whaleGroup.remove(rightFlipperPivot)
+        whaleGroup.remove(tailFlukePivot)
+        whaleGroup.remove(dorsalMesh)
+
+        whaleMesh = new THREE.Mesh(noaaGeo, whaleSkinMaterial)
+        whaleGroup.add(whaleMesh)
+        currentBodyGeometry = noaaGeo
+        isNoaaModelLoaded = true
+      })
+      .catch((err) => {
+        console.warn('NOAA binary model load fallback:', err)
+      })
+
+    // 7. Atmospheric Blowhole Vapor Spout (Exhalation mist when surfacing)
+    const spoutCount = tierRef.current === 'high' ? 64 : 36
     const spoutPositions = new Float32Array(spoutCount * 3)
     const spoutVelocities: { x: number; y: number; z: number; life: number; maxLife: number }[] = []
 
     for (let i = 0; i < spoutCount; i++) {
       spoutPositions[i * 3] = 0
-      spoutPositions[i * 3 + 1] = 2.1
-      spoutPositions[i * 3 + 2] = 3.2
+      spoutPositions[i * 3 + 1] = 1.35
+      spoutPositions[i * 3 + 2] = 3.02
       spoutVelocities.push({
-        x: (Math.random() - 0.5) * 0.4,
-        y: 1.8 + Math.random() * 2.2,
-        z: -0.6 - Math.random() * 0.8,
+        x: (Math.random() - 0.5) * 0.45,
+        y: 2.2 + Math.random() * 3.2,
+        z: -0.4 - Math.random() * 0.9,
         life: 0,
-        maxLife: 1.2 + Math.random() * 0.8,
+        maxLife: 1.4 + Math.random() * 0.8,
       })
     }
 
     const spoutGeometry = new THREE.BufferGeometry()
     spoutGeometry.setAttribute('position', new THREE.BufferAttribute(spoutPositions, 3))
     const spoutMaterial = new THREE.PointsMaterial({
-      size: 0.9,
-      color: 0xcbf2ff,
+      size: 1.25,
+      color: 0xdff6ff,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.72,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     })
@@ -632,54 +636,65 @@ export const OceanWhaleScene: React.FC = () => {
     spoutPoints.visible = false
     whaleGroup.add(spoutPoints)
 
-    // 2. Bioluminescent Wake & Sea Spray
-    const wakeCount = tierRef.current === 'high' ? 40 : 20
-    const wakePositions = new Float32Array(wakeCount * 3)
-    for (let i = 0; i < wakeCount; i++) {
-      wakePositions[i * 3] = (Math.random() - 0.5) * 1.8
-      wakePositions[i * 3 + 1] = (Math.random() - 0.5) * 1.2
-      wakePositions[i * 3 + 2] = -7.5 - Math.random() * 10.0
-    }
-    const wakeGeometry = new THREE.BufferGeometry()
-    wakeGeometry.setAttribute('position', new THREE.BufferAttribute(wakePositions, 3))
-    const wakeMaterial = new THREE.PointsMaterial({
-      size: 0.75,
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.5,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    })
-    const wakePoints = new THREE.Points(wakeGeometry, wakeMaterial)
-    whaleGroup.add(wakePoints)
-
-    whaleGroup.scale.set(1.25, 1.25, 1.25)
-    whaleGroup.visible = false
+    whaleGroup.scale.set(0.95, 0.95, 0.95)
+    whaleGroup.visible = true // Whale is living and visible in the ocean hero
     scene.add(whaleGroup)
 
-    // =========================================================================
-    // 3D. RESPONSIVE BREACH FLIGHT PATH
-    // =========================================================================
-    const buildFlightPath = (width: number, height: number) => {
-      const isPortrait = width < height || width < 768
-      const sx = isPortrait ? 0.42 : 1.0
-      const sy = isPortrait ? 1.2 : 1.0
-      const sz = isPortrait ? 0.75 : 1.0
+    // 8. Flight Paths: Continuous Marine Cruise & Cinematic Breach
+    // Path 1: Majestic open-ocean patrol route
+    const buildCruisePath = (w: number, h: number) => {
+      const isPortrait = w < h || w < 768
+      const sx = isPortrait ? 0.55 : 1.0
+      const sy = isPortrait ? 0.75 : 1.0
+      const sz = isPortrait ? 0.85 : 1.0
 
       const points = [
-        new THREE.Vector3(-34 * sx, -12 * sy, -42 * sz), // Deep ocean swell
-        new THREE.Vector3(-20 * sx, -4.5 * sy, -22 * sz), // Climbing through sea level
-        new THREE.Vector3(-8 * sx, 1.2 * sy, -5 * sz),    // Breaching the waves into atmosphere
-        new THREE.Vector3(0, 3.2 * sy, 4.0 * sz),         // Apex foreground in front of viewer
-        new THREE.Vector3(9 * sx, 2.6 * sy, 0.5 * sz),    // Banking curve
-        new THREE.Vector3(18 * sx, 1.8 * sy, -15 * sz),   // Gliding back
-        new THREE.Vector3(24 * sx, -4.8 * sy, -32 * sz),  // Re-entering ocean
-        new THREE.Vector3(0, -14 * sy, -48 * sz),         // Deep loop
+        new THREE.Vector3(14 * sx, -4.8 * sy, -18 * sz),  // Gliding through right-mid swells
+        new THREE.Vector3(8 * sx, -2.6 * sy, 2 * sz),     // Surfacing toward hero foreground
+        new THREE.Vector3(-2 * sx, -1.8 * sy, 8 * sz),    // Apex surface cruise in front of viewer
+        new THREE.Vector3(-12 * sx, -3.8 * sy, 2 * sz),   // Arching into smooth bank
+        new THREE.Vector3(-18 * sx, -6.5 * sy, -16 * sz), // Descending into deep turn
+        new THREE.Vector3(-6 * sx, -8.2 * sy, -34 * sz),  // Deep blue crossing
+        new THREE.Vector3(12 * sx, -7.5 * sy, -32 * sz),  // Climbing back toward sunlight
       ]
       return new THREE.CatmullRomCurve3(points, true)
     }
 
-    let flightCurve = buildFlightPath(window.innerWidth, window.innerHeight)
+    // Path 2: Spectacular wildlife documentary breach
+    const buildBreachPath = (w: number, h: number) => {
+      const isPortrait = w < h || w < 768
+      const sx = isPortrait ? 0.45 : 1.0
+      const sy = isPortrait ? 1.15 : 1.0
+      const sz = isPortrait ? 0.80 : 1.0
+
+      const points = [
+        new THREE.Vector3(18 * sx, -14 * sy, -38 * sz),  // Deep acceleration from abyss
+        new THREE.Vector3(12 * sx, -5.5 * sy, -18 * sz),  // Surging upward through wave troughs
+        new THREE.Vector3(4 * sx, 1.8 * sy, -2 * sz),     // Explosive breach breaking sea level
+        new THREE.Vector3(0, 4.2 * sy, 4.5 * sz),         // Airborne apex, rolling belly to sky
+        new THREE.Vector3(-6 * sx, 1.5 * sy, 2 * sz),     // Gliding splashdown
+        new THREE.Vector3(-14 * sx, -4.2 * sy, -12 * sz), // Submerging through contact foam
+        new THREE.Vector3(-18 * sx, -10 * sy, -28 * sz),  // Deep recovery loop
+      ]
+      return new THREE.CatmullRomCurve3(points, false)
+    }
+
+    let cruiseCurve = buildCruisePath(window.innerWidth, window.innerHeight)
+    let breachCurve = buildBreachPath(window.innerWidth, window.innerHeight)
+
+    // Interactive mouse parallax
+    let mouseX = 0
+    let mouseY = 0
+    let targetCameraX = 0
+    let targetCameraY = 3.6
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2
+      targetCameraX = mouseX * 2.2
+      targetCameraY = 3.6 - mouseY * 1.4
+    }
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
 
     const updateCamera = () => {
       if (!camera || !renderer) return
@@ -688,48 +703,45 @@ export const OceanWhaleScene: React.FC = () => {
       camera.aspect = w / h
 
       if (camera.aspect < 1 || w < 768) {
-        camera.position.set(0, 4.2, 32)
-        camera.fov = 60
-        whaleGroup.scale.set(1.05, 1.05, 1.05)
+        camera.fov = 58
+        camera.position.set(0, 4.8, 32)
+        whaleGroup.scale.set(0.78, 0.78, 0.78)
       } else {
-        camera.position.set(0, 2.8, 24)
-        camera.fov = 50
-        whaleGroup.scale.set(1.25, 1.25, 1.25)
+        camera.fov = 46
+        camera.position.set(targetCameraX, targetCameraY, 26)
+        whaleGroup.scale.set(0.95, 0.95, 0.95)
       }
-      camera.lookAt(0, 0, 0)
       camera.updateProjectionMatrix()
       renderer.setSize(w, h)
-      flightCurve = buildFlightPath(w, h)
+      cruiseCurve = buildCruisePath(w, h)
+      breachCurve = buildBreachPath(w, h)
     }
 
     updateCamera()
 
-    let flightProgress = 0.12
-    const breachSpeed = 0.13
+    // Animation state & reduced motion check
+    const reducedMotion = isReducedMotion()
+    let cruiseProgress = 0.15
+    const cruiseSpeed = reducedMotion ? 0.008 : 0.024 // Majestic, graceful wildlife documentary pace
     let isBreaching = false
-    let hasCompletedOneTime = false
+    let breachProgress = 0.0
+    const breachSpeed = reducedMotion ? 0.05 : 0.12
 
-    const startBreach = (e?: Event) => {
-      const customEvent = e as CustomEvent<{ force?: boolean }> | undefined
-      const isForce = customEvent?.detail?.force
-      if (hasCompletedOneTime && !isForce) return
-
+    const triggerBreach = () => {
       isBreaching = true
-      whaleGroup.visible = true
-      flightProgress = 0.12
+      breachProgress = 0.0
+      whaleUniforms.uWetness.value = 1.0
     }
 
-    const endBreach = () => {
+    const cancelBreach = () => {
       isBreaching = false
-      hasCompletedOneTime = true
-      whaleGroup.visible = false
       spoutPoints.visible = false
     }
 
-    window.addEventListener('kietfolio:summon-whale', startBreach)
-    window.addEventListener('kietfolio:whale-cinematic-start', startBreach)
-    window.addEventListener('kietfolio:whale-cinematic-end', endBreach)
-    window.addEventListener('kietfolio:skip-whale', endBreach)
+    window.addEventListener('kietfolio:summon-whale', triggerBreach)
+    window.addEventListener('kietfolio:whale-cinematic-start', triggerBreach)
+    window.addEventListener('kietfolio:whale-cinematic-end', cancelBreach)
+    window.addEventListener('kietfolio:skip-whale', cancelBreach)
 
     const onResize = () => {
       updateCamera()
@@ -756,93 +768,119 @@ export const OceanWhaleScene: React.FC = () => {
     }
     window.addEventListener('scroll', onScroll, { passive: true })
 
-    // =========================================================================
-    // 4. ANIMATION TICK (Hyper-Realistic 60 FPS)
-    // =========================================================================
+    // 9. Main Animation Loop (Silky 60 FPS)
     let animId: number
     const clock = new THREE.Clock()
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
-      if (!isVisible) return
-      if (isPastHero && !isBreaching) return
+      if (!isVisible || isPastHero) return
 
-      const delta = Math.min(clock.getDelta(), 0.1)
+      const delta = Math.min(clock.getDelta(), 0.08)
       const time = clock.getElapsedTime()
 
-      // Update shader time uniforms
+      // Subtle mouse camera follow (calmed when user prefers reduced motion)
+      if (!reducedMotion) {
+        camera.position.x += (targetCameraX - camera.position.x) * 0.04
+        camera.position.y += (targetCameraY - camera.position.y) * 0.04
+      }
+      camera.lookAt(0, -1.2, 0)
+
+      // Time uniforms
       oceanUniforms.uTime.value = time
       whaleUniforms.uTime.value = time
 
-      // Breach locomotion
-      if (isBreaching && !hasCompletedOneTime) {
-        flightProgress += breachSpeed * delta
+      // Locomotion phase
+      let currentPos: THREE.Vector3
+      let nextPos: THREE.Vector3
 
-        if (flightProgress >= 0.72) {
-          endBreach()
+      if (isBreaching) {
+        breachProgress += breachSpeed * delta
+        if (breachProgress >= 1.0) {
+          isBreaching = false
+          spoutPoints.visible = false
+          currentPos = cruiseCurve.getPointAt(cruiseProgress)
+          nextPos = cruiseCurve.getPointAt((cruiseProgress + 0.02) % 1.0)
         } else {
-          const currentPos = flightCurve.getPointAt(flightProgress)
-          const nextPos = flightCurve.getPointAt((flightProgress + 0.025) % 1.0)
-          whaleGroup.position.copy(currentPos)
-
-          // Smooth orientation banking along flight path
-          const lookMat = new THREE.Matrix4().lookAt(
-            nextPos,
-            whaleGroup.position,
-            new THREE.Vector3(0, 1, 0)
-          )
-          const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMat)
-          whaleGroup.quaternion.slerp(targetQuat, 0.08)
-
-          // Natural Cetacean Swimming Kinematics
-          const swimCycle = time * 3.4
-
-          // Tail fluke vertical power stroke with hydrodynamic lag
-          tailPedunclePivot.rotation.x = Math.sin(swimCycle) * 0.32
-          flukeMesh.rotation.x = Math.sin(swimCycle - 0.7) * 0.42
-
-          // Pectoral flipper gliding & banking
-          const flipperFlap = Math.sin(swimCycle * 0.7) * 0.18
-          const flipperPitch = Math.cos(swimCycle * 0.7) * 0.12
-          leftFlipperPivot.rotation.z = Math.PI / 3.4 + flipperFlap
-          rightFlipperPivot.rotation.z = -Math.PI / 3.4 - flipperFlap
-          leftFlipperPivot.rotation.x = flipperPitch
-          rightFlipperPivot.rotation.x = flipperPitch
-
-          // Blowhole Vapor Plume: bursts as the whale breaches surface apex
-          const isAtSurface = currentPos.y > -0.5
-          if (isAtSurface) {
-            spoutPoints.visible = true
-            const posAttr = spoutGeometry.attributes.position
-            for (let i = 0; i < spoutCount; i++) {
-              const vel = spoutVelocities[i]
-              vel.life += delta
-              if (vel.life > vel.maxLife) {
-                vel.life = 0
-                posAttr.setXYZ(i, 0, 2.1, 3.2)
-                vel.y = 2.0 + Math.random() * 2.5
-              } else {
-                let px = posAttr.getX(i) + vel.x * delta
-                let py = posAttr.getY(i) + vel.y * delta
-                let pz = posAttr.getZ(i) + vel.z * delta
-                vel.y -= 1.8 * delta // Gravity deceleration
-                posAttr.setXYZ(i, px, py, pz)
-              }
-            }
-            posAttr.needsUpdate = true
-          } else {
-            spoutPoints.visible = false
-          }
-
-          // Sea Spray & Bioluminescent Wake drift
-          const wakePos = wakeGeometry.attributes.position
-          for (let j = 0; j < wakeCount; j++) {
-            let pz = wakePos.getZ(j) - 0.15
-            if (pz < -18.0) pz = -7.5
-            wakePos.setZ(j, pz)
-          }
-          wakePos.needsUpdate = true
+          currentPos = breachCurve.getPointAt(breachProgress)
+          const nextProg = Math.min(0.999, breachProgress + 0.02)
+          nextPos = breachCurve.getPointAt(nextProg)
         }
+      } else {
+        cruiseProgress = (cruiseProgress + cruiseSpeed * delta) % 1.0
+        currentPos = cruiseCurve.getPointAt(cruiseProgress)
+        nextPos = cruiseCurve.getPointAt((cruiseProgress + 0.02) % 1.0)
+      }
+
+      whaleGroup.position.copy(currentPos)
+      oceanUniforms.uWhalePos.value.copy(currentPos)
+
+      // Smooth Orientation Banking
+      const lookMat = new THREE.Matrix4().lookAt(
+        nextPos,
+        whaleGroup.position,
+        new THREE.Vector3(0, 1, 0)
+      )
+      const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMat)
+      whaleGroup.quaternion.slerp(targetQuat, 0.07)
+
+      // Swimming Kinematics Stroke Phase
+      const swimCycle = time * 2.8
+      whaleUniforms.uSwimPhase.value = swimCycle
+      whaleUniforms.uSwimAmp.value = isBreaching ? 1.2 : 0.75
+
+      // Flipper flapping
+      whaleUniforms.uFlipperFlap.value = Math.sin(swimCycle * 0.6) * 0.85
+
+      // Back arching based on vertical climb/dive
+      const verticalVelocity = nextPos.y - currentPos.y
+      const targetArch = verticalVelocity < -0.05 ? 0.8 : verticalVelocity > 0.05 ? -0.4 : 0.1
+      whaleUniforms.uArch.value += (targetArch - whaleUniforms.uArch.value) * 0.05
+
+      // Procedural flippers movement if using procedural fallback
+      if (!isNoaaModelLoaded) {
+        tailFlukePivot.rotation.x = Math.sin(swimCycle) * 0.35
+        flukeMesh.rotation.x = Math.sin(swimCycle - 0.75) * 0.45
+
+        const flipperStroke = Math.sin(swimCycle * 0.6) * 0.18
+        leftFlipperPivot.rotation.z = Math.PI / 3.2 + flipperStroke
+        rightFlipperPivot.rotation.z = -Math.PI / 3.2 - flipperStroke
+        leftFlipperPivot.rotation.x = Math.cos(swimCycle * 0.6) * 0.12
+        rightFlipperPivot.rotation.x = Math.cos(swimCycle * 0.6) * 0.12
+      }
+
+      // Water interaction & Contact Foam
+      const isBreachingSurface = currentPos.y > -2.2
+      const wakeStrength = isBreachingSurface ? clamp01(1.0 - Math.abs(currentPos.y) / 3.5) : 0.0
+      oceanUniforms.uWhaleWakeStrength.value +=
+        (wakeStrength - oceanUniforms.uWhaleWakeStrength.value) * 0.1
+
+      // Blowhole Vapor Plume when surfacing
+      const isAtBlowSurface = currentPos.y > -0.6
+      if (isAtBlowSurface) {
+        spoutPoints.visible = true
+        whaleUniforms.uWetness.value = 1.0
+        const posAttr = spoutGeometry.attributes.position
+        for (let i = 0; i < spoutCount; i++) {
+          const vel = spoutVelocities[i]
+          vel.life += delta
+          if (vel.life > vel.maxLife) {
+            vel.life = 0
+            posAttr.setXYZ(i, 0, 1.35, 3.02)
+            vel.y = 2.4 + Math.random() * 3.4
+          } else {
+            let px = posAttr.getX(i) + vel.x * delta
+            let py = posAttr.getY(i) + vel.y * delta
+            let pz = posAttr.getZ(i) + vel.z * delta
+            vel.y -= 1.6 * delta // Gravity deceleration
+            posAttr.setXYZ(i, px, py, pz)
+          }
+        }
+        posAttr.needsUpdate = true
+      } else {
+        spoutPoints.visible = false
+        // Gradually dry skin while submerged
+        whaleUniforms.uWetness.value = Math.max(0.4, whaleUniforms.uWetness.value - delta * 0.08)
       }
 
       renderer.render(scene, camera)
@@ -850,35 +888,32 @@ export const OceanWhaleScene: React.FC = () => {
 
     animate()
 
-    // Cleanup resources cleanly on unmount
+    // 10. Clean Resource Disposal
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('visibilitychange', onVisibilityChange)
-      window.removeEventListener('kietfolio:summon-whale', startBreach)
-      window.removeEventListener('kietfolio:whale-cinematic-start', startBreach)
-      window.removeEventListener('kietfolio:whale-cinematic-end', endBreach)
-      window.removeEventListener('kietfolio:skip-whale', endBreach)
+      window.removeEventListener('kietfolio:summon-whale', triggerBreach)
+      window.removeEventListener('kietfolio:whale-cinematic-start', triggerBreach)
+      window.removeEventListener('kietfolio:whale-cinematic-end', cancelBreach)
+      window.removeEventListener('kietfolio:skip-whale', cancelBreach)
 
       scene.clear()
 
       oceanGeometry.dispose()
       oceanMaterial.dispose()
 
-      bodyGeometry.dispose()
+      currentBodyGeometry.dispose()
       whaleSkinMaterial.dispose()
-      dorsalGeom.dispose()
       leftFlipperGeom.dispose()
       rightFlipperGeom.dispose()
       flukeGeom.dispose()
-      eyeGeom.dispose()
-      eyeMat.dispose()
+      dorsalGeom.dispose()
 
       spoutGeometry.dispose()
       spoutMaterial.dispose()
-      wakeGeometry.dispose()
-      wakeMaterial.dispose()
 
       renderer.dispose()
       if (container && renderer.domElement && container.contains(renderer.domElement)) {
@@ -890,11 +925,30 @@ export const OceanWhaleScene: React.FC = () => {
     }
   }, [])
 
+  if (!hasWebGL) {
+    return (
+      <div
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none bg-gradient-to-b from-[#020817] via-[#051833] to-[#020817]"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-[#030914]/90 via-[#030914]/60 to-[#020817]" />
+      </div>
+    )
+  }
+
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
       aria-hidden="true"
-    />
+    >
+      {/* Soft Cinematic Ocean Gradient Vignette for 100% Typography Contrast */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#030914]/85 via-[#030914]/40 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-[#050a14] to-transparent pointer-events-none" />
+    </div>
   )
+}
+
+function clamp01(v: number): number {
+  return Math.min(1.0, Math.max(0.0, v))
 }

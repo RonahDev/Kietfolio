@@ -127,7 +127,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
     <section
       id="hero"
       ref={heroRootRef}
-      className="relative min-h-[100svh] pt-28 pb-14 flex flex-col justify-center overflow-hidden border-b border-[#172847] bg-gradient-to-b from-[#050a14]/75 via-[#050a14]/40 to-[#050a14]/85"
+      className="relative min-h-[100svh] pt-28 pb-14 flex flex-col justify-center overflow-hidden border-b border-[#172847] bg-gradient-to-b from-[#050a14]/50 via-transparent to-[#050a14]/85"
       aria-label="Hero Section"
     >
       {/* Background Subtle Cyber Grid & Atmospheric Glows */}
@@ -229,7 +229,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
                   type="button"
                   onClick={() => window.dispatchEvent(new CustomEvent('kietfolio:summon-whale'))}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xs transition-all cursor-pointer text-[#38bdf8] hover:text-[#00d2ff] hover:bg-[#00d2ff]/10 border border-transparent hover:border-[#00d2ff]/30"
-                  title={language === 'vi' ? 'Triệu hồi cá voi bay vào giữa màn hình' : 'Summon cyber whale into center of screen'}
+                  title={language === 'vi' ? 'Triệu hồi cá voi lưng gù lướt sóng đại dương' : 'Summon humpback whale breaching open ocean'}
                 >
                   <span className="text-xs">🐋</span>
                   <span>{language === 'vi' ? 'CÁ VOI' : 'WHALE'}</span>
