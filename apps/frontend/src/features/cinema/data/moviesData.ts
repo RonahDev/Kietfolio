@@ -12,8 +12,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'When neural networks awaken, consciousness becomes the battlefield.',
     synopsis:
       'Trong tương lai gần khi các hệ thống phân tán AI chiếm lĩnh toàn bộ cơ sở hạ tầng toàn cầu, một kỹ sư kiến trúc hệ thống ngầm phát hiện ra một thực thể số tự sinh khởi chạy từ một node bị cô lập. Một cuộc rượt đuổi nghẹt thở xuyên qua mạng lưới điện toán đám mây và thực tại mở rộng bắt đầu.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231014-1/19e1af28cf91bac65637b7089ac3a6a6.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20241206-1/e1c8aa09fc72915be6687e862ff0f9a9.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20241206-1/8d2db5458bdbd81e54cb75d8c6f439c3.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=bK6ldnjv520',
     youtubeKey: 'bK6ldnjv520',
     videoStreamUrl:
@@ -44,8 +44,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Delivering survival across 4.2 light years with 99.999% SLA.',
     synopsis:
       'Lấy cảm hứng từ 2 năm thực chiến điều phối điều vận kho bãi tại Trạm Hub Thủ Dầu Một, bộ phim tài liệu điện ảnh tái hiện lại chiến dịch hậu cần vũ trụ vĩ đại nhất nhân loại: thiết lập chuỗi cung ứng không độ trễ giữa Trái Đất và Trạm vũ trụ Kepler-452b trong bối cảnh cơn bão từ thế kỷ đe dọa làm sập toàn bộ hệ thống định tuyến.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20250302-1/6012710a981edf1b6209bdb7fa82d1a6.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20250302-1/4cee31c3afd0fbfd11ed4f14b1bfd816.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250302-1/6012710a981edf1b6209bdb7fa82d1a6.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250302-1/4cee31c3afd0fbfd11ed4f14b1bfd816.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=2LqzF5WauAw',
     youtubeKey: '2LqzF5WauAw',
     videoStreamUrl:
@@ -76,8 +76,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'The theory divided the atom. The engineering changed reality forever.',
     synopsis:
       'Khắc họa chân thực áp lực trí tuệ tột bậc và những quyết định kỹ thuật cân não đằng sau dự án Manhattan. Phim đi sâu vào bài toán xung khắc giữa tốc độ triển khai khẩn cấp và tính ổn định tuyệt đối của hệ thống cơ học lượng tử.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20241211-1/9f3b8e6fae3e17786f445e079f0fcf00.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20241211-1/35d766a11362776ba900653f2a92d744.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20241211-1/9f3b8e6fae3e17786f445e079f0fcf00.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20241211-1/35d766a11362776ba900653f2a92d744.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=uYPbbksJxIg',
     youtubeKey: 'uYPbbksJxIg',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
@@ -106,8 +106,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Power over spice is power over all.',
     synopsis:
       'Trên hành tinh sa mạc khắc nghiệt Arrakis, sự khan hiếm tài nguyên và các cuộc tranh giành vương quyền đẩy các gia tộc vào vòng xoáy chiến tranh. Sự trỗi dậy của một đấng cứu thế mang theo những khúc ca bi tráng giữa biển cát vô tận.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20241118-1/58ed7c8aadd9c6ee185b7875ce499a6b.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20241118-1/f490c695998243e5586896a50a7b19ab.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20241118-1/58ed7c8aadd9c6ee185b7875ce499a6b.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20241118-1/f490c695998243e5586896a50a7b19ab.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=Way9Dexny3w',
     youtubeKey: 'Way9Dexny3w',
     videoStreamUrl:
@@ -136,8 +136,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Memories can be coded. Empathy cannot.',
     synopsis:
       'Tại đại đô thị ngập trong ánh đèn neon và mưa axít, một thám tử sinh học nhân tạo đối mặt với bí ẩn về một nhóm người máy thế hệ mới có khả năng cảm nhận được giấc mơ và sự sáng tạo tâm linh.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/e73sgR93p9iK4B7kXQy3p7c0p24.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250526-1/47cf1c718a533e0e05b24ad2c99da768.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250526-1/c2f16d5873f9bbd24c6c951ff88bf1b9.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=gCcx85zbxz4',
     youtubeKey: 'gCcx85zbxz4',
     videoStreamUrl:
@@ -164,8 +164,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Your mind is the scene of the crime.',
     synopsis:
       'Nghệ thuật thâm nhập tiềm thức để gieo mầm ý niệm. Một tác phẩm kinh điển về kết cấu phân tầng thời gian và không gian đa chiều, nơi mọi định luật vật lý đều có thể bị bẻ cong bởi kiến trúc sư giấc mơ.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231018-1/ea2205d6cdedccf1251422eb4fa85f6d.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231018-1/d0ccc81540ff2c85cecbf73dda05728f.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231018-1/ea2205d6cdedccf1251422eb4fa85f6d.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231018-1/d0ccc81540ff2c85cecbf73dda05728f.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=YoHD9XEInc0',
     youtubeKey: 'YoHD9XEInc0',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
@@ -192,8 +192,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'When 100,000 packages meet a fractured conveyor belt at midnight.',
     synopsis:
       'Phim tài liệu kỹ thuật kịch tính ghi lại thời khắc nghẹt thở trong đợt Mega Sale 11.11. Trước nguy cơ sập luồng bốc dỡ hàng loạt và tắc nghẽn cục bộ, đội ngũ vận hành và kỹ sư phần mềm đã ứng biến tái phân luồng thủ công kết hợp thuật toán dự báo tải trọng để giải cứu toàn bộ đơn hàng trong đêm.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20240115-1/934cf5fa07b9a5e550aa1fa002e21ba9.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20240115-1/71ef73145db7cb9e2a87a0dbca5e28a5.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231021-1/8da0be4716d76efb6324e76575a0d5ef.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231021-1/9d403f94f073c97bb84ea1d62b8dda88.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=7xX_Ka3xHj0',
     youtubeKey: '7xX_Ka3xHj0',
     videoStreamUrl:
@@ -222,8 +222,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Free your mind once more.',
     synopsis:
       'Quay trở lại thế giới của hai thực tại: cuộc sống hàng ngày và những gì ẩn sau bức màn nhị phân xanh biếc. Liệu sự thật có giải phóng con người hay chỉ đưa họ vào một tầng mô phỏng tinh vi hơn?',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231014-1/19e1af28cf91bac65637b7089ac3a6a6.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20231014-1/799d42634df3b35ae3fb28cf1bf14a9c.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231014-1/19e1af28cf91bac65637b7089ac3a6a6.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231014-1/799d42634df3b35ae3fb28cf1bf14a9c.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=9ix7TUGVYIo',
     youtubeKey: '9ix7TUGVYIo',
     videoStreamUrl:
@@ -250,8 +250,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Between the world of spirits and memories, follow the lantern lights.',
     synopsis:
       'Một kiệt tác hoạt họa duy mỹ lấy cảm hứng từ thế giới huyền diệu của Studio Ghibli. Một cô bé vô tình bước qua cánh cổng Torii cổ kính giữa rừng rậm và lạc vào thành phố nổi của các linh hồn cổ xưa, nơi chỉ có lòng dũng cảm và trái tim thuần khiết mới mở được đường về.',
-    backdropUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20250716-1/3be680dcb8b627540ea2703730db511f.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=phimimg.com/upload/vod/20250716-1/cdd1c3fa96086f48519393cc1ad98f7e.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20250716-1/9605f99c5aebcb583e988fe48dea3a4f.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20250716-1/04d907a284c8a9bab9a9ff315a29a172.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=ByXuk9QqQkk',
     youtubeKey: 'ByXuk9QqQkk',
     videoStreamUrl:
@@ -279,8 +279,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'Coming Soon exclusively to Cinema Stream.',
     synopsis:
       'Bom tấn khoa học viễn tưởng sắp ra mắt về khoảnh khắc bước ngoặt khi công nghệ điện toán lượng tử kết hợp trí tuệ nhân tạo tổng quát (AGI) viết lại toàn bộ lịch sử tiến hóa nhân loại.',
-    backdropUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/r2JIG0IAnRAlzxO96544zOPofmr.jpg&output=webp',
-    posterUrl: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/fiVW06jE7z9YnO4trhaMEdclSiC.jpg&output=webp',
+    backdropUrl: 'https://phimimg.com/upload/vod/20231019-1/1d138bca905766a1cead66938236abf6.jpg',
+    posterUrl: 'https://phimimg.com/upload/vod/20231019-1/1adddafd99749bc4ab307db30fc51bd4.jpg',
     trailerUrl: 'https://www.youtube.com/watch?v=EOV1q9oXh6k',
     youtubeKey: 'EOV1q9oXh6k',
     videoStreamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',

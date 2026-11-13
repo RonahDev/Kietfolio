@@ -19,8 +19,8 @@ export const VERIFIED_CDN_BACKDROPS = {
   dragonball: 'https://phimimg.com/upload/vod/20240827-1/bb3064e92aa97d20827be521bc6da879.jpg', // Dragon Ball Super Broly
   naruto: 'https://phimimg.com/upload/vod/20250604-1/ba12f01d984089cf39643771999f14b9.jpg',
   onepiece: 'https://phimimg.com/upload/vod/20230922-1/61f686b92d5f29ed34ab75e998895b9b.jpg',
-  cyberpunk: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/ilRyASDvt7yg0pe9gFeL3jio5Cm.jpg&output=webp',
-  action: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/7I6VUdPj6tQECNHdviJkUHD2u89.jpg&output=webp',
+  cyberpunk: 'https://phimimg.com/upload/vod/20241206-1/e1c8aa09fc72915be6687e862ff0f9a9.jpg',
+  action: 'https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg',
   drama: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg',
   default: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
 } as const
@@ -202,8 +202,18 @@ export function toProxyUrl(url: string | undefined | null, width?: number): stri
   const clean = url.trim()
   if (clean.startsWith('data:')) return clean
 
-  // Handle TMDB and Phimimg URLs: wrap with Cloudflare edge proxy (wsrv.nl) to permanently bypass Vietnamese ISP DNS blocks
-  if (clean.includes('image.tmdb.org') || clean.includes('phimimg.com')) {
+  // Direct handling for phimimg.com: wsrv.nl blocks phimimg under policy, so unwrap and serve direct from Cloudflare
+  if (clean.includes('phimimg.com')) {
+    const match = decodeURIComponent(clean).match(/phimimg\.com\/.*$/)
+    if (match) {
+      const cleanPath = match[0].replace(/&output=webp.*$/, '').replace(/&w=\d+.*$/, '')
+      return `https://${cleanPath}`
+    }
+    return clean
+  }
+
+  // Handle TMDB URLs: wrap with Cloudflare edge proxy (wsrv.nl) to permanently bypass Vietnamese ISP DNS blocks
+  if (clean.includes('image.tmdb.org')) {
     if (clean.includes('wsrv.nl')) return clean
     const rawPath = clean.replace(/^https?:\/\//, '')
     const w = width ? `&w=${width}` : ''
@@ -266,17 +276,20 @@ export function getOptimizedImageUrl(
     return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
   }
 
-  // Handle direct KKPhim / phimimg CDN paths: proxy through wsrv.nl to prevent Vietnamese ISP throttling
+  // Handle direct KKPhim / phimimg CDN paths: wsrv.nl blocks phimimg under policy, so unwrap to direct high-speed HTTPS
   if (cleanUrl.includes('phimimg.com')) {
-    if (cleanUrl.includes('wsrv.nl')) return cleanUrl
-    const rawPath = cleanUrl.replace(/^https?:\/\//, '')
-    return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
+    const match = decodeURIComponent(cleanUrl).match(/phimimg\.com\/.*$/)
+    if (match) {
+      const cleanPath = match[0].replace(/&output=webp.*$/, '').replace(/&w=\d+.*$/, '')
+      return `https://${cleanPath}`
+    }
+    return cleanUrl
   }
 
   // Handle relative KKPhim CDN paths
   if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
     const normalizedPath = cleanUrl.replace(/^\/+/, '')
-    return `https://wsrv.nl/?url=${encodeURIComponent(`phimimg.com/${normalizedPath}`)}&output=webp`
+    return `https://phimimg.com/${normalizedPath}`
   }
 
   return cleanUrl
