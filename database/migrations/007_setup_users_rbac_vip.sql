@@ -70,12 +70,13 @@ INSERT INTO users (id, email, password_hash, display_name, role, status, provide
 VALUES 
     -- 1. Super Admin Account
     ('usr-admin-master', 'admin@kietfolio.dev', '$2a$12$K1eTFoLiOSuPeRSecReTK2005mAiAnHkIeTMasTeRAdMiNPasSWoRdHAsH', 'Mai Anh Kiệt (Master Admin)', 'super_admin', 'active', 'password', NULL, NOW(), NOW()),
-    ('usr-admin-kiet', 'kietteve22102005@gmail.com', '$2a$12$K1eTFoLiOSuPeRSecReTK2005mAiAnHkIeTMasTeRAdMiNPasSWoRdHAsH', 'Mai Anh Kiệt', 'super_admin', 'active', 'password', NULL, NOW(), NOW()),
+    ('usr-admin-kiet-personal', 'kietteve22102005@gmail.com', '$2a$12$K1eTFoLiOSuPeRSecReTK2005mAiAnHkIeTMasTeRAdMiNPasSWoRdHAsH', 'Mai Anh Kiệt (Personal)', 'super_admin', 'active', 'password', NULL, NOW(), NOW()),
+    ('usr-admin-kiet', 'kiet.maianh@gmail.com', '$2a$12$K1eTFoLiOSuPeRSecReTK2005mAiAnHkIeTMasTeRAdMiNPasSWoRdHAsH', 'Mai Anh Kiệt (Work)', 'super_admin', 'active', 'password', NULL, NOW(), NOW()),
     
     -- 2. VIP Member Account (Valid for 1 Year)
     ('usr-vip-demo', 'vip@kietfolio.dev', '$2a$10$7hNl9M97W48K5E7b4.9bwe1V1j9Y8O4c4W/4K7R4h1E8L8d2R8d.m', 'VIP Member Explorer', 'vip', 'active', 'password', NOW() + INTERVAL '1 year', NOW(), NOW()),
     
     -- 3. Regular Member Account
     ('usr-regular-demo', 'user@kietfolio.dev', '$2a$10$8hOl0N08X59L6F8c5.0cxf2W2k0Z9P5d5X/5L8S5i2F9M9e3S9e.n', 'Regular Member Explorer', 'user', 'active', 'password', NULL, NOW(), NOW())
-ON CONFLICT (email) DO UPDATE 
+ON CONFLICT (id) DO UPDATE 
 SET role = EXCLUDED.role, status = 'active', vip_expires_at = EXCLUDED.vip_expires_at;

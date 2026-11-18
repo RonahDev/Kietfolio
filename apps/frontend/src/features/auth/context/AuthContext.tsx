@@ -657,6 +657,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user.role === 'vip') {
       if (user.vipExpiresAt) {
         const expiry = new Date(user.vipExpiresAt).getTime()
+        // oxlint-disable-next-line react/purity
         if (expiry < Date.now()) return false
       }
       return true

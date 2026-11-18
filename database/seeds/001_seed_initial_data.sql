@@ -14,8 +14,8 @@ VALUES (
     NOW(),
     NOW()
 )
-ON CONFLICT (email) DO UPDATE
-SET role = 'admin';
+ON CONFLICT (id) DO UPDATE
+SET role = 'admin', email = EXCLUDED.email;
 
 -- 2. Seed Initial Guestbook Entries
 INSERT INTO guestbook_entries (id, user_uid, name, avatar, role_title, message, is_google_verified, is_pinned, is_approved, created_at)
