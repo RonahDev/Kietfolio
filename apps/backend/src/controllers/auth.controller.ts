@@ -25,12 +25,12 @@ export class AuthController {
 
   public static async googleAuth(req: Request, res: Response, _next: NextFunction): Promise<void> {
     try {
-      const { uid, email, displayName, photoURL } = req.body
+      const { uid, email, displayName, photoURL, idToken } = req.body
       if (!email || !uid) {
         res.status(400).json({ success: false, error: 'Google uid and email are required' })
         return
       }
-      const result = await AuthService.googleAuth({ uid, email, displayName, photoURL })
+      const result = await AuthService.googleAuth({ uid, email, displayName, photoURL, idToken })
       res.status(200).json({ success: true, data: result })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })

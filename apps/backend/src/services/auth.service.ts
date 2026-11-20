@@ -213,9 +213,16 @@ export class AuthService {
     email: string
     displayName?: string
     photoURL?: string
+    idToken?: string
   }): Promise<{ user: UserPayload; token: string }> {
     const normalizedEmail = googleUser.email.toLowerCase().trim()
-    const role = this.determineRole(normalizedEmail)
+
+    // SECURITY: Never auto-assign admin/super_admin role from Google OAuth.
+    // Role elevation must be done explicitly by an existing admin.
+    // The idToken field is accepted for future server-side verification
+    // (e.g., via google-auth-library) but client-supplied email is NOT
+    // trusted for privilege escalation regardless.
+    const role = 'user'
 
     try {
       const res = await pool.query(

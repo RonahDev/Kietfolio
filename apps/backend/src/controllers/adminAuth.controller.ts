@@ -96,28 +96,7 @@ export class AdminAuthController {
         return
       }
 
-      let isPasswordValid = await bcrypt.compare(password, user.passwordHash)
-      if (!isPasswordValid && isConfiguredMaster) {
-        const allowedMasterPasswords = [
-          config.admin.defaultPassword,
-          'SecretAdminKey@2005',
-          'admin123456',
-          'admin123',
-          'admin',
-          'kietteve22102005',
-          'Kietfolio@2025',
-        ]
-        if (allowedMasterPasswords.includes(password)) {
-          isPasswordValid = true
-          const updatedHash = await bcrypt.hash(password, 12)
-          await prisma.user
-            .update({
-              where: { id: user.id },
-              data: { passwordHash: updatedHash },
-            })
-            .catch(() => {})
-        }
-      }
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
 
       if (!isPasswordValid) {
         await AdminAuthController.recordFailedAttempt(ipAddress, normalizedEmail, attemptRecord)

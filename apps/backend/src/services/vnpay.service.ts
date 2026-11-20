@@ -176,7 +176,11 @@ export class VnpayService {
     const hmac = crypto.createHmac('sha512', config.vnpay.hashSecret)
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
 
-    const isValid = signed === secureHash
+    // SECURITY: Use timing-safe comparison to prevent timing attacks on HMAC verification
+    const signedBuf = Buffer.from(signed, 'utf-8')
+    const hashBuf = Buffer.from(secureHash, 'utf-8')
+    const isValid =
+      signedBuf.length === hashBuf.length && crypto.timingSafeEqual(signedBuf, hashBuf)
     const orderId = queryParams.vnp_TxnRef || ''
     const responseCode = queryParams.vnp_ResponseCode || ''
     const transactionNo = queryParams.vnp_TransactionNo || ''
@@ -209,6 +213,25 @@ export class VnpayService {
 
           effectiveOrderType = row.order_type
           const userUid = row.user_uid
+
+          // SECURITY: Verify that the payment amount matches the stored order amount
+          // to prevent amount tampering attacks
+          const storedAmount = Number(row.amount)
+          if (storedAmount !== amount) {
+            console.error(
+              `[VNPay] Amount mismatch for order ${orderId}: expected ${storedAmount}, got ${amount}`
+            )
+            return {
+              isValid: true,
+              isSuccess: false,
+              orderId,
+              amount,
+              responseCode,
+              transactionNo,
+              bankCode,
+              message: 'Payment amount does not match the order. Transaction rejected.',
+            }
+          }
 
           // Only perform cumulative upgrade if not already successfully processed (prevent double-spend / replay)
           if (!wasAlreadySuccess && effectiveOrderType && effectiveOrderType.toLowerCase().startsWith('vip') && userUid) {

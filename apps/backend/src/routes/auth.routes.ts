@@ -24,7 +24,7 @@ export const authRouter = Router()
 authRouter.post('/register', authLimiter, validateBody(registerSchema), AuthController.register)
 authRouter.post('/login', authLimiter, validateBody(loginSchema), AuthController.login)
 authRouter.post('/google', authLimiter, AuthController.googleAuth)
-authRouter.post('/upgrade-vip', verifyToken, AuthController.upgradeVip)
+authRouter.post('/upgrade-vip', verifyToken, requireAdmin, AuthController.upgradeVip)
 authRouter.get('/legacy-me', verifyToken, AuthController.getMe)
 authRouter.get('/users', verifyToken, requireAdmin, AuthController.listUsers)
 
