@@ -48,6 +48,8 @@ export interface MusicTrack {
   synthPresetId?: string
   /** Optional key/movement subtitle for classical theater aesthetics */
   movementLabel?: string
+  /** Optional direct audio streaming URL (e.g. CDN or remote audio stream) */
+  audioUrl?: string
   fileSize?: number
   fileName?: string
   addedAt: number

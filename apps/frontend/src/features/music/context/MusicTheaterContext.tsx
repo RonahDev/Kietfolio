@@ -234,6 +234,10 @@ export const MusicTheaterProvider: React.FC<{ children: React.ReactNode }> = ({ 
         activeLocalObjectUrlRef.current = url
         return url
       }
+      if (track.audioUrl) {
+        revokeActiveLocalObjectUrl()
+        return track.audioUrl
+      }
       revokeActiveLocalObjectUrl()
       return getOrCreateSynthWavUrl(track.synthPresetId || 'nocturne-eb', track.duration || 16)
     },

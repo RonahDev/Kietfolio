@@ -56,6 +56,54 @@ const SYNTH_RECIPES: Record<string, SynthVoice> = {
     bassPattern: [0, 0, 1, 1, 2, 2, 0, 0],
     warmth: 0.85,
   },
+  'vpop-pop': {
+    // Upbeat modern V-Pop pentatonic/pop progression (C, D, E, G, A, C)
+    freqs: [130.81, 146.83, 164.81, 196.0, 220.0, 261.63, 293.66, 329.63],
+    tempoBpm: 110,
+    pattern: [0, 2, 4, 5, 4, 2, 0, 3, 5, 7, 5, 3, 2, 4, 3, 1],
+    bassPattern: [0, 0, 3, 3, 4, 4, 1, 1],
+    warmth: 0.68,
+  },
+  'vpop-ballad': {
+    // Emotional piano ballad (Am - F - C - G)
+    freqs: [110.0, 130.81, 164.81, 196.0, 220.0, 261.63, 329.63, 392.0],
+    tempoBpm: 68,
+    pattern: [4, 5, 7, 6, 5, 4, 2, 3, 4, 5, 6, 4, 3, 2, 1, 0],
+    bassPattern: [0, 0, 1, 1, 2, 2, 3, 3],
+    warmth: 0.82,
+  },
+  'vpop-acoustic': {
+    // Warm fingerstyle acoustic guitar (G - Em - C - D)
+    freqs: [98.0, 123.47, 146.83, 196.0, 246.94, 293.66, 392.0, 440.0],
+    tempoBpm: 76,
+    pattern: [0, 2, 3, 5, 3, 2, 0, 1, 3, 4, 6, 4, 3, 1, 2, 0],
+    bassPattern: [0, 0, 2, 2, 1, 1, 3, 3],
+    warmth: 0.86,
+  },
+  'vpop-upbeat': {
+    // High-energy dance electro / deep house (Tăng Duy Tân style, Am - Em - F - G)
+    freqs: [110.0, 130.81, 164.81, 196.0, 220.0, 261.63, 329.63, 440.0],
+    tempoBpm: 124,
+    pattern: [0, 4, 2, 4, 1, 4, 2, 5, 0, 4, 3, 5, 2, 6, 4, 7],
+    bassPattern: [0, 0, 2, 2, 3, 3, 1, 1],
+    warmth: 0.6,
+  },
+  'vpop-rnb': {
+    // 80s synthwave & chill R&B (MONO / Wren Evans style, Dm7 - G7 - Cmaj7 - Am7)
+    freqs: [146.83, 174.61, 220.0, 261.63, 329.63, 392.0, 440.0, 523.25],
+    tempoBpm: 86,
+    pattern: [2, 4, 6, 5, 3, 5, 7, 4, 1, 3, 5, 4, 2, 4, 6, 3],
+    bassPattern: [0, 0, 2, 2, 1, 1, 3, 3],
+    warmth: 0.74,
+  },
+  'vpop-folk': {
+    // Traditional Vietnamese pentatonic folk melody (Ngũ Cung: C - D - F - G - A)
+    freqs: [130.81, 146.83, 174.61, 196.0, 220.0, 261.63, 293.66, 349.23],
+    tempoBpm: 70,
+    pattern: [0, 1, 3, 4, 5, 4, 3, 1, 0, 3, 4, 6, 5, 3, 1, 0],
+    bassPattern: [0, 0, 1, 1, 2, 2, 0, 0],
+    warmth: 0.9,
+  },
 }
 
 const cachedSynthUrls = new Map<string, string>()

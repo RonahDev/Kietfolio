@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, Disc3, FolderPlus, Mic2, Play, Sparkles } from 'lucide-react'
+import { ArrowRight, Disc3, Flame, FolderPlus, Mic2, Play, Sparkles } from 'lucide-react'
 import { useMusicTheater } from '../hooks/useMusicTheater'
 import { useMusicI18n } from '../hooks/useMusicI18n'
 import { MusicTrackList } from './MusicTrackList'
@@ -27,6 +27,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
   const { t } = useMusicI18n()
 
   const trackById = new Map(allTracks.map((t) => [t.id, t]))
+  const vpopTracks = allTracks.filter((t) => t.id.startsWith('vpop_'))
   const recentlyPlayedTracks = historyEntries
     .map((entry) => trackById.get(entry.trackId))
     .filter((t): t is NonNullable<typeof t> => Boolean(t))
@@ -137,6 +138,37 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               </button>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Top Trending Vietnamese Hits */}
+      {vpopTracks.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0">
+                <Flame className="w-4 h-4 animate-bounce" />
+              </div>
+              <div>
+                <h3
+                  className="text-2xl font-semibold text-[#F1EDE6]"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                >
+                  {t.trendingVpopTitle}
+                </h3>
+                <p className="text-xs text-[#A49C92]">{t.trendingVpopDesc}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('all-songs')}
+              className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer shrink-0"
+            >
+              <span>{t.viewAllSongs}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <MusicTrackList tracks={vpopTracks.slice(0, 4)} />
         </section>
       )}
 

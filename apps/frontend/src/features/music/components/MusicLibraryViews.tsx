@@ -112,7 +112,7 @@ export const AllSongsView: React.FC = () => {
           >
             <option value="all">{language === 'vi' ? 'Tất Cả Nguồn' : 'All Sources'}</option>
             <option value="curated">
-              {language === 'vi' ? 'Thính Phòng Cổ Điển' : 'Concert Hall Curated'}
+              {language === 'vi' ? 'BXH V-Pop & Thính Phòng' : 'Concert Hall & V-Pop'}
             </option>
             <option value="local">
               {language === 'vi' ? 'Tệp Tải Lên Cục Bộ' : 'Imported Files Only'}

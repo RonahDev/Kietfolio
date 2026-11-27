@@ -40,6 +40,8 @@ export interface MusicI18nStrings {
   importAudio: string
   recentlyPlayedTitle: string
   viewHistory: string
+  trendingVpopTitle: string
+  trendingVpopDesc: string
   featuredMasterworks: string
   viewAllSongs: string
   curatedAlbums: string
@@ -179,6 +181,8 @@ export const musicTranslations: Record<Language, MusicI18nStrings> = {
     importAudio: 'Nhập Nhạc Cá Nhân',
     recentlyPlayedTitle: 'Đã Nghe Gần Đây',
     viewHistory: 'Xem Lịch Sử',
+    trendingVpopTitle: 'Bảng Xếp Hạng Nhạc Hot Việt Nam',
+    trendingVpopDesc: 'Các bản hit thịnh hành hàng đầu từ Sơn Tùng M-TP, Đen Vâu, Phan Mạnh Quỳnh, Vũ., Tăng Duy Tân...',
     featuredMasterworks: 'Tác Phẩm Tuyển Chọn',
     viewAllSongs: 'Xem Tất Cả Bài Hát',
     curatedAlbums: 'Album Cổ Điển Tuyển Chọn',
@@ -317,6 +321,8 @@ export const musicTranslations: Record<Language, MusicI18nStrings> = {
     importAudio: 'Import Personal Audio',
     recentlyPlayedTitle: 'Recently Played',
     viewHistory: 'View History',
+    trendingVpopTitle: 'Top Trending Vietnamese Hits',
+    trendingVpopDesc: 'Top chart-topping Vietnamese hits from Son Tung M-TP, Den Vau, Phan Manh Quynh, Vu., Tang Duy Tan...',
     featuredMasterworks: 'Featured Masterworks',
     viewAllSongs: 'View All Songs',
     curatedAlbums: 'Curated Classical Albums',
