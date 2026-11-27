@@ -231,6 +231,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project }) 
                         new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
                       )
                     }
+                  : project.liveUrl === '#music'
+                  ? (e: React.MouseEvent) => {
+                      e.preventDefault()
+                      window.location.hash = 'music'
+                      window.dispatchEvent(
+                        new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                      )
+                    }
                   : undefined
               }
               variant="accent-outline"

@@ -11,17 +11,17 @@
 
 // Verified high-uptime Cloudflare & TMDb Edge Cinema Backdrops (100% accessible in Vietnam & globally)
 export const VERIFIED_CDN_BACKDROPS = {
-  theatrical_vn: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg', // Lật Mặt 7
+  theatrical_vn: 'https://i.ytimg.com/vi/d1ZHdosjNX8/maxresdefault.jpg', // Lật Mặt 7
   anime: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg', // Conan Ngôi Sao 5 Cánh 4K
   conan: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
-  doraemon: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg&output=webp', // Doraemon Bản Giao Hưởng 4K
+  doraemon: 'https://i.ytimg.com/vi/ikwvgoYK0-M/maxresdefault.jpg', // Doraemon Bản Giao Hưởng 16:9
   shin: 'https://phimimg.com/upload/vod/20260402-1/0f07d9968e1b28a1c2dce38834255d16.jpg', // Shin-chan Sushi Bay
   dragonball: 'https://phimimg.com/upload/vod/20240827-1/bb3064e92aa97d20827be521bc6da879.jpg', // Dragon Ball Super Broly
-  naruto: 'https://phimimg.com/upload/vod/20250604-1/ba12f01d984089cf39643771999f14b9.jpg',
+  naruto: 'https://phimimg.com/upload/vod/20231128-1/1c87331f49a69a0e66c7972aa8f8d7d8.jpg', // The Last: Naruto the Movie
   onepiece: 'https://phimimg.com/upload/vod/20230922-1/61f686b92d5f29ed34ab75e998895b9b.jpg',
   cyberpunk: 'https://phimimg.com/upload/vod/20241206-1/e1c8aa09fc72915be6687e862ff0f9a9.jpg',
   action: 'https://phimimg.com/upload/vod/20250821-1/1ec414f82adc729512410edd1b083996.jpg',
-  drama: 'https://phimimg.com/upload/vod/20240919-1/04dc2a0a9dbc3efbb6289dec6349de9e.jpg',
+  drama: 'https://phimimg.com/upload/vod/20231219-1/3992070b04a9d61260ddf4c17f3f27cb.jpg', // Mai
   default: 'https://phimimg.com/upload/vod/20241229-1/309e1f1623755fa993140a83167f577b.jpg',
 } as const
 
@@ -33,7 +33,7 @@ export const VERIFIED_CDN_POSTERS = {
   doraemon: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp', // Doraemon Bản Giao Hưởng
   shin: 'https://phimimg.com/upload/vod/20260402-1/56d3d6c53133e6e2f96fc19a35580b91.jpg', // Shin-chan Sushi Bay
   dragonball: 'https://phimimg.com/upload/vod/20240827-1/f3c5b869a3fb9334ebf92f4e2a1c1540.jpg', // Dragon Ball Super Broly
-  naruto: 'https://phimimg.com/upload/vod/20250604-1/4d040231dadbce1a312340480c69cfb2.jpg',
+  naruto: 'https://phimimg.com/upload/vod/20231128-1/c353ee9405f93be937a55d83e68d3d6c.jpg', // The Last: Naruto the Movie
   onepiece: 'https://phimimg.com/upload/vod/20230922-1/c787c4458260fac226233ec52ce4fa36.jpg',
   cyberpunk: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg&output=webp',
   action: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg&output=webp',
@@ -44,19 +44,24 @@ export const VERIFIED_CDN_POSTERS = {
 /**
  * Hardened Anomaly Interceptor:
  * Directly overrides known third-party upstream corrupted CDN hashes from KKPhim / phimimg.com:
- * 1. 3b5ed51c / 0514f6d0: Upstream mistakenly assigned artwork of Korean thriller "Vây Hãm Trên Không" to Doraemon Bản Giao Hưởng.
+ * 1. 3b5ed51c / 0514f6d0 / 0514f6f2: Upstream mistakenly assigned artwork of Korean thriller "Vây Hãm Trên Không" to Doraemon Bản Giao Hưởng.
  * 2. uux6M8z3 / zaAo7ytw: Upstream mistakenly assigned 1950s Greek theatrical flyer to Doraemon Vùng Đất Lý Tưởng.
  * 3. 6a45585d: Upstream KKPhim hash for Conan Black Iron Submarine wrongly prefixed with image.tmdb.org.
+ * 4. 35826e17: Empty 0-byte KKPhim backdrop for Tôi Thấy Hoa Vàng Trên Cỏ Xanh.
  */
 export const CORRUPTED_CDN_HASH_OVERRIDE: Record<string, { poster: string; backdrop: string }> = {
   // Doraemon: Nobita và Bản Giao Hưởng Địa Cầu 2024
   '3b5ed51c': {
     poster: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp',
-    backdrop: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg&output=webp',
+    backdrop: 'https://i.ytimg.com/vi/ikwvgoYK0-M/maxresdefault.jpg',
   },
   '0514f6d0': {
     poster: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp',
-    backdrop: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg&output=webp',
+    backdrop: 'https://i.ytimg.com/vi/ikwvgoYK0-M/maxresdefault.jpg',
+  },
+  '0514f6f2': {
+    poster: 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp',
+    backdrop: 'https://i.ytimg.com/vi/ikwvgoYK0-M/maxresdefault.jpg',
   },
   // Doraemon: Nobita và Vùng Đất Lý Tưởng Trên Bầu Trời 2023
   'uux6M8z3': {
@@ -69,8 +74,13 @@ export const CORRUPTED_CDN_HASH_OVERRIDE: Record<string, { poster: string; backd
   },
   // Conan: Tàu Ngầm Sắt Màu Đen
   '6a45585d': {
-    poster: 'https://phimimg.com/upload/vod/20231016-1/6a45585d457b3d77e91cbe7757f28c94.jpg',
+    poster: 'https://phimimg.com/upload/vod/20231016-1/b015db4de6e3973c7c183880406d2d1f.jpg',
     backdrop: 'https://phimimg.com/upload/vod/20231016-1/6a45585d457b3d77e91cbe7757f28c94.jpg',
+  },
+  // Tôi Thấy Hoa Vàng Trên Cỏ Xanh (0-byte upstream backdrop)
+  '35826e17': {
+    poster: 'https://phimimg.com/upload/vod/20260123-1/fc1b1379882e1af185f25791c4e5496a.jpg',
+    backdrop: 'https://i.ytimg.com/vi/DSwRXkWCdJE/maxresdefault.jpg',
   },
 }
 

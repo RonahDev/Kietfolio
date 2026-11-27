@@ -78,6 +78,9 @@ export const SITE_CONFIG = {
     performanceQuality: 'kietfolio_perf_quality_mode',
     cinemaWatchlist: 'kietfolio_cinema_watchlist',
     cinemaCurtainSeen: 'kietfolio_cinema_curtain_seen',
+    musicSettings: 'kietfolio_music_theater_settings',
+    musicIntroSeen: 'kietfolio_music_theater_intro_seen',
+    musicDbName: 'kietfolio_music_theater_db',
   },
   cinema: {
     tmdbApiKey: getEnvString('VITE_TMDB_API_KEY', ''),

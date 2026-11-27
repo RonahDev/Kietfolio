@@ -25,14 +25,14 @@ export const CinemaMovieCard: React.FC<CinemaMovieCardProps> = ({ movie }) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasImageError, setHasImageError] = useState(false)
 
-  // Synchronize poster state when movie updates
+  // Synchronize poster state only when resolved poster URL actually changes
   useEffect(() => {
-    setCurrentPoster(
-      getOptimizedImageUrl(movie.posterUrl, 'poster', movie.genres, movie.franchise)
-    )
-    setIsLoaded(false)
-    setHasImageError(false)
-  }, [movie.id, movie.posterUrl, movie.genres, movie.franchise])
+    if (initialPoster !== currentPoster) {
+      setCurrentPoster(initialPoster)
+      setIsLoaded(false)
+      setHasImageError(false)
+    }
+  }, [initialPoster, currentPoster])
 
   const handleCardImageError = () => {
     const fallback = getFallbackPoster(movie.genres, movie.franchise)

@@ -2,7 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react'
 import { LanguageProvider, AuthProvider, WhaleCinematicProvider, PerformanceProvider } from '@/context'
 import { useWhaleCinematic, useLanguage, useAuth } from '@/hooks'
 import { isReducedMotion } from '@/animations'
-import { Navbar, Footer } from '@/components/layout'
+import { Navbar, Footer, PlatformNavDock } from '@/components/layout'
 import {
   LightningAtmosphere,
   PageIntroLoader,
@@ -13,6 +13,7 @@ import {
 import { AuthModal } from '@/components/auth'
 import { OceanWhaleScene, GlobalParticleField } from '@/three'
 import { HeroSection } from '@/features/hero'
+import { EntertainmentHubSection } from '@/features/entertainment'
 import { AboutSection } from '@/features/about'
 import { ProjectsSection } from '@/features/projects'
 import { ExperienceSection } from '@/features/experience'
@@ -53,6 +54,11 @@ const CinemaStreamHub = lazy(() =>
     default: m.CinemaStreamHub,
   }))
 )
+const MusicTheaterHub = lazy(() =>
+  import('@/features/music').then((m) => ({
+    default: m.MusicTheaterHub,
+  }))
+)
 const AdminLayout = lazy(() =>
   import('@/features/admin/layouts/AdminLayout').then((m) => ({
     default: m.AdminLayout,
@@ -63,10 +69,13 @@ export function AppContent() {
   const { language } = useLanguage()
   const { user } = useAuth()
   const { isCinematicActive, triggerWhaleCinematic, skipWhaleCinematic } = useWhaleCinematic()
-  const [currentView, setCurrentView] = useState<'portfolio' | 'cinema' | 'admin'>(() => {
+  const [currentView, setCurrentView] = useState<'portfolio' | 'cinema' | 'music' | 'admin'>(() => {
     if (typeof window === 'undefined') return 'portfolio'
     if (window.location.hash === '#admin' || window.location.search.includes('view=admin')) {
       return 'admin'
+    }
+    if (window.location.hash === '#music' || window.location.search.includes('view=music')) {
+      return 'music'
     }
     return window.location.hash === '#cinema' || window.location.search.includes('view=cinema')
       ? 'cinema'
@@ -77,6 +86,8 @@ export function AppContent() {
     const handleHashChange = () => {
       if (window.location.hash === '#admin') {
         setCurrentView('admin')
+      } else if (window.location.hash === '#music') {
+        setCurrentView('music')
       } else if (window.location.hash === '#cinema') {
         setCurrentView('cinema')
       } else if (window.location.hash === '' || window.location.hash === '#') {
@@ -85,7 +96,7 @@ export function AppContent() {
     }
 
     const handleNavigateView = (e: Event) => {
-      const customEvent = e as CustomEvent<{ view: 'portfolio' | 'cinema' | 'admin' }>
+      const customEvent = e as CustomEvent<{ view: 'portfolio' | 'cinema' | 'music' | 'admin' }>
       if (customEvent.detail?.view) {
         setCurrentView(customEvent.detail.view)
       }
@@ -199,6 +210,21 @@ export function AppContent() {
             }}
           />
         </Suspense>
+      ) : currentView === 'music' ? (
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-[#101010] flex items-center justify-center text-[#C6A878] font-mono text-sm tracking-widest">
+              OPENING PRIVATE MUSIC THEATER...
+            </div>
+          }
+        >
+          <MusicTheaterHub
+            onBackToPortfolio={() => {
+              window.location.hash = ''
+              setCurrentView('portfolio')
+            }}
+          />
+        </Suspense>
       ) : (
         <>
           {/* Cinematic GSAP Page Entrance Boot Loader */}
@@ -264,9 +290,13 @@ export function AppContent() {
             {/* Header & Navigation with Google Auth Status */}
             <Navbar />
 
+            {/* Floating Platform Navigation Bar */}
+            <PlatformNavDock />
+
             {/* Main Experience Stream */}
             <main id="main-content" className="flex-1 relative z-10">
               <HeroSection isIntroReady={isIntroReady && !isCinematicActive} />
+              <EntertainmentHubSection />
               <AboutSection />
               <ProjectsSection />
               <ExperienceSection />

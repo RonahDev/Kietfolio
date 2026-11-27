@@ -16,6 +16,7 @@ import {
   Crown,
   Sparkles,
   Film,
+  Music,
 } from 'lucide-react'
 
 export const Navbar: React.FC = () => {
@@ -160,6 +161,44 @@ export const Navbar: React.FC = () => {
                 </a>
               )
             })}
+
+            {/* Direct Cinema Stream Item in Central Nav Pill */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'cinema'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                )
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono tracking-wide rounded-full text-rose-200 hover:text-white hover:bg-[#a51d35]/60 transition-all cursor-pointer group"
+              title={language === 'vi' ? 'Rạp Phim 3D (CinemaStream 4K)' : 'Cinema 3D Stream'}
+            >
+              <Film className="w-3.5 h-3.5 text-[#d4af70] group-hover:scale-110 transition-transform" />
+              <span>{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
+              <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">
+                4K
+              </span>
+            </button>
+
+            {/* Direct Music Theater Item in Central Nav Pill */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono tracking-wide rounded-full text-amber-200 hover:text-white bg-gradient-to-r from-amber-500/25 to-[#542C35]/50 border border-amber-400/50 hover:border-amber-300 transition-all cursor-pointer group shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+              title={language === 'vi' ? 'Nghe Nhạc (Private Music Theater)' : 'Private Music Theater'}
+            >
+              <Music className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform animate-pulse" />
+              <span className="font-bold">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
+              <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+                MỚI
+              </span>
+            </button>
           </nav>
 
           {/* Right Actions for Desktop / Tablet: Auth, VIP, Donate, Language */}
@@ -321,6 +360,25 @@ export const Navbar: React.FC = () => {
               </span>
             </button>
 
+            {/* Private Music Theater Direct Entry */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-amber-400/80 bg-gradient-to-r from-amber-500/30 via-[#542C35]/60 to-amber-500/30 hover:from-amber-500/60 hover:to-[#542C35] text-amber-100 hover:text-white rounded-full transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_22px_rgba(245,158,11,0.55)] cursor-pointer group"
+              title={language === 'vi' ? 'Mở Nền Tảng Nghe Nhạc (Private Music Theater)' : 'Open Private Music Theater'}
+            >
+              <Music className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform animate-pulse" />
+              <span className="font-bold text-[11px]">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
+              <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+                MỚI
+              </span>
+            </button>
+
             {/* Donate VNPay QR Button */}
             <button
               type="button"
@@ -350,7 +408,40 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile & Small Screen Action Bar (< md) */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1.5">
+            {/* Quick Mobile Cinema Stream Icon */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'cinema'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                )
+              }}
+              className="p-1.5 rounded-full border border-[#a51d35]/60 bg-[#a51d35]/30 text-rose-200 hover:bg-[#a51d35] transition-colors cursor-pointer"
+              title={language === 'vi' ? 'Mở Rạp Phim 3D Cinema Stream' : 'Open 3D Cinema Stream'}
+              aria-label="Open 3D Cinema Stream"
+            >
+              <Film className="w-4 h-4 text-[#d4af70]" />
+            </button>
+
+            {/* Quick Mobile Music Theater Button with Text */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-amber-400/70 bg-gradient-to-r from-amber-500/25 to-[#321B22]/80 text-amber-300 hover:text-white text-xs font-mono font-bold transition-colors cursor-pointer shadow-sm"
+              title={language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}
+              aria-label="Open Music Theater"
+            >
+              <Music className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span className="text-[11px]">{language === 'vi' ? 'Nhạc' : 'Music'}</span>
+            </button>
+
             {/* Quick Language Toggle */}
             <button
               onClick={toggleLanguage}
@@ -530,6 +621,27 @@ export const Navbar: React.FC = () => {
               </div>
               <span className="px-1.5 py-0.5 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[10px]">
                 4K
+              </span>
+            </button>
+
+            {/* Mobile Music Theater Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false)
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-amber-400/60 bg-gradient-to-r from-amber-500/30 to-[#321B22]/80 hover:from-amber-500/50 hover:to-[#542C35] text-amber-100 text-sm font-mono font-bold transition-all shadow-sm"
+            >
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span>{language === 'vi' ? 'Nghe Nhạc (Private Music Theater)' : 'Private Music Theater'}</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-xs bg-amber-400/30 text-amber-300 text-[10px] font-bold">
+                MỚI
               </span>
             </button>
 

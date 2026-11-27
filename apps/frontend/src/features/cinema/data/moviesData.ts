@@ -192,8 +192,8 @@ export const CINEMA_MOVIES: MovieItem[] = [
     tagline: 'When 100,000 packages meet a fractured conveyor belt at midnight.',
     synopsis:
       'Phim tài liệu kỹ thuật kịch tính ghi lại thời khắc nghẹt thở trong đợt Mega Sale 11.11. Trước nguy cơ sập luồng bốc dỡ hàng loạt và tắc nghẽn cục bộ, đội ngũ vận hành và kỹ sư phần mềm đã ứng biến tái phân luồng thủ công kết hợp thuật toán dự báo tải trọng để giải cứu toàn bộ đơn hàng trong đêm.',
-    backdropUrl: 'https://phimimg.com/upload/vod/20231021-1/8da0be4716d76efb6324e76575a0d5ef.jpg',
-    posterUrl: 'https://phimimg.com/upload/vod/20231021-1/9d403f94f073c97bb84ea1d62b8dda88.jpg',
+    backdropUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1280&auto=format&fit=crop&q=85',
+    posterUrl: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=780&h=1170&fit=crop&q=85',
     trailerUrl: 'https://www.youtube.com/watch?v=7xX_Ka3xHj0',
     youtubeKey: '7xX_Ka3xHj0',
     videoStreamUrl:

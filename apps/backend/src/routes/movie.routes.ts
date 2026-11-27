@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { prisma } from '../config/prisma'
 import { cacheResponse } from '../resilience/inMemoryCache'
 import { publicReadLimiter } from '../middlewares/rateLimiter.middleware'
+import { MovieIngestionService } from '../services/movieIngestion.service'
 
 export const movieRouter = Router()
 
@@ -13,17 +14,17 @@ movieRouter.use(publicReadLimiter)
  * High-performance public movie catalog with L1 LRU Cache & ETag 304 support
  */
 movieRouter.get('/', cacheResponse(60, 'movies'), async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt((req.query.page as string) || '1', 10) || 1)
+  const limit = Math.min(50, Math.max(1, parseInt((req.query.limit as string) || '20', 10) || 20))
+  const skip = (page - 1) * limit
+
+  const rawSearch = (req.query.search as string)?.trim() || ''
+  const search = rawSearch.substring(0, 100).replace(/[\0\x08\x09\x1a\n\r"'\\]/g, '')
+  const genre = (req.query.genre as string)?.trim() || ''
+  const type = (req.query.type as string)?.trim() || ''
+  const isTheatrical = req.query.isTheatrical === 'true'
+
   try {
-    const page = Math.max(1, parseInt((req.query.page as string) || '1', 10))
-    const limit = Math.min(50, Math.max(1, parseInt((req.query.limit as string) || '20', 10)))
-    const skip = (page - 1) * limit
-
-    const rawSearch = (req.query.search as string)?.trim() || ''
-    const search = rawSearch.substring(0, 100).replace(/[\0\x08\x09\x1a\n\r"'\\]/g, '')
-    const genre = (req.query.genre as string)?.trim() || ''
-    const type = (req.query.type as string)?.trim() || ''
-    const isTheatrical = req.query.isTheatrical === 'true'
-
     const where: any = {
       deletedAt: null,
       status: 'published',
@@ -80,8 +81,44 @@ movieRouter.get('/', cacheResponse(60, 'movies'), async (req: Request, res: Resp
         },
       },
     })
-  } catch (err) {
-    res.status(500).json({ success: false, error: (err as Error).message })
+  } catch {
+    // Graceful fallback to in-memory catalog when PostgreSQL is offline
+    const fallbackMovies = MovieIngestionService.getInMemoryCatalog().filter((m) => {
+      if (m.status !== 'published') return false
+      if (type && type !== 'all' && m.type !== type) return false
+      if (isTheatrical && !m.isTheatrical) return false
+      if (genre && genre !== 'all' && !m.genreIds.includes(genre)) return false
+      if (search) {
+        const q = search.toLowerCase()
+        const match =
+          m.titleVi.toLowerCase().includes(q) ||
+          (m.titleOrigin || '').toLowerCase().includes(q) ||
+          m.slug.toLowerCase().includes(q)
+        if (!match) return false
+      }
+      return true
+    })
+
+    const sliced = fallbackMovies.slice(skip, skip + limit).map((m) => ({
+      ...m,
+      id: m.slug,
+      viewCount: 0,
+      genres: (m.genreIds || []).map((g) => ({ id: g, slug: g })),
+      categories: (m.categoryIds || []).map((c) => ({ id: c, slug: c })),
+    }))
+
+    res.status(200).json({
+      success: true,
+      data: {
+        movies: sliced,
+        pagination: {
+          total: fallbackMovies.length,
+          page,
+          limit,
+          totalPages: Math.ceil(fallbackMovies.length / limit),
+        },
+      },
+    })
   }
 })
 

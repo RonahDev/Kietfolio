@@ -16,6 +16,7 @@ import {
   Crown,
   Shield,
   Sparkles,
+  Music,
 } from 'lucide-react'
 
 interface CinemaNavbarProps {
@@ -66,9 +67,8 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
 
   const handleTabClick = (tab: CinemaViewTab) => {
     setActiveTab(tab)
-    if (tab !== 'all') {
-      setSelectedGenre('all')
-    }
+    setSelectedGenre('all')
+    setSearchQuery('')
     setIsMobileMenuOpen(false)
   }
 
@@ -278,6 +278,25 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
                 </span>
               )}
             </button>
+
+            {/* Direct Switch to Music Theater in Central Cinema Nav */}
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono tracking-wide text-amber-300 hover:text-white hover:bg-amber-500/20 transition-colors cursor-pointer group"
+              title="Chuyển sang Nền Tảng Nghe Nhạc (Private Music Theater)"
+            >
+              <Music className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform animate-pulse" />
+              <span className="font-bold">Nghe Nhạc</span>
+              <span className="px-1 py-0.2 rounded-xs bg-amber-400/20 text-amber-300 text-[9px] font-bold">
+                MỚI
+              </span>
+            </button>
           </nav>
         </div>
 
@@ -318,6 +337,25 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               </button>
             )}
           </div>
+
+          {/* Switch to Music Theater Button */}
+          <button
+            type="button"
+            onClick={() => {
+              window.location.hash = 'music'
+              window.dispatchEvent(
+                new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+              )
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/25 via-[#542C35]/60 to-amber-500/25 border border-amber-400/70 text-xs font-mono text-amber-200 hover:text-white hover:border-amber-300 transition-all cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:shadow-[0_0_18px_rgba(245,158,11,0.5)]"
+            title="Mở Nền Tảng Nghe Nhạc (Private Music Theater)"
+          >
+            <Music className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span className="text-[11px] font-bold text-amber-300">Nghe Nhạc</span>
+            <span className="hidden sm:inline px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+              MỚI
+            </span>
+          </button>
 
           {/* Replay Curtain Intro Button */}
           <button
@@ -452,6 +490,27 @@ export const CinemaNavbar: React.FC<CinemaNavbarProps> = ({ onBackToPortfolio })
               }`}
             >
               Danh Sách Của Tôi ({watchlist.length})
+            </button>
+
+            {/* Mobile Switch to Music Theater Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false)
+                window.location.hash = 'music'
+                window.dispatchEvent(
+                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                )
+              }}
+              className="w-full flex items-center justify-between p-2.5 rounded-sm bg-gradient-to-r from-amber-500/25 to-[#321B22]/80 border border-amber-400/60 text-amber-200 text-xs font-mono font-bold"
+            >
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span>Qua Trang Nghe Nhạc</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+                MỚI
+              </span>
             </button>
 
             {/* Mobile Categorized Genre Accordion */}

@@ -14,10 +14,15 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
   const containerRef = useRef<HTMLDivElement>(null)
   const centerBadgeRef = useRef<HTMLDivElement>(null)
   const [useFallback, setUseFallback] = useState(false)
+  const useFallbackRef = useRef(false)
   const [fallbackProgress, setFallbackProgress] = useState(0)
   const [isIntroFinished, setIsIntroFinished] = useState(() => isReducedMotion())
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
   const animStateRef = useRef({ progress: 0, light: 0.1 })
+
+  useEffect(() => {
+    useFallbackRef.current = useFallback
+  }, [useFallback])
 
   const handleSkip = useCallback(() => {
     if (timelineRef.current) {
@@ -55,7 +60,7 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
       defaults: { ease: 'power2.inOut' },
       onUpdate: () => {
         // Only update fallback state if CSS fallback is active
-        if (useFallback) {
+        if (useFallbackRef.current) {
           setFallbackProgress(state.progress)
         }
       },
@@ -111,7 +116,7 @@ export const CinemaIntro: React.FC<CinemaIntroProps> = ({ onComplete, onProgress
     return () => {
       tl.kill()
     }
-  }, [onComplete, onProgress, useFallback])
+  }, [onComplete, onProgress])
 
   if (isIntroFinished) return null
 

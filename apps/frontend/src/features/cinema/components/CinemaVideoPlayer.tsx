@@ -70,11 +70,25 @@ export const CinemaVideoPlayer: React.FC = () => {
   })
 
   useEffect(() => {
+    // Reset player UI & playback state cleanly whenever a different movie is opened
+    setCurrentEpIndex(0)
+    setCurrentTime(0)
+    setDuration(0)
+    setStreamError(null)
+    setShowSettings(false)
+    setShowEpisodes(false)
+    setPlaybackSpeed(1)
+    setIsPlaying(true)
+  }, [playingMovie?.id])
+
+  useEffect(() => {
     const yKey = extractYoutubeKey(playingMovie?.youtubeKey || playingMovie?.trailerUrl)
     if (isPlayingTrailer && yKey) {
       setViewMode('youtube')
+      setIsBuffering(false)
     } else if (playingMovie?.isTheatrical && (!playingMovie?.episodes || playingMovie.episodes.length === 0) && yKey) {
       setViewMode('youtube')
+      setIsBuffering(false)
     } else {
       setViewMode('video')
     }
@@ -161,8 +175,10 @@ export const CinemaVideoPlayer: React.FC = () => {
     }
   }, [])
 
-  // Keyboard shortcuts (Space, F, M, ArrowLeft, ArrowRight, Escape)
+  // Keyboard shortcuts (Space, F, M, ArrowLeft, ArrowRight, Escape) — active ONLY while player is open
   useEffect(() => {
+    if (!playingMovie) return
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       if (
@@ -173,6 +189,16 @@ export const CinemaVideoPlayer: React.FC = () => {
       ) {
         return
       }
+
+      if (e.key === 'Escape') {
+        if (!document.fullscreenElement) {
+          closePlayer()
+        }
+        return
+      }
+
+      // Video transport shortcuts apply only in HTML5/HLS video mode
+      if (viewMode === 'youtube') return
 
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault()
@@ -189,22 +215,18 @@ export const CinemaVideoPlayer: React.FC = () => {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault()
         skipTime(-10)
-      } else if (e.key === 'Escape') {
-        if (!document.fullscreenElement) {
-          closePlayer()
-        }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePlay, toggleFullscreen, toggleMute, skipTime, closePlayer])
+  }, [playingMovie, viewMode, togglePlay, toggleFullscreen, toggleMute, skipTime, closePlayer])
 
   // ========================================================
   // HLS.JS STREAM ATTACHMENT & ADAPTIVE PLAYBACK
   // ========================================================
   useEffect(() => {
     const video = videoRef.current
-    if (!video || !activeStreamUrl || viewMode === 'youtube') return
+    if (!playingMovie || !video || !activeStreamUrl || viewMode === 'youtube') return
 
     setStreamError(null)
     setIsBuffering(true)
@@ -216,6 +238,19 @@ export const CinemaVideoPlayer: React.FC = () => {
     }
 
     const isM3U8 = activeStreamUrl.includes('.m3u8')
+    let networkErrorCount = 0
+
+    const handleNativeLoadedMetadata = () => {
+      setIsBuffering(false)
+      video.playbackRate = playbackSpeed
+      video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+    }
+
+    const handleVideoElementError = () => {
+      setIsBuffering(false)
+      setIsPlaying(false)
+      setStreamError('Không thể phát luồng video hiện tại. Bạn có thể chuyển sang luồng dự phòng 4K hoặc xem trailer.')
+    }
 
     if (isM3U8 && Hls.isSupported()) {
       const hls = new Hls({
@@ -230,6 +265,7 @@ export const CinemaVideoPlayer: React.FC = () => {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsBuffering(false)
+        video.playbackRate = playbackSpeed
         video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
       })
 
@@ -237,42 +273,44 @@ export const CinemaVideoPlayer: React.FC = () => {
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad()
+              networkErrorCount += 1
+              if (networkErrorCount <= 2) {
+                hls.startLoad()
+              } else {
+                hls.destroy()
+                hlsRef.current = null
+                setStreamError('Không thể kết nối luồng phát m3u8 sau nhiều lần thử. Bạn có thể xem trailer hoặc luồng dự phòng.')
+                setIsBuffering(false)
+              }
               break
             case Hls.ErrorTypes.MEDIA_ERROR:
               hls.recoverMediaError()
               break
             default:
               hls.destroy()
+              hlsRef.current = null
               setStreamError('Không thể kết nối luồng phát m3u8. Bạn có thể xem trailer hoặc luồng dự phòng.')
               setIsBuffering(false)
               break
           }
         }
       })
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native Safari HLS
-      video.src = activeStreamUrl
-      video.addEventListener('loadedmetadata', () => {
-        setIsBuffering(false)
-        video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
-      })
     } else {
-      // Standard MP4 stream fallback
+      // Native Safari HLS or Standard MP4 stream fallback
       video.src = activeStreamUrl
-      video.addEventListener('loadedmetadata', () => {
-        setIsBuffering(false)
-        video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
-      })
+      video.addEventListener('loadedmetadata', handleNativeLoadedMetadata)
+      video.addEventListener('error', handleVideoElementError)
     }
 
     return () => {
+      video.removeEventListener('loadedmetadata', handleNativeLoadedMetadata)
+      video.removeEventListener('error', handleVideoElementError)
       if (hlsRef.current) {
         hlsRef.current.destroy()
         hlsRef.current = null
       }
     }
-  }, [activeStreamUrl, viewMode])
+  }, [playingMovie, activeStreamUrl, viewMode, playbackSpeed])
 
   if (!playingMovie) return null
 

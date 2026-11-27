@@ -42,6 +42,46 @@ export const projectsData: ProjectItem[] = [
     liveUrl: '#cinema',
   },
   {
+    id: 'private-music-theater',
+    title: 'Private Music Theater — Hi-Res Classical Hall & Local Importer',
+    subtitle: {
+      en: 'Classical concert hall music experience featuring 4-scene GSAP theater lighting reveal and client-side IndexedDB lossless library.',
+      vi: 'Không gian hòa nhạc thính phòng với hiệu ứng tắt đèn rạp GSAP 4 màn và thư viện nhạc lossless IndexedDB nội bộ.',
+    },
+    category: 'creative',
+    statusBadge: {
+      en: 'Signature Premiere · Lossless Web Audio',
+      vi: 'Tuyệt Phẩm Premiere · Âm Thanh Lossless',
+    },
+    isFeatured: true,
+    isPlaceholder: true,
+    problemStatement: {
+      en: 'Generic streaming apps clutter listening with ads and algorithms, lacking classical theater atmosphere and offline personal lossless playback.',
+      vi: 'Các ứng dụng phát nhạc đại trà thường tràn ngập quảng cáo và thuật toán gợi ý xao nhãng, thiếu đi không khí nhà hát nghệ thuật và khả năng phát nhạc lossless lưu trữ riêng tư.',
+    },
+    solutionArchitecture: {
+      en: 'Built an elegant classical concert hall interface with GSAP Timeline 4-scene curtain & lighting choreography, pure HTML5/Web Audio playback pipeline, and zero-server client-side IndexedDB persistence for user lossless audio blobs.',
+      vi: 'Xây dựng giao diện nhà hát cổ điển sang trọng với kịch bản mở rèm và tắt đèn 4 giai đoạn bằng GSAP Timeline, bộ phát âm thanh Web Audio chuẩn xác và lưu trữ blob nhạc lossless hoàn toàn cục bộ qua IndexedDB.',
+    },
+    keyEngineeringDecisions: {
+      en: [
+        'GSAP Timeline orchestrating 4-scene curtain draw, sequential ceiling lights shutdown, and orchestra reveal.',
+        'Zero-server client-side IndexedDB binary storage supporting MP3, WAV, FLAC, M4A, OGG, and AAC.',
+        'High-performance pure client audio metadata tag parser with resilient ID3v2 and PCM fallback.',
+        'Full responsive theater controls: seek scrub, volume memory, repeat, shuffle, and global shortcuts.',
+      ],
+      vi: [
+        'Kịch bản GSAP Timeline điều phối 4 màn mở rèm nhung, tắt đèn trần tuần tự và hé lộ sân khấu giao hưởng.',
+        'Lưu trữ nhị phân IndexedDB hoàn toàn trên trình duyệt người dùng, hỗ trợ MP3, WAV, FLAC, M4A, OGG và AAC.',
+        'Trình phân tích tag metadata âm thanh trực tiếp trên client với cơ chế bóc tách ID3v2 và PCM dự phòng.',
+        'Điều khiển nhà hát đa nền tảng: thanh tua seek bar, nhớ mức âm lượng, lặp bài, xáo trộn và phím tắt.',
+      ],
+    },
+    techStack: ['Web Audio API', 'GSAP Timeline', 'IndexedDB', 'React 19', 'TypeScript', 'Tailwind CSS 4'],
+    githubUrl: 'https://github.com/RonahDev/Kietfolio',
+    liveUrl: '#music',
+  },
+  {
     id: 'hubflow-logistics-engine',
     title: 'HubFlow — Logistics Hub Flow & Dispatch Engine',
     subtitle: {

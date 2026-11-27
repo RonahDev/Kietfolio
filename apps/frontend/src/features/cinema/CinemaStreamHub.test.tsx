@@ -17,6 +17,7 @@ vi.mock('./services/cinemaService', () => ({
   fetchTMDbNowPlayingVietnam: vi.fn().mockResolvedValue([]),
   fetchKKPhimStreamDetails: vi.fn().mockResolvedValue(null),
   fetchKKPhimMovieDetail: vi.fn().mockResolvedValue(null),
+  fetchTMDbTrailerKey: vi.fn().mockResolvedValue(null),
   fetchBackendLiveMovies: vi.fn().mockResolvedValue([]),
 }))
 

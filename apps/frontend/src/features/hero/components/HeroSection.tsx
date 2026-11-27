@@ -12,6 +12,8 @@ import {
   GraduationCap,
   Boxes,
   ShieldCheck,
+  Film,
+  Music,
 } from 'lucide-react'
 import { HeroTerminal } from './HeroTerminal'
 import { HERO_TELEMETRY_METRICS } from '@/config'
@@ -233,6 +235,45 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
                 >
                   <span className="text-xs">🐋</span>
                   <span>{language === 'vi' ? 'CÁ VOI' : 'WHALE'}</span>
+                </button>
+              </div>
+
+              {/* Quick Multimedia Platform Navigation */}
+              <div className="w-full flex flex-wrap items-center gap-2 pt-2 font-mono text-xs">
+                <span className="text-[#64748b] text-[11px] uppercase tracking-wider hidden sm:inline">
+                  {language === 'vi' ? 'NỀN TẢNG:' : 'PLATFORMS:'}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = 'cinema'
+                    window.dispatchEvent(
+                      new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                    )
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#a51d35]/20 hover:bg-[#a51d35]/40 border border-[#a51d35]/50 text-rose-200 text-xs transition-all cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(165,29,53,0.45)] group"
+                  title={language === 'vi' ? 'Chuyển sang Rạp Phim 3D CinemaStream' : 'Open Cinema 3D Stream'}
+                >
+                  <Film className="w-3.5 h-3.5 text-[#d4af70] group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold">{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
+                  <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">4K</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = 'music'
+                    window.dispatchEvent(
+                      new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                    )
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/25 to-[#542C35]/60 hover:from-amber-500/40 hover:to-[#542C35] border border-amber-400/70 text-amber-100 text-xs transition-all cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:shadow-[0_0_18px_rgba(245,158,11,0.45)] group"
+                  title={language === 'vi' ? 'Chuyển sang Nhà Hát Nghe Nhạc (Private Music Theater)' : 'Open Private Music Theater'}
+                >
+                  <Music className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform animate-pulse" />
+                  <span className="font-bold text-amber-200 group-hover:text-white">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
+                  <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">MỚI</span>
                 </button>
               </div>
             </div>

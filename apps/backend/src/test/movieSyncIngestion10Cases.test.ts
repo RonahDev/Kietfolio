@@ -71,7 +71,7 @@ describe('Automated Movie Sync & Ingestion Engine — 10 Comprehensive Testcases
     )
     expect(sanitized1.posterUrl).toContain('1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg')
     expect(sanitized1.posterUrl).toContain('wsrv.nl')
-    expect(sanitized1.backdropUrl).toContain('xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg')
+    expect(sanitized1.backdropUrl).toContain('ikwvgoYK0-M/maxresdefault.jpg')
 
     // 2. Corrupted Doraemon Greek poster hash uux6M8z3
     const sanitized2 = MovieIngestionService.sanitizeKkphimMedia(

@@ -1,0 +1,5 @@
+export { MusicTheaterHub } from './MusicTheaterHub'
+export { MusicTheaterProvider } from './context/MusicTheaterContext'
+export { MusicTheaterContext } from './context/musicTheaterContextInstance'
+export { useMusicTheater } from './hooks/useMusicTheater'
+export * from './types/music'

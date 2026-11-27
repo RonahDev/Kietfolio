@@ -57,6 +57,6 @@ describe('Movie Catalog Classification & Genre Integrity', () => {
     const corruptedBackdrop = 'https://phimimg.com/upload/vod/20250521-1/0514f6d0fba4bfeb3a48e24fa5eb066c.jpg'
     const sanitizedBackdrop = getOptimizedImageUrl(corruptedBackdrop, 'backdrop', ['doraemon'], 'doraemon')
     expect(sanitizedBackdrop).not.toContain('0514f6d0')
-    expect(sanitizedBackdrop).toContain('xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg')
+    expect(sanitizedBackdrop).toContain('ikwvgoYK0-M/maxresdefault.jpg')
   })
 })

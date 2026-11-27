@@ -35,10 +35,29 @@ export const CinemaDetailModal: React.FC = () => {
 
   const isSaved = isInWatchlist(activeMovie.id)
 
-  // Find similar movies
+  const hasTrailer = Boolean(
+    activeMovie.youtubeKey ||
+      (activeMovie.trailerUrl &&
+        (activeMovie.trailerUrl.includes('watch?v=') ||
+          activeMovie.trailerUrl.includes('youtu.be/') ||
+          activeMovie.trailerUrl.includes('embed/')))
+  )
+
+  // Find similar movies matching franchise or shared genres first
   const similarMovies = activeMovie.similarMovieIds
     ? movies.filter((m) => activeMovie.similarMovieIds?.includes(m.id))
-    : movies.filter((m) => m.id !== activeMovie.id).slice(0, 3)
+    : movies
+        .filter((m) => m.id !== activeMovie.id)
+        .sort((a, b) => {
+          const aScore =
+            (activeMovie.franchise && a.franchise === activeMovie.franchise ? 10 : 0) +
+            a.genres.filter((g) => activeMovie.genres.includes(g)).length
+          const bScore =
+            (activeMovie.franchise && b.franchise === activeMovie.franchise ? 10 : 0) +
+            b.genres.filter((g) => activeMovie.genres.includes(g)).length
+          return bScore - aScore
+        })
+        .slice(0, 3)
 
   return (
     <div
@@ -120,19 +139,21 @@ export const CinemaDetailModal: React.FC = () => {
                 <span>PHÁT NGAY</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  closeMovieDetail()
-                  playMovie(activeMovie, { isTrailer: true })
-                }}
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#d4af70]/40 text-[#d4af70] font-mono text-xs transition-colors cursor-pointer"
-                title="Xem trailer 4K trực tiếp trên web"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#d4af70]" />
-                <span className="hidden xs:inline">XEM TRAILER TRÊN WEB</span>
-                <span className="xs:hidden">TRAILER</span>
-              </button>
+              {hasTrailer && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMovieDetail()
+                    playMovie(activeMovie, { isTrailer: true })
+                  }}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-full bg-[#181b24] hover:bg-[#252a36] border border-[#d4af70]/40 text-[#d4af70] font-mono text-xs transition-colors cursor-pointer"
+                  title="Xem trailer 4K trực tiếp trên web"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#d4af70]" />
+                  <span className="hidden xs:inline">XEM TRAILER TRÊN WEB</span>
+                  <span className="xs:hidden">TRAILER</span>
+                </button>
+              )}
 
               <button
                 type="button"

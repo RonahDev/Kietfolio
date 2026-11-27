@@ -130,4 +130,52 @@ describe('Cinema Catalog Comprehensive Integrity Audit', () => {
 
     expect(invalidProviders).toEqual([])
   })
+
+  it('guarantees strictly unique non-swapped backdropUrl and posterUrl across all catalog titles', () => {
+    const backdropMap = new Map<string, string>()
+    const posterMap = new Map<string, string>()
+    const duplicateBackdrops: Array<{ url: string; first: string; second: string }> = []
+    const duplicatePosters: Array<{ url: string; first: string; second: string }> = []
+    const identicalBgAndPoster: string[] = []
+
+    for (const movie of allMovies) {
+      if (movie.backdropUrl === movie.posterUrl) {
+        identicalBgAndPoster.push(movie.id)
+      }
+      if (backdropMap.has(movie.backdropUrl)) {
+        duplicateBackdrops.push({
+          url: movie.backdropUrl,
+          first: backdropMap.get(movie.backdropUrl)!,
+          second: movie.id,
+        })
+      } else {
+        backdropMap.set(movie.backdropUrl, movie.id)
+      }
+
+      if (posterMap.has(movie.posterUrl)) {
+        duplicatePosters.push({
+          url: movie.posterUrl,
+          first: posterMap.get(movie.posterUrl)!,
+          second: movie.id,
+        })
+      } else {
+        posterMap.set(movie.posterUrl, movie.id)
+      }
+    }
+
+    expect(identicalBgAndPoster).toEqual([])
+    expect(duplicateBackdrops).toEqual([])
+    expect(duplicatePosters).toEqual([])
+
+    // Verify known mismatched/broken artworks are never reintroduced
+    const byId = new Map(allMovies.map((m) => [m.id, m]))
+    expect(byId.get('vn-lat-mat-7-2024')?.backdropUrl).not.toContain('04dc2a0a9dbc3efbb6289dec6349de9e')
+    expect(byId.get('vn-toi-thay-hoa-vang-tren-co-xanh')?.backdropUrl).not.toContain('35826e1775355efa81ef00898d8094c2')
+    expect(byId.get('anime-doraemon-ban-giao-huong-2024')?.backdropUrl).not.toContain('xIKm2bfJ6HxiCfXBoOCwgDbOhzt')
+    expect(byId.get('anime-naruto-the-last-2014')?.backdropUrl).not.toContain('ba12f01d984089cf39643771999f14b9')
+    expect(byId.get('anime-demon-slayer-mugen-train')?.backdropUrl).not.toContain('e79b6aaa75300e7424ca41500980cbe2')
+    expect(byId.get('action-hai-phuong-2019')?.backdropUrl).not.toContain('5ZSwZPKgcTJJwhxjbOHeoBTVaKh')
+    expect(byId.get('action-hai-phuong-2019')?.posterUrl).not.toContain('w6Jk8BHohhoKBUcxGeSyDQGWGWc')
+    expect(byId.get('autonomous-transit')?.backdropUrl).not.toContain('8da0be4716d76efb6324e76575a0d5ef')
+  })
 })

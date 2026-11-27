@@ -18,8 +18,22 @@ function sanitizeMediaUrl(rawUrl?: string, type: 'poster' | 'backdrop' = 'poster
     }
   }
 
-  // Wrap through Cloudflare Edge proxy wsrv.nl to bypass Vietnamese ISP DNS blocks
-  if ((clean.includes('image.tmdb.org') || clean.includes('phimimg.com')) && !clean.includes('wsrv.nl')) {
+  // Direct handling for phimimg.com: wsrv.nl blocks phimimg under policy, so unwrap and serve directly over HTTPS
+  if (clean.includes('phimimg.com')) {
+    try {
+      const match = decodeURIComponent(clean).match(/phimimg\.com\/.*$/)
+      if (match) {
+        const cleanPath = match[0].replace(/&output=webp.*$/, '').replace(/&w=\d+.*$/, '')
+        return `https://${cleanPath}`
+      }
+    } catch {
+      // Fallback to original URL if URI decoding fails
+    }
+    return clean
+  }
+
+  // Wrap TMDb URLs through Cloudflare Edge proxy wsrv.nl to bypass Vietnamese ISP DNS blocks
+  if (clean.includes('image.tmdb.org') && !clean.includes('wsrv.nl')) {
     const rawPath = clean.replace(/^https?:\/\//, '')
     return `https://wsrv.nl/?url=${encodeURIComponent(rawPath)}&output=webp`
   }
@@ -492,7 +506,11 @@ export async function fetchTMDbTrailerKey(tmdbId: number): Promise<string | null
  */
 export async function fetchBackendLiveMovies(): Promise<MovieItem[]> {
   try {
-    const res = await fetch(`${SITE_CONFIG.apiBaseUrl}/api/movies?limit=50`, {
+    const baseUrl = (SITE_CONFIG.apiBaseUrl || '/api').replace(/\/$/, '')
+    const moviesUrl = baseUrl.endsWith('/api')
+      ? `${baseUrl}/movies?limit=50`
+      : `${baseUrl}/api/movies?limit=50`
+    const res = await fetch(moviesUrl, {
       headers: { Accept: 'application/json' },
     })
     if (!res.ok) return []

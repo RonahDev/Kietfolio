@@ -155,14 +155,18 @@ export const CinemaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           if (existingId) {
             const existing = map.get(existingId)
             if (existing) {
-              // If existing is official, keep official verified assets (posters, backdrops, metadata)
-              // but enrich with live video stream URL if existing lacks one
-              if (!existing.videoStreamUrl && m.videoStreamUrl) {
-                existing.videoStreamUrl = m.videoStreamUrl
+              // Clone before enriching so imported static catalog constants are never mutated in place
+              const enriched: MovieItem = {
+                ...existing,
+                videoStreamUrl: existing.videoStreamUrl || m.videoStreamUrl,
+                trailerUrl: existing.trailerUrl || m.trailerUrl,
+                youtubeKey: existing.youtubeKey || m.youtubeKey,
+                episodes:
+                  existing.episodes && existing.episodes.length > 0
+                    ? existing.episodes
+                    : m.episodes,
               }
-              if (!existing.trailerUrl && m.trailerUrl) {
-                existing.trailerUrl = m.trailerUrl
-              }
+              map.set(existingId, enriched)
             }
             return
           }

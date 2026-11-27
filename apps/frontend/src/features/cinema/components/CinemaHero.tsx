@@ -40,15 +40,20 @@ export const CinemaHero: React.FC = () => {
   const [isBackdropLoaded, setIsBackdropLoaded] = useState(false)
   const [hasBackdropError, setHasBackdropError] = useState(false)
 
+  // Keep activeIndex within valid slider bounds when catalog length changes
   useEffect(() => {
-    if (activeMovie) {
-      setCurrentBackdrop(
-        getOptimizedImageUrl(activeMovie.backdropUrl, 'backdrop', activeMovie.genres, activeMovie.franchise)
-      )
+    if (featuredMovies.length > 0 && activeIndex >= featuredMovies.length) {
+      setActiveIndex(0)
+    }
+  }, [featuredMovies.length, activeIndex])
+
+  useEffect(() => {
+    if (initialBackdrop && initialBackdrop !== currentBackdrop) {
+      setCurrentBackdrop(initialBackdrop)
       setIsBackdropLoaded(false)
       setHasBackdropError(false)
     }
-  }, [activeMovie])
+  }, [initialBackdrop, currentBackdrop])
 
   const handleHeroBackdropError = () => {
     if (!activeMovie) return

@@ -197,15 +197,18 @@ export class MovieIngestionService {
       ? rawThumb
       : `https://phimimg.com/${rawThumb ? String(rawThumb).replace(/^\/+/, '') : ''}`
 
-    if (slug === 'doraemon-nobita-va-ban-giao-huong-dia-cau' || posterUrl.includes('3b5ed51c') || backdropUrl.includes('0514f6d0')) {
+    if (slug === 'doraemon-nobita-va-ban-giao-huong-dia-cau' || posterUrl.includes('3b5ed51c') || backdropUrl.includes('0514f6d0') || backdropUrl.includes('0514f6f2')) {
       posterUrl = 'https://wsrv.nl/?url=image.tmdb.org/t/p/w780/1W5Kg4K27U3dx9Kxb8DaE6WFLHI.jpg&output=webp'
-      backdropUrl = 'https://wsrv.nl/?url=image.tmdb.org/t/p/w1280/xIKm2bfJ6HxiCfXBoOCwgDbOhzt.jpg&output=webp'
+      backdropUrl = 'https://i.ytimg.com/vi/ikwvgoYK0-M/maxresdefault.jpg'
     } else if (slug === 'doraemon-nobita-va-vung-dat-ly-tuong-tren-bau-troi' || posterUrl.includes('uux6M8z3') || backdropUrl.includes('zaAo7ytw')) {
       posterUrl = 'https://phimimg.com/upload/vod/20250521-1/27f8594f3cb3fc39982d825896a8a9cf.jpg'
       backdropUrl = 'https://phimimg.com/upload/vod/20250521-1/e0d158cdb1b12f7cae32426dc3695ee0.jpg'
     } else if (slug === 'shin-cau-be-but-chi-31-dai-chien-sieu-nang-luc-sushi-bay') {
       posterUrl = 'https://phimimg.com/upload/vod/20260402-1/56d3d6c53133e6e2f96fc19a35580b91.jpg'
       backdropUrl = 'https://phimimg.com/upload/vod/20260402-1/0f07d9968e1b28a1c2dce38834255d16.jpg'
+    } else if (slug === 'toi-thay-hoa-vang-tren-co-xanh' || backdropUrl.includes('35826e17')) {
+      posterUrl = 'https://phimimg.com/upload/vod/20260123-1/fc1b1379882e1af185f25791c4e5496a.jpg'
+      backdropUrl = 'https://i.ytimg.com/vi/DSwRXkWCdJE/maxresdefault.jpg'
     }
 
     return { posterUrl, backdropUrl }
