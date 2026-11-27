@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLanguage } from '@/hooks'
-import { Terminal, Film, Music, Compass, Sparkles } from 'lucide-react'
+import { Terminal, Film, Music, BookOpen, Sparkles } from 'lucide-react'
 
 export const PlatformNavDock: React.FC = () => {
   const { language } = useLanguage()
@@ -11,7 +11,7 @@ export const PlatformNavDock: React.FC = () => {
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 120)
+          setIsScrolled(window.scrollY > 80)
           ticking = false
         })
         ticking = true
@@ -30,10 +30,10 @@ export const PlatformNavDock: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-20 sm:top-22 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 pointer-events-auto ${
+      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-auto ${
         isScrolled
-          ? 'scale-95 opacity-95 hover:opacity-100 hover:scale-100 shadow-[0_10px_40px_rgba(0,0,0,0.85)]'
-          : 'scale-100 opacity-100 shadow-[0_10px_35px_rgba(0,0,0,0.7)]'
+          ? 'translate-y-0 opacity-100 scale-100 shadow-[0_12px_45px_rgba(0,0,0,0.9)]'
+          : 'translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-85 md:pointer-events-auto md:scale-95 shadow-[0_8px_32px_rgba(0,0,0,0.7)]'
       }`}
       aria-label={
         language === 'vi'
@@ -42,15 +42,16 @@ export const PlatformNavDock: React.FC = () => {
       }
     >
       <div className="flex items-center gap-1 sm:gap-2 p-1.5 sm:p-2 rounded-full bg-[#0a1224]/95 border border-[#172847] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.8)] font-mono text-xs">
-        {/* Hub indicator label (desktop only) */}
+        {/* Hub indicator badge */}
         <div className="hidden lg:flex items-center gap-1.5 pl-3 pr-2.5 py-1 text-[11px] text-[#64748b] tracking-wider uppercase border-r border-[#172847]/80">
-          <Compass className="w-3.5 h-3.5 text-[#00d2ff] animate-spin" style={{ animationDuration: '12s' }} />
-          <span>{language === 'vi' ? 'NỀN TẢNG' : 'PLATFORMS'}</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '8s' }} />
+          <span>{language === 'vi' ? 'SÂN GIẢI TRÍ' : 'LOUNGE'}</span>
         </div>
 
         {/* Option 1: Portfolio (Current Active View) */}
-        <div
-          className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#00d2ff] text-[#050a14] font-bold shadow-[0_0_14px_rgba(0,210,255,0.45)] select-none"
+        <a
+          href="#hero"
+          className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#00d2ff] text-[#050a14] font-bold shadow-[0_0_14px_rgba(0,210,255,0.45)] select-none hover:bg-[#33dbff] transition-colors"
           title={
             language === 'vi'
               ? 'Trang Portfolio Kỹ Sư Phần Mềm (Đang mở)'
@@ -60,7 +61,7 @@ export const PlatformNavDock: React.FC = () => {
           <Terminal className="w-3.5 h-3.5" />
           <span className="text-xs sm:text-sm tracking-tight">Portfolio</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#050a14] animate-pulse" />
-        </div>
+        </a>
 
         {/* Option 2: Cinema 3D Stream */}
         <button
@@ -106,8 +107,23 @@ export const PlatformNavDock: React.FC = () => {
           <span className="px-1.5 py-0.5 rounded-xs bg-amber-400/30 text-amber-300 group-hover:bg-amber-400 group-hover:text-[#050a14] text-[9px] font-bold">
             MỚI
           </span>
-          <Sparkles className="w-3 h-3 text-amber-400 group-hover:rotate-45 transition-transform hidden sm:inline" />
         </button>
+
+        {/* Option 4: Comic Lounge */}
+        <a
+          href="#entertainment"
+          className="group hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[#94a3b8] hover:text-[#00d2ff] hover:bg-[#00d2ff]/10 border border-transparent hover:border-[#00d2ff]/40 transition-all cursor-pointer"
+          title={
+            language === 'vi'
+              ? 'Đọc truyện tranh Manga, Webtoon & Sách điện tử'
+              : 'Manga & Comic Reading Lounge'
+          }
+        >
+          <BookOpen className="w-3.5 h-3.5 text-[#00d2ff] group-hover:scale-110 transition-transform" />
+          <span className="text-xs sm:text-sm font-semibold">
+            {language === 'vi' ? 'Đọc Truyện' : 'Comics'}
+          </span>
+        </a>
       </div>
     </aside>
   )

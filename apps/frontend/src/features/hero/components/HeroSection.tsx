@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Film,
   Music,
+  BookOpen,
 } from 'lucide-react'
 import { HeroTerminal } from './HeroTerminal'
 import { HERO_TELEMETRY_METRICS } from '@/config'
@@ -275,6 +276,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ isIntroReady = true })
                   <span className="font-bold text-amber-200 group-hover:text-white">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
                   <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">MỚI</span>
                 </button>
+
+                <a
+                  href="#entertainment"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#00d2ff]/15 hover:bg-[#00d2ff]/30 border border-[#00d2ff]/40 text-[#00d2ff] hover:text-white text-xs transition-all cursor-pointer shadow-sm group"
+                  title={language === 'vi' ? 'Khám phá Phòng Đọc Truyện Manga & Webtoon' : 'Explore Manga & Comic Lounge'}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-[#00d2ff] group-hover:scale-110 transition-transform" />
+                  <span className="font-semibold">{language === 'vi' ? 'Đọc Truyện' : 'Comics'}</span>
+                  <span className="px-1 py-0.2 rounded-xs bg-[#00d2ff]/25 text-[#00d2ff] text-[9px] font-bold">HOT</span>
+                </a>
               </div>
             </div>
           </div>

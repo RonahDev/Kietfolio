@@ -17,6 +17,8 @@ import {
   Sparkles,
   Film,
   Music,
+  BookOpen,
+  ArrowRight,
 } from 'lucide-react'
 
 export const Navbar: React.FC = () => {
@@ -26,14 +28,17 @@ export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const [entertainmentDropdownOpen, setEntertainmentDropdownOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
 
   const headerRef = useRef<HTMLElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const entertainmentDropdownRef = useRef<HTMLDivElement>(null)
 
   const navLinks = [
     { id: 'about', label: t.nav.about },
     { id: 'projects', label: t.nav.projects },
+    { id: 'entertainment', label: language === 'vi' ? 'Sân Giải Trí' : 'Entertainment' },
     { id: 'experience', label: t.nav.experience },
     { id: 'skills', label: t.nav.skills },
     { id: 'guestbook', label: language === 'vi' ? 'Lưu bút' : 'Guestbook' },
@@ -47,7 +52,7 @@ export const Navbar: React.FC = () => {
         window.requestAnimationFrame(() => {
           setIsScrolled(window.scrollY > 30)
 
-          const sections = ['hero', 'about', 'projects', 'experience', 'skills', 'guestbook', 'contact']
+          const sections = ['hero', 'about', 'projects', 'entertainment', 'experience', 'skills', 'guestbook', 'contact']
           const scrollPosition = window.scrollY + 200
 
           for (const sectionId of sections) {
@@ -71,11 +76,17 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setUserDropdownOpen(false)
+      }
+      if (
+        entertainmentDropdownRef.current &&
+        !entertainmentDropdownRef.current.contains(e.target as Node)
+      ) {
+        setEntertainmentDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -88,11 +99,12 @@ export const Navbar: React.FC = () => {
       if (e.key === 'Escape') {
         if (mobileMenuOpen) setMobileMenuOpen(false)
         if (userDropdownOpen) setUserDropdownOpen(false)
+        if (entertainmentDropdownOpen) setEntertainmentDropdownOpen(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mobileMenuOpen, userDropdownOpen])
+  }, [mobileMenuOpen, userDropdownOpen, entertainmentDropdownOpen])
 
   useEffect(() => {
     if (isReducedMotion() || !headerRef.current) return
@@ -150,55 +162,22 @@ export const Navbar: React.FC = () => {
                 <a
                   key={link.id}
                   href={`#${link.id}`}
-                  className={`px-3 py-1 text-xs font-mono tracking-wide transition-all rounded-full ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono tracking-wide transition-all rounded-full ${
                     isActive
                       ? 'text-[#050a14] bg-[#00d2ff] font-bold shadow-[0_0_12px_rgba(0,210,255,0.35)]'
                       : 'text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-[#0f1b33]/60'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.id === 'entertainment' && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-gradient-to-r from-amber-500/25 to-[#a51d35]/35 text-amber-300 border border-amber-400/40 text-[9px] font-bold">
+                      3-in-1
+                    </span>
+                  )}
                 </a>
               )
             })}
-
-            {/* Direct Cinema Stream Item in Central Nav Pill */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'cinema'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
-                )
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono tracking-wide rounded-full text-rose-200 hover:text-white hover:bg-[#a51d35]/60 transition-all cursor-pointer group"
-              title={language === 'vi' ? 'Rạp Phim 3D (CinemaStream 4K)' : 'Cinema 3D Stream'}
-            >
-              <Film className="w-3.5 h-3.5 text-[#d4af70] group-hover:scale-110 transition-transform" />
-              <span>{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
-              <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">
-                4K
-              </span>
-            </button>
-
-            {/* Direct Music Theater Item in Central Nav Pill */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'music'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
-                )
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono tracking-wide rounded-full text-amber-200 hover:text-white bg-gradient-to-r from-amber-500/25 to-[#542C35]/50 border border-amber-400/50 hover:border-amber-300 transition-all cursor-pointer group shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-              title={language === 'vi' ? 'Nghe Nhạc (Private Music Theater)' : 'Private Music Theater'}
-            >
-              <Music className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform animate-pulse" />
-              <span className="font-bold">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
-              <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
-                MỚI
-              </span>
-            </button>
           </nav>
 
           {/* Right Actions for Desktop / Tablet: Auth, VIP, Donate, Language */}
@@ -341,43 +320,137 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Cinema Stream Platform Direct Entry */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'cinema'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
-                )
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-[#a51d35]/60 bg-gradient-to-r from-[#a51d35]/25 via-[#6e0d1f]/40 to-[#a51d35]/25 hover:from-[#a51d35] hover:to-[#8c1228] text-rose-200 hover:text-white rounded-full transition-all shadow-sm hover:shadow-[0_0_15px_rgba(165,29,53,0.5)] cursor-pointer group"
-              title={language === 'vi' ? 'Mở Rạp Phim 3D Cinema Stream' : 'Open 3D Cinema Stream'}
-            >
-              <Film className="w-3.5 h-3.5 text-[#d4af70] group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-[11px]">{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
-              <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">
-                4K
-              </span>
-            </button>
+            {/* Unified Entertainment Lounge Dropdown */}
+            <div className="relative" ref={entertainmentDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setEntertainmentDropdownOpen(!entertainmentDropdownOpen)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-amber-400/60 bg-gradient-to-r from-[#a51d35]/30 via-[#542C35]/50 to-amber-500/25 hover:from-[#a51d35]/50 hover:to-amber-500/40 text-amber-200 hover:text-white rounded-full transition-all shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:shadow-[0_0_20px_rgba(245,158,11,0.45)] cursor-pointer group"
+                title={language === 'vi' ? 'Sân Chơi Giải Trí Tích Hợp (Phim · Nhạc · Truyện)' : 'Entertainment Lounge (Cinema · Music · Comics)'}
+                aria-label={language === 'vi' ? 'Mở Sân Chơi Giải Trí' : 'Open Entertainment Lounge'}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <span className="font-bold text-[11px] tracking-tight">
+                  {language === 'vi' ? 'Sân Giải Trí' : 'Entertainment'}
+                </span>
+                <span className="px-1.5 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+                  3-in-1
+                </span>
+                <ChevronDown className={`w-3 h-3 text-amber-300 transition-transform ${entertainmentDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            {/* Private Music Theater Direct Entry */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'music'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
-                )
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border border-amber-400/80 bg-gradient-to-r from-amber-500/30 via-[#542C35]/60 to-amber-500/30 hover:from-amber-500/60 hover:to-[#542C35] text-amber-100 hover:text-white rounded-full transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_22px_rgba(245,158,11,0.55)] cursor-pointer group"
-              title={language === 'vi' ? 'Mở Nền Tảng Nghe Nhạc (Private Music Theater)' : 'Open Private Music Theater'}
-            >
-              <Music className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform animate-pulse" />
-              <span className="font-bold text-[11px]">{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
-              <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
-                MỚI
-              </span>
-            </button>
+              {/* Launcher Dropdown Container */}
+              <div
+                className={`absolute right-0 mt-2 w-72 rounded-2xl bg-[#0a1224]/98 border border-[#172847] shadow-2xl p-2.5 font-mono z-50 text-xs backdrop-blur-xl transition-all duration-200 ${
+                  entertainmentDropdownOpen
+                    ? 'opacity-100 scale-100 pointer-events-auto'
+                    : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-[#172847]/80 mb-1.5">
+                  <p className="text-[10px] text-[#00d2ff] uppercase tracking-wider font-bold flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <span>{language === 'vi' ? 'SÂN CHƠI GIẢI TRÍ TÍCH HỢP' : 'INTEGRATED ENTERTAINMENT'}</span>
+                  </p>
+                  <p className="text-[11px] text-[#94a3b8] mt-0.5">
+                    {language === 'vi' ? 'Xem phim, nghe nhạc, đọc truyện không cần chuyển URL' : 'Enjoy cinema, music & comics without leaving'}
+                  </p>
+                </div>
+
+                {/* Option 1: Cinema 3D */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEntertainmentDropdownOpen(false)
+                    window.location.hash = 'cinema'
+                    window.dispatchEvent(
+                      new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                    )
+                  }}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-[#a51d35]/25 border border-transparent hover:border-[#a51d35]/50 transition-all text-left cursor-pointer group"
+                  title={language === 'vi' ? 'Mở Rạp Phim 3D Cinema Stream' : 'Open 3D Cinema Stream'}
+                  aria-label={language === 'vi' ? 'Mở Rạp Phim 3D CinemaStream' : 'Open Cinema 3D Stream'}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#a51d35]/30 border border-[#a51d35]/60 flex items-center justify-center text-[#d4af70] group-hover:scale-110 transition-transform">
+                      <Film className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#f1f5f9] group-hover:text-rose-200 flex items-center gap-1.5">
+                        <span>{language === 'vi' ? 'Rạp Phim 3D' : 'Cinema 3D'}</span>
+                        <span className="px-1 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">4K</span>
+                      </div>
+                      <p className="text-[10px] text-[#94a3b8]">78+ Phim rạp & Anime Three.js</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#64748b] group-hover:text-rose-200 group-hover:translate-x-1 transition-all" />
+                </button>
+
+                {/* Option 2: Music Theater */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEntertainmentDropdownOpen(false)
+                    window.location.hash = 'music'
+                    window.dispatchEvent(
+                      new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                    )
+                  }}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-[#542C35]/35 border border-transparent hover:border-amber-400/50 transition-all text-left cursor-pointer group mt-1"
+                  title={language === 'vi' ? 'Mở Nền Tảng Nghe Nhạc (Private Music Theater)' : 'Open Private Music Theater'}
+                  aria-label={language === 'vi' ? 'Mở Nhà Hát Nghe Nhạc' : 'Open Private Music Theater'}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-transform">
+                      <Music className="w-4 h-4 animate-pulse" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#f1f5f9] group-hover:text-amber-200 flex items-center gap-1.5">
+                        <span>{language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}</span>
+                        <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">MỚI</span>
+                      </div>
+                      <p className="text-[10px] text-[#94a3b8]">20+ Hot V-Pop & Nhạc Lossless</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#64748b] group-hover:text-amber-200 group-hover:translate-x-1 transition-all" />
+                </button>
+
+                {/* Option 3: Comic & Manga Lounge */}
+                <a
+                  href="#entertainment"
+                  onClick={() => setEntertainmentDropdownOpen(false)}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-[#00d2ff]/15 border border-transparent hover:border-[#00d2ff]/40 transition-all text-left cursor-pointer group mt-1"
+                  title="Phòng đọc truyện tranh Manga & Webtoon"
+                  role="menuitem"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#00d2ff]/15 border border-[#00d2ff]/40 flex items-center justify-center text-[#00d2ff] group-hover:scale-110 transition-transform">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#f1f5f9] group-hover:text-[#00d2ff] flex items-center gap-1.5">
+                        <span>{language === 'vi' ? 'Đọc Truyện Tranh' : 'Comic Lounge'}</span>
+                        <span className="px-1 py-0.2 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] text-[9px] font-bold">HOT</span>
+                      </div>
+                      <p className="text-[10px] text-[#94a3b8]">One Piece, Solo Leveling, Doraemon...</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#64748b] group-hover:text-[#00d2ff] group-hover:translate-x-1 transition-all" />
+                </a>
+
+                {/* Footer link to scroll to #entertainment */}
+                <div className="pt-2 mt-1.5 border-t border-[#172847]/80 text-center">
+                  <a
+                    href="#entertainment"
+                    onClick={() => setEntertainmentDropdownOpen(false)}
+                    className="inline-flex items-center gap-1 text-[11px] text-[#00d2ff] hover:underline py-0.5"
+                  >
+                    <span>{language === 'vi' ? 'Xem toàn bộ Sân Giải Trí trên trang' : 'Explore full Entertainment Lounge'}</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
 
             {/* Donate VNPay QR Button */}
             <button
@@ -409,38 +482,17 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile & Small Screen Action Bar (< md) */}
           <div className="flex md:hidden items-center gap-1.5">
-            {/* Quick Mobile Cinema Stream Icon */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'cinema'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
-                )
-              }}
-              className="p-1.5 rounded-full border border-[#a51d35]/60 bg-[#a51d35]/30 text-rose-200 hover:bg-[#a51d35] transition-colors cursor-pointer"
-              title={language === 'vi' ? 'Mở Rạp Phim 3D Cinema Stream' : 'Open 3D Cinema Stream'}
-              aria-label="Open 3D Cinema Stream"
+            {/* Quick Mobile Entertainment Button */}
+            <a
+              href="#entertainment"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-amber-400/70 bg-gradient-to-r from-amber-500/25 to-[#321B22]/80 text-amber-300 text-xs font-mono font-bold transition-colors cursor-pointer shadow-sm"
+              title={language === 'vi' ? 'Sân Giải Trí 3-in-1' : 'Entertainment Hub'}
+              aria-label="Open Entertainment Hub"
             >
-              <Film className="w-4 h-4 text-[#d4af70]" />
-            </button>
-
-            {/* Quick Mobile Music Theater Button with Text */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.hash = 'music'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
-                )
-              }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-amber-400/70 bg-gradient-to-r from-amber-500/25 to-[#321B22]/80 text-amber-300 hover:text-white text-xs font-mono font-bold transition-colors cursor-pointer shadow-sm"
-              title={language === 'vi' ? 'Nghe Nhạc' : 'Music Theater'}
-              aria-label="Open Music Theater"
-            >
-              <Music className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              <span className="text-[11px]">{language === 'vi' ? 'Nhạc' : 'Music'}</span>
-            </button>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span className="text-[11px]">{language === 'vi' ? 'Giải Trí' : 'Lounge'}</span>
+              <span className="px-1 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[8px] font-bold">3-in-1</span>
+            </a>
 
             {/* Quick Language Toggle */}
             <button
@@ -603,47 +655,75 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Mobile Cinema Stream Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false)
-                window.location.hash = 'cinema'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
-                )
-              }}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-[#a51d35]/60 bg-gradient-to-r from-[#a51d35]/20 to-[#6e0d1f]/30 text-rose-200 text-sm font-mono font-bold"
-            >
-              <div className="flex items-center gap-2">
-                <Film className="w-4 h-4 text-[#d4af70]" />
-                <span>Rạp Phim 3D (Cinema Stream)</span>
+            {/* Mobile Entertainment Lounge 3-in-1 Group */}
+            <div className="p-3 rounded-2xl bg-gradient-to-b from-[#121c33]/70 to-[#081021]/80 border border-amber-400/30 space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{language === 'vi' ? 'SÂN CHƠI GIẢI TRÍ 3-IN-1' : 'ENTERTAINMENT LOUNGE'}</span>
+                </span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[9px] font-bold">
+                  HOT
+                </span>
               </div>
-              <span className="px-1.5 py-0.5 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[10px]">
-                4K
-              </span>
-            </button>
 
-            {/* Mobile Music Theater Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false)
-                window.location.hash = 'music'
-                window.dispatchEvent(
-                  new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
-                )
-              }}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-amber-400/60 bg-gradient-to-r from-amber-500/30 to-[#321B22]/80 hover:from-amber-500/50 hover:to-[#542C35] text-amber-100 text-sm font-mono font-bold transition-all shadow-sm"
-            >
-              <div className="flex items-center gap-2">
-                <Music className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span>{language === 'vi' ? 'Nghe Nhạc (Private Music Theater)' : 'Private Music Theater'}</span>
-              </div>
-              <span className="px-1.5 py-0.5 rounded-xs bg-amber-400/30 text-amber-300 text-[10px] font-bold">
-                MỚI
-              </span>
-            </button>
+              {/* Mobile Cinema Stream Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  window.location.hash = 'cinema'
+                  window.dispatchEvent(
+                    new CustomEvent('kietfolio:navigate-view', { detail: { view: 'cinema' } })
+                  )
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#a51d35]/50 bg-[#a51d35]/20 text-rose-200 text-xs font-mono font-bold hover:bg-[#a51d35]/40 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Film className="w-4 h-4 text-[#d4af70]" />
+                  <span>{language === 'vi' ? 'Rạp Phim 3D (Cinema Stream)' : 'Cinema 3D Stream'}</span>
+                </div>
+                <span className="px-1.5 py-0.2 rounded-xs bg-[#d4af70]/20 text-[#d4af70] text-[9px] font-bold">
+                  4K
+                </span>
+              </button>
+
+              {/* Mobile Music Theater Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  window.location.hash = 'music'
+                  window.dispatchEvent(
+                    new CustomEvent('kietfolio:navigate-view', { detail: { view: 'music' } })
+                  )
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-amber-400/50 bg-[#542C35]/30 text-amber-200 text-xs font-mono font-bold hover:bg-[#542C35]/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Music className="w-4 h-4 text-amber-400 animate-pulse" />
+                  <span>{language === 'vi' ? 'Nghe Nhạc (Music Theater)' : 'Music Theater'}</span>
+                </div>
+                <span className="px-1.5 py-0.2 rounded-xs bg-amber-400/30 text-amber-300 text-[9px] font-bold">
+                  MỚI
+                </span>
+              </button>
+
+              {/* Mobile Comic Lounge Link */}
+              <a
+                href="#entertainment"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#00d2ff]/40 bg-[#00d2ff]/10 text-[#00d2ff] text-xs font-mono font-bold hover:bg-[#00d2ff]/20 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#00d2ff]" />
+                  <span>{language === 'vi' ? 'Phòng Đọc Truyện (Comic Lounge)' : 'Manga & Comic Lounge'}</span>
+                </div>
+                <span className="px-1.5 py-0.2 rounded-xs bg-[#00d2ff]/20 text-[#00d2ff] text-[9px] font-bold">
+                  WEBTOON
+                </span>
+              </a>
+            </div>
 
             {navLinks.map((link) => {
               const isActive = activeSection === link.id
