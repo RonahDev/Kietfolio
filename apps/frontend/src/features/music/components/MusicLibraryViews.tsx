@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 import type { MusicSortOption, MusicThemePreset, MusicTrack } from '../types/music'
 import { MusicTrackList } from './MusicTrackList'
 
@@ -41,6 +42,7 @@ export const AllSongsView: React.FC = () => {
     setSourceFilter,
     playQueue,
   } = useMusicTheater()
+  const { language, t } = useMusicI18n()
 
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -61,12 +63,14 @@ export const AllSongsView: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Complete Library</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+            {language === 'vi' ? 'Thư Viện Trọn Vẹn' : 'Complete Library'}
+          </p>
           <h2
             className="text-3xl font-semibold text-[#F1EDE6]"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            All Songs ({filtered.length})
+            {t.tabAllSongs} ({filtered.length})
           </h2>
         </div>
 
@@ -77,7 +81,7 @@ export const AllSongsView: React.FC = () => {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer disabled:opacity-40"
         >
           <Play className="w-4 h-4" />
-          <span>Play Selection</span>
+          <span>{language === 'vi' ? 'Phát Lựa Chọn' : 'Play Selection'}</span>
         </button>
       </div>
 
@@ -89,7 +93,11 @@ export const AllSongsView: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by song title, artist, album, or genre..."
+            placeholder={
+              language === 'vi'
+                ? 'Tìm theo tên bài hát, nghệ sĩ, album hoặc thể loại...'
+                : 'Search by song title, artist, album, or genre...'
+            }
             aria-label="Global music search"
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#181716] border border-[#C6A878]/20 text-sm text-[#F1EDE6] placeholder:text-[#A49C92]/60 focus:outline-none focus:border-[#C6A878]"
           />
@@ -102,9 +110,13 @@ export const AllSongsView: React.FC = () => {
             aria-label="Filter audio source"
             className="px-3 py-2.5 rounded-xl bg-[#181716] border border-[#C6A878]/20 text-xs text-[#F1EDE6]"
           >
-            <option value="all">All Sources</option>
-            <option value="curated">Concert Hall Curated</option>
-            <option value="local">Imported Files Only</option>
+            <option value="all">{language === 'vi' ? 'Tất Cả Nguồn' : 'All Sources'}</option>
+            <option value="curated">
+              {language === 'vi' ? 'Thính Phòng Cổ Điển' : 'Concert Hall Curated'}
+            </option>
+            <option value="local">
+              {language === 'vi' ? 'Tệp Tải Lên Cục Bộ' : 'Imported Files Only'}
+            </option>
           </select>
 
           <select
@@ -113,10 +125,18 @@ export const AllSongsView: React.FC = () => {
             aria-label="Sort songs"
             className="px-3 py-2.5 rounded-xl bg-[#181716] border border-[#C6A878]/20 text-xs text-[#F1EDE6]"
           >
-            <option value="recent-added">Recently Added</option>
-            <option value="alphabetical">Title (A–Z)</option>
-            <option value="duration-asc">Shortest First</option>
-            <option value="duration-desc">Longest First</option>
+            <option value="recent-added">
+              {language === 'vi' ? 'Mới Thêm Gần Đây' : 'Recently Added'}
+            </option>
+            <option value="alphabetical">
+              {language === 'vi' ? 'Tên Bài Hát (A–Z)' : 'Title (A–Z)'}
+            </option>
+            <option value="duration-asc">
+              {language === 'vi' ? 'Thời Lượng Ngắn Nhất' : 'Shortest First'}
+            </option>
+            <option value="duration-desc">
+              {language === 'vi' ? 'Thời Lượng Dài Nhất' : 'Longest First'}
+            </option>
           </select>
         </div>
       </div>
@@ -124,7 +144,11 @@ export const AllSongsView: React.FC = () => {
       <MusicTrackList
         tracks={filtered}
         allowDeleteLocal
-        emptyMessage="No tracks match your current search or filter criteria."
+        emptyMessage={
+          language === 'vi'
+            ? 'Không tìm thấy tác phẩm nào phù hợp với bộ lọc hoặc tìm kiếm.'
+            : 'No tracks match your current search or filter criteria.'
+        }
       />
     </div>
   )
@@ -132,17 +156,20 @@ export const AllSongsView: React.FC = () => {
 
 export const DiscoverView: React.FC = () => {
   const { categories, curatedTracks, allTracks, playQueue } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const trackById = useMemo(() => new Map(allTracks.map((t) => [t.id, t])), [allTracks])
 
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Curated Spotlight</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+          {language === 'vi' ? 'Tuyển Chọn Thính Phòng' : 'Curated Spotlight'}
+        </p>
         <h2
           className="text-3xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Discover Concert Programs
+          {t.discoverTitle}
         </h2>
       </div>
 
@@ -160,7 +187,9 @@ export const DiscoverView: React.FC = () => {
               <div>
                 <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-[#C6A878]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>{catTracks.length} Movements</span>
+                  <span>
+                    {catTracks.length} {t.trackPlural}
+                  </span>
                 </span>
                 <h3
                   className="text-2xl font-semibold text-[#F1EDE6] mt-2"
@@ -176,7 +205,7 @@ export const DiscoverView: React.FC = () => {
                 className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5" />
-                <span>Play Program</span>
+                <span>{language === 'vi' ? 'Phát Tuyển Tập' : 'Play Program'}</span>
               </button>
             </div>
           )
@@ -188,7 +217,7 @@ export const DiscoverView: React.FC = () => {
           className="text-2xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Full Curated Concert Catalog
+          {t.allSongsTitle}
         </h3>
         <MusicTrackList tracks={curatedTracks} />
       </section>
@@ -198,6 +227,7 @@ export const DiscoverView: React.FC = () => {
 
 export const AlbumsView: React.FC = () => {
   const { albums, allTracks, selectedAlbumId, setSelectedAlbumId, playQueue } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const trackById = useMemo(() => new Map(allTracks.map((t) => [t.id, t])), [allTracks])
   const selected = albums.find((a) => a.id === selectedAlbumId) ?? null
 
@@ -214,7 +244,7 @@ export const AlbumsView: React.FC = () => {
           className="inline-flex items-center gap-2 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Albums</span>
+          <span>{language === 'vi' ? 'Quay Lại Tuyển Tập Album' : 'Back to Albums'}</span>
         </button>
 
         <div className="rounded-3xl border border-[#C6A878]/25 bg-[#181716] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -240,7 +270,7 @@ export const AlbumsView: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer"
             >
               <Play className="w-3.5 h-3.5" />
-              <span>Play Album</span>
+              <span>{language === 'vi' ? 'Phát Toàn Bộ Album' : 'Play Album'}</span>
             </button>
           </div>
         </div>
@@ -253,12 +283,14 @@ export const AlbumsView: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Discography</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+          {language === 'vi' ? 'Đĩa Nhạc Cổ Điển' : 'Discography'}
+        </p>
         <h2
           className="text-3xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Concert Hall Albums
+          {t.albumsTitle}
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -311,11 +343,14 @@ export const AlbumsView: React.FC = () => {
 
 export const ArtistsView: React.FC = () => {
   const { artists, allTracks, selectedArtistId, setSelectedArtistId, playQueue } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const selected = artists.find((a) => a.id === selectedArtistId) ?? null
 
   if (selected) {
     const artistTracks = allTracks.filter(
-      (t) => t.artist.toLowerCase() === selected.name.toLowerCase() || selected.featuredTrackIds.includes(t.id)
+      (t) =>
+        t.artist.toLowerCase() === selected.name.toLowerCase() ||
+        selected.featuredTrackIds.includes(t.id)
     )
 
     return (
@@ -326,7 +361,7 @@ export const ArtistsView: React.FC = () => {
           className="inline-flex items-center gap-2 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Artists</span>
+          <span>{language === 'vi' ? 'Quay Lại Nghệ Sĩ' : 'Back to Artists'}</span>
         </button>
 
         <div className="rounded-3xl border border-[#C6A878]/25 bg-[#181716] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -350,7 +385,7 @@ export const ArtistsView: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer"
             >
               <Play className="w-3.5 h-3.5" />
-              <span>Play Artist Repertoire</span>
+              <span>{language === 'vi' ? 'Phát Tuyển Tập Nghệ Sĩ' : 'Play Artist Repertoire'}</span>
             </button>
           </div>
         </div>
@@ -363,12 +398,14 @@ export const ArtistsView: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Soloists & Ensembles</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+          {language === 'vi' ? 'Nghệ Sĩ & Nhà Soạn Nhạc' : 'Soloists & Ensembles'}
+        </p>
         <h2
           className="text-3xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Concert Artists
+          {t.artistsTitle}
         </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -398,6 +435,7 @@ export const ArtistsView: React.FC = () => {
 
 export const FavoritesView: React.FC = () => {
   const { allTracks, favoriteIds, playQueue } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const trackById = useMemo(() => new Map(allTracks.map((t) => [t.id, t])), [allTracks])
   const favTracks = useMemo(
     () =>
@@ -407,16 +445,21 @@ export const FavoritesView: React.FC = () => {
     [favoriteIds, trackById]
   )
 
+  const favoritesTitleText =
+    language === 'vi' ? `Yêu Thích (${favTracks.length})` : `Favorites (${favTracks.length})`
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Personal Encore</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+            {language === 'vi' ? 'Bộ Sưu Tập Riêng' : 'Personal Encore'}
+          </p>
           <h2
             className="text-3xl font-semibold text-[#F1EDE6]"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Favorites ({favTracks.length})
+            {favoritesTitleText}
           </h2>
         </div>
 
@@ -427,20 +470,18 @@ export const FavoritesView: React.FC = () => {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer disabled:opacity-40"
         >
           <Heart className="w-4 h-4" />
-          <span>Play All Favorites</span>
+          <span>{t.playAllFavorites}</span>
         </button>
       </div>
 
-      <MusicTrackList
-        tracks={favTracks}
-        emptyMessage="No favorites saved yet. Click the heart icon on any performance to keep it here."
-      />
+      <MusicTrackList tracks={favTracks} emptyMessage={t.noFavoritesPrompt} />
     </div>
   )
 }
 
 export const RecentlyPlayedView: React.FC = () => {
   const { allTracks, historyEntries, clearHistory, playQueue } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const trackById = useMemo(() => new Map(allTracks.map((t) => [t.id, t])), [allTracks])
 
   const recentTracks = useMemo(
@@ -451,16 +492,23 @@ export const RecentlyPlayedView: React.FC = () => {
     [historyEntries, trackById]
   )
 
+  const historyTitleText =
+    language === 'vi'
+      ? `Phát Gần Đây (${recentTracks.length})`
+      : `Recently Played (${recentTracks.length})`
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Listening Log</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+            {language === 'vi' ? 'Nhật Ký Thính Phòng' : 'Listening Log'}
+          </p>
           <h2
             className="text-3xl font-semibold text-[#F1EDE6]"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Recently Played ({recentTracks.length})
+            {historyTitleText}
           </h2>
         </div>
 
@@ -473,7 +521,7 @@ export const RecentlyPlayedView: React.FC = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold cursor-pointer"
               >
                 <Clock className="w-3.5 h-3.5" />
-                <span>Replay Recent</span>
+                <span>{language === 'vi' ? 'Phát Lại Gần Đây' : 'Replay Recent'}</span>
               </button>
               <button
                 type="button"
@@ -481,17 +529,14 @@ export const RecentlyPlayedView: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#C6A878]/25 bg-[#22201E] hover:bg-[#321B22] text-xs text-[#F1EDE6] cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5 text-[#C6A878]" />
-                <span>Clear History</span>
+                <span>{t.clearHistory}</span>
               </button>
             </>
           )}
         </div>
       </div>
 
-      <MusicTrackList
-        tracks={recentTracks}
-        emptyMessage="Your evening listening log is empty. Play any piece to begin recording your history."
-      />
+      <MusicTrackList tracks={recentTracks} emptyMessage={t.noHistoryPrompt} />
     </div>
   )
 }
@@ -499,41 +544,53 @@ export const RecentlyPlayedView: React.FC = () => {
 export const MusicSettingsView: React.FC = () => {
   const { settings, updateSettings, replayIntro, clearAllLocalData, importedTracks, playlists } =
     useMusicTheater()
+  const { language, t } = useMusicI18n()
   const [confirmReset, setConfirmReset] = useState(false)
 
   const themeOptions: Array<{ id: MusicThemePreset; label: string; desc: string }> = [
     {
       id: 'concert-hall',
-      label: 'Concert Hall Obsidian',
-      desc: 'Classic #101010 charcoal hall with burgundy velvet accents',
+      label: language === 'vi' ? 'Thính Phòng Than Obsidian' : 'Concert Hall Obsidian',
+      desc:
+        language === 'vi'
+          ? 'Không gian đen than #101010 với điểm nhấn nhung đỏ mận'
+          : 'Classic #101010 charcoal hall with burgundy velvet accents',
     },
     {
       id: 'warm-amber',
-      label: 'Warm Amber Stage',
-      desc: 'Candlelit amber stage warmth over #181716 surface',
+      label: language === 'vi' ? 'Sân Khấu Ánh Hổ Phách' : 'Warm Amber Stage',
+      desc:
+        language === 'vi'
+          ? 'Ánh sáng đèn chùm hổ phách ấm cúng trên nền gỗ sẫm #181716'
+          : 'Candlelit amber stage warmth over #181716 surface',
     },
     {
       id: 'deep-velvet',
-      label: 'Deep Velvet Burgundy',
-      desc: 'Rich #321B22 royal salon backdrop tone',
+      label: language === 'vi' ? 'Rèm Nhung Đỏ Cổ Điển' : 'Deep Velvet Burgundy',
+      desc:
+        language === 'vi'
+          ? 'Tông đỏ nhung quý phái hoàng gia #321B22'
+          : 'Rich #321B22 royal salon backdrop tone',
     },
   ]
 
   return (
     <div className="space-y-8 max-w-3xl">
       <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">Theater Preferences</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-[#C6A878]">
+          {language === 'vi' ? 'Tùy Biến Thính Phòng' : 'Theater Preferences'}
+        </p>
         <h2
           className="text-3xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Hall Acoustics & Settings
+          {t.settingsTitle}
         </h2>
       </div>
 
       {/* Theme Presets */}
       <section className="rounded-2xl border border-[#C6A878]/20 bg-[#181716] p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F1EDE6]">Atmosphere Theme Variant</h3>
+        <h3 className="text-sm font-semibold text-[#F1EDE6]">{t.atmosphereTheme}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {themeOptions.map((option) => {
             const active = settings.themePreset === option.id
@@ -558,11 +615,11 @@ export const MusicSettingsView: React.FC = () => {
 
       {/* Audio & Animation Controls */}
       <section className="rounded-2xl border border-[#C6A878]/20 bg-[#181716] p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F1EDE6]">Playback & Entrance Experience</h3>
+        <h3 className="text-sm font-semibold text-[#F1EDE6]">{t.animationPref}</h3>
 
         <label className="flex items-center justify-between gap-4 py-1">
           <div>
-            <p className="text-sm text-[#F1EDE6]">Default Acoustic Volume</p>
+            <p className="text-sm text-[#F1EDE6]">{t.volumePref}</p>
             <p className="text-xs text-[#A49C92]">{Math.round(settings.defaultVolume * 100)}%</p>
           </div>
           <input
@@ -579,9 +636,11 @@ export const MusicSettingsView: React.FC = () => {
 
         <label className="flex items-center justify-between gap-4 py-1 cursor-pointer">
           <div>
-            <p className="text-sm text-[#F1EDE6]">Autoplay Next Movement</p>
+            <p className="text-sm text-[#F1EDE6]">{t.autoPlayNextLabel}</p>
             <p className="text-xs text-[#A49C92]">
-              Automatically proceed through your queue when a piece finishes
+              {language === 'vi'
+                ? 'Tiếp tục phát bài tiếp theo trong hàng đợi khi kết thúc bản nhạc'
+                : 'Automatically proceed through your queue when a piece finishes'}
             </p>
           </div>
           <input
@@ -594,9 +653,15 @@ export const MusicSettingsView: React.FC = () => {
 
         <label className="flex items-center justify-between gap-4 py-1 cursor-pointer">
           <div>
-            <p className="text-sm text-[#F1EDE6]">Enable Stage Audio Pulse</p>
+            <p className="text-sm text-[#F1EDE6]">
+              {language === 'vi'
+                ? 'Hiệu Ứng Sóng Âm Thanh Sân Khấu'
+                : 'Enable Stage Audio Pulse'}
+            </p>
             <p className="text-xs text-[#A49C92]">
-              Display subtle warm amber resonance bars beside the active track
+              {language === 'vi'
+                ? 'Hiển thị cột sóng âm thanh hổ phách dao động cạnh bài đang phát'
+                : 'Display subtle warm amber resonance bars beside the active track'}
             </p>
           </div>
           <input
@@ -609,9 +674,15 @@ export const MusicSettingsView: React.FC = () => {
 
         <label className="flex items-center justify-between gap-4 py-1 cursor-pointer">
           <div>
-            <p className="text-sm text-[#F1EDE6]">Enable Velvet Curtain Intro</p>
+            <p className="text-sm text-[#F1EDE6]">
+              {language === 'vi'
+                ? 'Mở Màn Hoạt Cảnh Rèm Nhung 4 Cảnh'
+                : 'Enable Velvet Curtain Intro'}
+            </p>
             <p className="text-xs text-[#A49C92]">
-              Play the 4-scene curtain opening & chandelier sequence upon entering the theater
+              {language === 'vi'
+                ? 'Chạy hiệu ứng mở rèm nhung và tắt đèn chùm khi bước vào thính phòng'
+                : 'Play the 4-scene curtain opening & chandelier sequence upon entering the theater'}
             </p>
           </div>
           <input
@@ -624,9 +695,11 @@ export const MusicSettingsView: React.FC = () => {
 
         <label className="flex items-center justify-between gap-4 py-1 cursor-pointer">
           <div>
-            <p className="text-sm text-[#F1EDE6]">Reduce Motion Animations</p>
+            <p className="text-sm text-[#F1EDE6]">{t.reduceMotionLabel}</p>
             <p className="text-xs text-[#A49C92]">
-              Skip animated curtain & lighting choreography transitions
+              {language === 'vi'
+                ? 'Bỏ qua các hiệu ứng chuyển cảnh rèm và chuyển động nhanh'
+                : 'Skip animated curtain & lighting choreography transitions'}
             </p>
           </div>
           <input
@@ -644,39 +717,41 @@ export const MusicSettingsView: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#C6A878]/35 bg-[#321B22] hover:bg-[#542C35] text-xs font-medium text-[#F1EDE6] cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 text-[#C6A878]" />
-            <span>Replay Curtain Opening Sequence</span>
+            <span>{t.replayIntroBtn}</span>
           </button>
         </div>
       </section>
 
       {/* Keyboard Shortcuts Reference */}
       <section className="rounded-2xl border border-[#C6A878]/20 bg-[#181716] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F1EDE6]">Theater Keyboard Shortcuts</h3>
+        <h3 className="text-sm font-semibold text-[#F1EDE6]">{t.shortcutsTitle}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
           <div className="p-2.5 rounded-xl bg-[#22201E] text-[#A49C92]">
             <kbd className="text-[#C6A878] font-mono block mb-0.5">Space</kbd>
-            Play / Pause
+            {language === 'vi' ? 'Phát / Tạm dừng' : 'Play / Pause'}
           </div>
           <div className="p-2.5 rounded-xl bg-[#22201E] text-[#A49C92]">
             <kbd className="text-[#C6A878] font-mono block mb-0.5">Alt + Right</kbd>
-            Seek +5s
+            {language === 'vi' ? 'Tua tới +5s' : 'Seek +5s'}
           </div>
           <div className="p-2.5 rounded-xl bg-[#22201E] text-[#A49C92]">
             <kbd className="text-[#C6A878] font-mono block mb-0.5">Alt + Left</kbd>
-            Seek -5s
+            {language === 'vi' ? 'Tua lùi -5s' : 'Seek -5s'}
           </div>
           <div className="p-2.5 rounded-xl bg-[#22201E] text-[#A49C92]">
             <kbd className="text-[#C6A878] font-mono block mb-0.5">M</kbd>
-            Mute / Unmute
+            {language === 'vi' ? 'Bật / Tắt âm' : 'Mute / Unmute'}
           </div>
         </div>
       </section>
 
       {/* Local Data Cleanup */}
       <section className="rounded-2xl border border-rose-500/25 bg-[#181716] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F1EDE6]">Local Storage Management</h3>
+        <h3 className="text-sm font-semibold text-[#F1EDE6]">{t.storageVaultTitle}</h3>
         <p className="text-xs text-[#A49C92]">
-          Currently storing {importedTracks.length} local audio file(s) and {playlists.length} playlist(s) inside browser IndexedDB.
+          {language === 'vi'
+            ? `Hiện đang lưu trữ ${importedTracks.length} tệp âm thanh và ${playlists.length} danh sách phát trong bộ nhớ IndexedDB của trình duyệt.`
+            : `Currently storing ${importedTracks.length} local audio file(s) and ${playlists.length} playlist(s) inside browser IndexedDB.`}
         </p>
 
         {!confirmReset ? (
@@ -686,7 +761,7 @@ export const MusicSettingsView: React.FC = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-rose-500/35 bg-[#22201E] hover:bg-[#321B22] text-xs text-rose-200 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Local Music Vault</span>
+            <span>{t.clearLocalVaultBtn}</span>
           </button>
         ) : (
           <div className="flex items-center gap-2.5">
@@ -698,14 +773,14 @@ export const MusicSettingsView: React.FC = () => {
               }}
               className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-xs font-semibold text-white cursor-pointer"
             >
-              Confirm Permanent Removal
+              {language === 'vi' ? 'Xác Nhận Xóa Vĩnh Viễn' : 'Confirm Permanent Removal'}
             </button>
             <button
               type="button"
               onClick={() => setConfirmReset(false)}
               className="px-4 py-2 rounded-xl border border-[#C6A878]/20 text-xs text-[#A49C92] cursor-pointer"
             >
-              Cancel
+              {t.cancelBtn}
             </button>
           </div>
         )}

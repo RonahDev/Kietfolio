@@ -1,6 +1,7 @@
 import React from 'react'
 import { ArrowRight, Disc3, FolderPlus, Mic2, Play, Sparkles } from 'lucide-react'
 import { useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 import { MusicTrackList } from './MusicTrackList'
 
 interface MusicDashboardViewProps {
@@ -23,6 +24,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
     setSelectedArtistId,
     setSelectedPlaylistId,
   } = useMusicTheater()
+  const { t } = useMusicI18n()
 
   const trackById = new Map(allTracks.map((t) => [t.id, t]))
   const recentlyPlayedTracks = historyEntries
@@ -58,18 +60,18 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
         <div className="relative z-10 max-w-2xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#22201E]/90 border border-[#C6A878]/30 text-[#C6A878] text-[11px] uppercase tracking-[0.22em]">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Evening Matinee & Private Archive</span>
+            <span>{t.welcomeBadge}</span>
           </div>
 
           <h2
             className="text-3xl sm:text-5xl font-semibold text-[#F1EDE6] leading-tight"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Welcome to Your Private Music Theater
+            {t.welcomeTitle}
           </h2>
 
           <p className="text-sm text-[#A49C92] leading-relaxed">
-            Settle into acoustic silence. Enjoy curated chamber nocturnes or import your personal MP3, WAV, FLAC, and M4A library directly into local concert storage.
+            {t.welcomeDesc}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -79,7 +81,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold transition-colors cursor-pointer"
             >
               <Play className="w-4 h-4" />
-              <span>Play Opening Recital</span>
+              <span>{t.playOpening}</span>
             </button>
 
             <button
@@ -88,7 +90,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#C6A878]/35 bg-[#22201E]/90 hover:bg-[#321B22] text-[#F1EDE6] text-xs font-medium transition-colors cursor-pointer"
             >
               <FolderPlus className="w-4 h-4 text-[#C6A878]" />
-              <span>Import Personal Audio</span>
+              <span>{t.importAudio}</span>
             </button>
           </div>
         </div>
@@ -102,14 +104,14 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               className="text-2xl font-semibold text-[#F1EDE6]"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
-              Recently Played
+              {t.recentlyPlayedTitle}
             </h3>
             <button
               type="button"
               onClick={() => setActiveTab('recently-played')}
               className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
             >
-              <span>View History</span>
+              <span>{t.viewHistory}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -145,14 +147,14 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
             className="text-2xl font-semibold text-[#F1EDE6]"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Featured Albums
+            {t.curatedAlbums}
           </h3>
           <button
             type="button"
             onClick={() => setActiveTab('albums')}
             className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
           >
-            <span>All Albums</span>
+            <span>{t.tabAlbums}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -214,14 +216,14 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
             className="text-2xl font-semibold text-[#F1EDE6]"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Recommended Chamber Works
+            {t.featuredMasterworks}
           </h3>
           <button
             type="button"
             onClick={() => setActiveTab('all-songs')}
             className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
           >
-            <span>Browse Full Repertoire</span>
+            <span>{t.viewAllSongs}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -236,14 +238,14 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               className="text-2xl font-semibold text-[#F1EDE6]"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
-              Resident Artists
+              {t.composersTitle}
             </h3>
             <button
               type="button"
               onClick={() => setActiveTab('artists')}
               className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
             >
-              <span>All Artists</span>
+              <span>{t.tabArtists}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -276,14 +278,14 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
               className="text-2xl font-semibold text-[#F1EDE6]"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
-              My Playlists
+              {t.myPlaylistsTitle}
             </h3>
             <button
               type="button"
               onClick={() => setActiveTab('my-playlists')}
               className="inline-flex items-center gap-1 text-xs text-[#C6A878] hover:text-[#D6AD73] cursor-pointer"
             >
-              <span>Manage Collection</span>
+              <span>{t.myCollection}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -292,17 +294,17 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
             <div className="rounded-2xl border border-[#C6A878]/15 bg-[#181716] p-6 text-center space-y-3">
               <Disc3 className="w-8 h-8 text-[#C6A878] mx-auto opacity-80" />
               <p className="text-sm text-[#F1EDE6] font-medium">
-                Begin Curating Your Personal Box
+                {t.myPlaylistsTitle}
               </p>
               <p className="text-xs text-[#A49C92]">
-                Create playlists with custom covers and combine imported tracks with classical pieces.
+                {t.emptyPlaylistsPrompt}
               </p>
               <button
                 type="button"
                 onClick={() => setActiveTab('my-playlists')}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#321B22] hover:bg-[#542C35] border border-[#C6A878]/35 text-xs font-medium text-[#F1EDE6] cursor-pointer"
               >
-                <span>Create First Playlist</span>
+                <span>{t.newPlaylist}</span>
               </button>
             </div>
           ) : (
@@ -322,7 +324,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-[#F1EDE6] truncate">{playlist.name}</p>
                     <p className="text-xs text-[#A49C92] truncate">
-                      {playlist.trackIds.length} works
+                      {playlist.trackIds.length} {t.trackPlural}
                     </p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-[#C6A878] shrink-0" />
@@ -339,7 +341,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
           className="text-2xl font-semibold text-[#F1EDE6]"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Concert Hall Programs
+          {t.categoriesTitle}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {categories.map((cat) => {
@@ -355,7 +357,7 @@ export const MusicDashboardView: React.FC<MusicDashboardViewProps> = ({ onOpenIm
                 className="rounded-2xl border border-[#C6A878]/20 bg-[#22201E]/75 hover:bg-[#321B22]/75 p-5 text-left transition-colors cursor-pointer group"
               >
                 <p className="text-[11px] uppercase tracking-[0.2em] text-[#C6A878] mb-1">
-                  {catTracks.length} Works
+                  {catTracks.length} {t.trackPlural}
                 </p>
                 <h4 className="text-lg font-semibold text-[#F1EDE6] group-hover:text-[#D6AD73]">
                   {cat.name}

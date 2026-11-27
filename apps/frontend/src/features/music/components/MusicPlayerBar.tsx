@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import { formatMusicTime, useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 
 export const MusicPlayerBar: React.FC = () => {
   const {
@@ -42,6 +43,7 @@ export const MusicPlayerBar: React.FC = () => {
     toggleFavorite,
     isFavorite,
   } = useMusicTheater()
+  const { language, t } = useMusicI18n()
 
   const [queueOpen, setQueueOpen] = useState(false)
 
@@ -96,7 +98,9 @@ export const MusicPlayerBar: React.FC = () => {
         <div className="absolute bottom-full right-4 mb-2 w-80 max-h-80 overflow-y-auto rounded-2xl border border-[#C6A878]/25 bg-[#181716] shadow-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs uppercase tracking-[0.2em] text-[#C6A878] font-semibold">
-              Performance Queue ({queueTracks.length})
+              {language === 'vi'
+                ? `Hàng Đợi Trình Diễn (${queueTracks.length})`
+                : `Performance Queue (${queueTracks.length})`}
             </h4>
             <button
               type="button"
@@ -108,7 +112,9 @@ export const MusicPlayerBar: React.FC = () => {
             </button>
           </div>
           {queueTracks.length === 0 ? (
-            <p className="text-xs text-[#A49C92]">No tracks queued.</p>
+            <p className="text-xs text-[#A49C92]">
+              {language === 'vi' ? 'Chưa có bài hát trong hàng đợi.' : 'No tracks queued.'}
+            </p>
           ) : (
             <div className="space-y-1.5">
               {queueTracks.map((track) => {
@@ -177,7 +183,12 @@ export const MusicPlayerBar: React.FC = () => {
                   )}
                 </div>
                 <p className="text-xs text-[#A49C92] truncate">
-                  {currentTrack.artist} • {currentTrack.sourceType === 'local' ? currentTrack.format.toUpperCase() : 'Concert Hall'}
+                  {currentTrack.artist} •{' '}
+                  {currentTrack.sourceType === 'local'
+                    ? currentTrack.format.toUpperCase()
+                    : language === 'vi'
+                      ? 'Thính Phòng'
+                      : 'Concert Hall'}
                 </p>
               </div>
               <button
@@ -192,7 +203,7 @@ export const MusicPlayerBar: React.FC = () => {
               </button>
             </>
           ) : (
-            <p className="text-xs text-[#A49C92]">Select a performance to begin.</p>
+            <p className="text-xs text-[#A49C92]">{t.noTrackSelected}</p>
           )}
         </div>
 
@@ -207,7 +218,7 @@ export const MusicPlayerBar: React.FC = () => {
               className={`p-1.5 rounded-full transition-colors cursor-pointer ${
                 isShuffle ? 'text-[#D6AD73] bg-[#321B22]' : 'text-[#A49C92] hover:text-[#F1EDE6]'
               }`}
-              title="Shuffle"
+              title={t.shuffle}
             >
               <Shuffle className="w-4 h-4" />
             </button>
@@ -217,7 +228,7 @@ export const MusicPlayerBar: React.FC = () => {
               onClick={() => void playPrevious()}
               aria-label="Previous song"
               className="p-1.5 text-[#F1EDE6] hover:text-[#C6A878] transition-colors cursor-pointer"
-              title="Previous"
+              title={t.previous}
             >
               <SkipBack className="w-4 h-4" />
             </button>
@@ -228,7 +239,7 @@ export const MusicPlayerBar: React.FC = () => {
               disabled={!currentTrack || isLoadingAudio}
               aria-label={isPlaying ? 'Pause' : 'Play'}
               className="w-9 h-9 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
-              title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+              title={isPlaying ? `${t.pause} (Space)` : `${t.play} (Space)`}
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
             </button>
@@ -238,7 +249,7 @@ export const MusicPlayerBar: React.FC = () => {
               onClick={() => void playNext()}
               aria-label="Next song"
               className="p-1.5 text-[#F1EDE6] hover:text-[#C6A878] transition-colors cursor-pointer"
-              title="Next"
+              title={t.next}
             >
               <SkipForward className="w-4 h-4" />
             </button>

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { Sparkles, Volume2 } from 'lucide-react'
 import { isReducedMotion } from '@/animations'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 
 interface MusicTheaterIntroProps {
   reduceMotionOverride?: boolean
@@ -16,6 +17,7 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
   reduceMotionOverride = false,
   onComplete,
 }) => {
+  const { t } = useMusicI18n()
   const [phase, setPhase] = useState<IntroPhase>('closed')
   const containerRef = useRef<HTMLDivElement>(null)
   const foyerCrestRef = useRef<HTMLDivElement>(null)
@@ -183,7 +185,7 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
         <div className="pt-12 sm:pt-16 px-6 flex flex-col items-center">
           <div className="w-full max-w-4xl border-b border-[#C6A878]/15 pb-3 mb-5 text-center">
             <span className="text-[11px] uppercase tracking-[0.35em] text-[#C6A878]/75">
-              Grand Symphony Hall
+              {t.brandTitle}
             </span>
           </div>
           <div
@@ -228,16 +230,16 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C6A878]/35 bg-[#22201E]/85 text-[#D6AD73] text-xs tracking-[0.2em] uppercase mb-4">
               <Volume2 className="w-3.5 h-3.5" />
-              <span>Stage Spotlights Ready</span>
+              <span>{t.stageReady}</span>
             </div>
             <h2
               className="text-3xl sm:text-5xl font-semibold text-[#F1EDE6] tracking-wide mb-3"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
-              Every Song Becomes a Performance
+              {t.performanceTagline}
             </h2>
             <p className="text-sm sm:text-base text-[#A49C92] max-w-lg mx-auto">
-              Orchestral chamber acoustics and your private vinyl & lossless archive await.
+              {t.performanceDesc}
             </p>
           </div>
         </div>
@@ -284,18 +286,18 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
         <div className="pointer-events-auto max-w-xl rounded-2xl border border-[#C6A878]/30 bg-[#101010]/75 backdrop-blur-md px-8 py-10 sm:px-12 sm:py-12 shadow-2xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#C6A878]/35 bg-[#22201E]/90 text-[#C6A878] text-[11px] uppercase tracking-[0.26em] mb-5">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Private Residence Recital</span>
+            <span>{t.introCrest}</span>
           </div>
 
           <h1
             className="text-4xl sm:text-6xl font-semibold text-[#F1EDE6] tracking-wide mb-3"
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            Private Music Theater
+            {t.introTitle}
           </h1>
 
           <p className="text-sm sm:text-base text-[#A49C92] mb-8 leading-relaxed">
-            An intimate classical concert hall designed for unhurried listening and your personal lossless collection.
+            {t.introSubtitle}
           </p>
 
           <button
@@ -303,7 +305,7 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
             onClick={handleEnterTheater}
             className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] font-semibold text-sm tracking-wide transition-colors cursor-pointer shadow-lg"
           >
-            <span>Enter the Theater</span>
+            <span>{t.enterTheater}</span>
           </button>
         </div>
       </div>
@@ -315,7 +317,7 @@ export const MusicTheaterIntro: React.FC<MusicTheaterIntroProps> = ({
           onClick={finishIntro}
           className="px-4 py-2 rounded-full border border-[#C6A878]/35 bg-[#181716]/85 hover:bg-[#22201E] text-[#F1EDE6] text-xs tracking-wider uppercase transition-colors cursor-pointer"
         >
-          Skip Intro
+          {t.skipIntro}
         </button>
       </div>
     </div>

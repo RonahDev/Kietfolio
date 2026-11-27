@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, FileAudio, FolderOpen, Loader2, Upload, X } from 'lucide-react'
 import { formatFileSize, useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 import { SUPPORTED_AUDIO_EXTENSIONS } from '../types/music'
 
 interface MusicImportDropzoneProps {
@@ -13,6 +14,7 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
   onImportFinished,
 }) => {
   const { playlists, importFiles, importItems, isImporting, clearImportItems } = useMusicTheater()
+  const { language, t } = useMusicI18n()
   const [targetPlaylistId, setTargetPlaylistId] = useState(defaultPlaylistId)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -29,22 +31,24 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-[#C6A878]">
-            Local Lossless & Audio Vault
+            {language === 'vi' ? 'Kho Nhạc Lossless & Âm Thanh Cục Bộ' : 'Local Lossless & Audio Vault'}
           </p>
           <p className="text-xs text-[#A49C92] mt-0.5">
-            Supported: {SUPPORTED_AUDIO_EXTENSIONS.map((ext) => `.${ext}`).join(', ')} • Stored 100% locally in your browser IndexedDB.
+            {language === 'vi'
+              ? `Hỗ trợ: ${SUPPORTED_AUDIO_EXTENSIONS.map((ext) => `.${ext}`).join(', ')} • Lưu trữ 100% cục bộ trong IndexedDB của trình duyệt.`
+              : `Supported: ${SUPPORTED_AUDIO_EXTENSIONS.map((ext) => `.${ext}`).join(', ')} • Stored 100% locally in your browser IndexedDB.`}
           </p>
         </div>
 
         <label className="flex items-center gap-2 text-xs text-[#A49C92]">
-          <span>Add to Playlist:</span>
+          <span>{language === 'vi' ? 'Gán vào Danh Sách:' : 'Add to Playlist:'}</span>
           <select
             value={targetPlaylistId}
             onChange={(e) => setTargetPlaylistId(e.target.value)}
             aria-label="Target playlist for imported songs"
             className="px-3 py-1.5 rounded-lg bg-[#22201E] border border-[#C6A878]/25 text-xs text-[#F1EDE6]"
           >
-            <option value="">Library Only</option>
+            <option value="">{language === 'vi' ? 'Chỉ Lưu Thư Viện' : 'Library Only'}</option>
             {playlists.map((pl) => (
               <option key={pl.id} value={pl.id}>
                 {pl.name}
@@ -79,10 +83,12 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
           className="text-xl font-semibold text-[#F1EDE6] mb-1"
           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
         >
-          Drop Audio Files Here
+          {t.importDropzoneTitle}
         </h4>
         <p className="text-xs text-[#A49C92] mb-5">
-          Drag one or multiple audio tracks directly from your computer, or browse files and folders.
+          {language === 'vi'
+            ? 'Kéo một hoặc nhiều bài hát trực tiếp từ máy tính của bạn, hoặc duyệt tìm tệp & thư mục.'
+            : 'Drag one or multiple audio tracks directly from your computer, or browse files and folders.'}
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -93,7 +99,7 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C6A878] hover:bg-[#D6AD73] text-[#101010] text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
           >
             <FileAudio className="w-4 h-4" />
-            <span>Select Audio Files</span>
+            <span>{t.selectFilesBtn}</span>
           </button>
 
           <button
@@ -103,7 +109,7 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#C6A878]/30 bg-[#22201E] hover:bg-[#321B22] text-[#F1EDE6] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
           >
             <FolderOpen className="w-4 h-4 text-[#C6A878]" />
-            <span>Import Folder</span>
+            <span>{language === 'vi' ? 'Nhập Cả Thư Mục' : 'Import Folder'}</span>
           </button>
         </div>
 
@@ -139,7 +145,7 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
         <div className="rounded-2xl border border-[#C6A878]/20 bg-[#22201E]/75 p-4 space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#C6A878] uppercase tracking-wider">
-              Import Progress ({importItems.filter((i) => i.status === 'done').length}/
+              {t.importProgress} ({importItems.filter((i) => i.status === 'done').length}/
               {importItems.length})
             </span>
             {!isImporting && (
@@ -148,7 +154,7 @@ export const MusicImportDropzone: React.FC<MusicImportDropzoneProps> = ({
                 onClick={clearImportItems}
                 className="text-xs text-[#A49C92] hover:text-[#F1EDE6] cursor-pointer"
               >
-                Clear Log
+                {language === 'vi' ? 'Xóa Nhật Ký' : 'Clear Log'}
               </button>
             )}
           </div>
@@ -207,6 +213,7 @@ export const MusicImportModal: React.FC<MusicImportModalProps> = ({
   onClose,
   defaultPlaylistId,
 }) => {
+  const { language, t } = useMusicI18n()
   if (!isOpen) return null
 
   return (
@@ -220,13 +227,15 @@ export const MusicImportModal: React.FC<MusicImportModalProps> = ({
         <div className="flex items-center justify-between mb-5">
           <div>
             <p className="text-[11px] uppercase tracking-[0.22em] text-[#C6A878]">
-              My Music Collection
+              {t.myCollection}
             </p>
             <h3
               className="text-2xl font-semibold text-[#F1EDE6]"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
-              Import Audio Into Your Private Hall
+              {language === 'vi'
+                ? 'Nhập Tệp Âm Thanh Vào Thính Phòng Của Bạn'
+                : 'Import Audio Into Your Private Hall'}
             </h3>
           </div>
           <button

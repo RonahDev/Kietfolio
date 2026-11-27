@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Film, FolderPlus, Search } from 'lucide-react'
+import { Film, FolderPlus, Globe, Search } from 'lucide-react'
 import { MusicTheaterProvider } from './context/MusicTheaterContext'
 import { useMusicTheater } from './hooks/useMusicTheater'
+import { useMusicI18n } from './hooks/useMusicI18n'
 import { MusicDashboardView } from './components/MusicDashboardView'
 import { MusicImportModal } from './components/MusicImportModal'
 import {
@@ -33,6 +34,7 @@ const MusicTheaterShell: React.FC<MusicTheaterHubProps> = ({ onBackToPortfolio }
     settings,
     selectedPlaylistId,
   } = useMusicTheater()
+  const { language, toggleLanguage, t } = useMusicI18n()
 
   const [importModalOpen, setImportModalOpen] = useState(false)
 
@@ -83,13 +85,25 @@ const MusicTheaterShell: React.FC<MusicTheaterHubProps> = ({ onBackToPortfolio }
               type="text"
               value={searchQuery}
               onChange={(e) => handleHeaderSearchChange(e.target.value)}
-              placeholder="Search performances, composers, albums..."
+              placeholder={t.searchPlaceholder}
               aria-label="Header search music"
               className="w-full pl-10 pr-4 py-2 rounded-full bg-[#181716] border border-[#C6A878]/20 text-xs sm:text-sm text-[#F1EDE6] placeholder:text-[#A49C92]/65 focus:outline-none focus:border-[#C6A878]"
             />
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Language Switcher */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-[#C6A878]/30 bg-[#181716] hover:bg-[#22201E] text-xs font-mono text-[#C6A878] transition-colors cursor-pointer shrink-0"
+              title={language === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
+              aria-label={language === 'vi' ? 'Chuyển sang Tiếng Anh' : 'Switch to Vietnamese'}
+            >
+              <Globe className="w-3.5 h-3.5 text-[#C6A878]" />
+              <span className="font-bold">{language === 'vi' ? 'VI' : 'EN'}</span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
@@ -102,7 +116,7 @@ const MusicTheaterShell: React.FC<MusicTheaterHubProps> = ({ onBackToPortfolio }
               title="Chuyển sang Rạp Phim 3D Cinema Stream"
             >
               <Film className="w-3.5 h-3.5 text-[#d4af70]" />
-              <span className="font-bold">Cinema 3D</span>
+              <span className="font-bold">{t.cinemaBtn}</span>
             </button>
 
             <button
@@ -111,8 +125,8 @@ const MusicTheaterShell: React.FC<MusicTheaterHubProps> = ({ onBackToPortfolio }
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C6A878]/35 bg-[#321B22]/85 hover:bg-[#542C35] text-xs font-medium text-[#F1EDE6] transition-colors cursor-pointer shrink-0"
             >
               <FolderPlus className="w-3.5 h-3.5 text-[#C6A878]" />
-              <span className="hidden sm:inline">My Music Collection</span>
-              <span className="sm:hidden">Import</span>
+              <span className="hidden sm:inline">{t.myCollection}</span>
+              <span className="sm:hidden">{t.importShort}</span>
             </button>
           </div>
         </header>

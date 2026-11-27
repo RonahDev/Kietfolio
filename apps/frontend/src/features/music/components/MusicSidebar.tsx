@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ChevronLeft,
@@ -17,6 +17,8 @@ import {
   Upload,
 } from 'lucide-react'
 import { useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
+import type { MusicI18nStrings } from '../data/musicTranslations'
 import type { MusicNavTab } from '../types/music'
 
 interface NavItemConfig {
@@ -25,18 +27,20 @@ interface NavItemConfig {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const NAV_ITEMS: NavItemConfig[] = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'discover', label: 'Discover', icon: Compass },
-  { id: 'all-songs', label: 'All Songs', icon: Music2 },
-  { id: 'albums', label: 'Albums', icon: Disc3 },
-  { id: 'artists', label: 'Artists', icon: Mic2 },
-  { id: 'my-playlists', label: 'My Playlists', icon: ListMusic },
-  { id: 'imported-music', label: 'Imported Music', icon: Upload },
-  { id: 'recently-played', label: 'Recently Played', icon: Clock },
-  { id: 'favorites', label: 'Favorites', icon: Heart },
-  { id: 'settings', label: 'Settings', icon: Settings },
-]
+function getNavItems(t: MusicI18nStrings): NavItemConfig[] {
+  return [
+    { id: 'home', label: t.tabHome, icon: Home },
+    { id: 'discover', label: t.tabDiscover, icon: Compass },
+    { id: 'all-songs', label: t.tabAllSongs, icon: Music2 },
+    { id: 'albums', label: t.tabAlbums, icon: Disc3 },
+    { id: 'artists', label: t.tabArtists, icon: Mic2 },
+    { id: 'my-playlists', label: t.tabMyPlaylists, icon: ListMusic },
+    { id: 'imported-music', label: t.tabImportedMusic, icon: Upload },
+    { id: 'recently-played', label: t.tabRecentlyPlayed, icon: Clock },
+    { id: 'favorites', label: t.tabFavorites, icon: Heart },
+    { id: 'settings', label: t.tabSettings, icon: Settings },
+  ]
+}
 
 interface MusicSidebarProps {
   onBackToPortfolio: () => void
@@ -49,8 +53,11 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
 }) => {
   const { activeTab, setActiveTab, setSelectedPlaylistId, importedTracks, playlists, favoriteIds } =
     useMusicTheater()
+  const { t } = useMusicI18n()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const navItems = useMemo(() => getNavItems(t), [t])
 
   const handleSelectTab = (tab: MusicNavTab) => {
     setActiveTab(tab)
@@ -87,10 +94,10 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
                   className="text-base font-semibold text-[#F1EDE6] leading-none truncate"
                   style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                 >
-                  Music Theater
+                  {t.brandTitle}
                 </p>
                 <p className="text-[10px] tracking-[0.2em] uppercase text-[#C6A878] mt-1">
-                  Private Box
+                  {t.brandSubtitle}
                 </p>
               </div>
             </div>
@@ -113,16 +120,16 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
             className={`w-full flex items-center justify-center gap-2 rounded-xl border border-[#C6A878]/35 bg-[#321B22]/75 hover:bg-[#542C35] text-[#F1EDE6] py-2.5 px-3 text-xs font-medium tracking-wide transition-colors cursor-pointer ${
               collapsed ? 'px-0' : ''
             }`}
-            title="Import Audio Files to My Music Collection"
+            title={t.importAudio}
           >
             <FolderPlus className="w-4 h-4 text-[#C6A878] shrink-0" />
-            {!collapsed && <span>Import Audio</span>}
+            {!collapsed && <span>{t.importAudio}</span>}
           </button>
         </div>
 
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon
             const active = activeTab === item.id
             const badge = getBadgeCount(item.id)
@@ -164,7 +171,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
             className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium text-[#A49C92] hover:text-[#F1EDE6] hover:bg-[#22201E] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 shrink-0 text-[#C6A878]" />
-            {!collapsed && <span>Back to Portfolio</span>}
+            {!collapsed && <span>{t.backToPortfolio}</span>}
           </button>
         </div>
       </aside>
@@ -174,7 +181,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
         <div className="md:hidden fixed inset-x-0 bottom-16 top-16 z-40 bg-[#101010]/95 backdrop-blur-md p-4 overflow-y-auto border-t border-[#C6A878]/20">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs uppercase tracking-[0.2em] text-[#C6A878]">
-              Concert Hall Sections
+              {t.brandTitle}
             </span>
             <button
               type="button"
@@ -185,7 +192,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon
               const active = activeTab === item.id
               return (
@@ -211,7 +218,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
             className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#C6A878]/25 bg-[#181716] text-xs text-[#F1EDE6]"
           >
             <ArrowLeft className="w-4 h-4 text-[#C6A878]" />
-            <span>Back to Portfolio</span>
+            <span>{t.backToPortfolio}</span>
           </button>
         </div>
       )}
@@ -221,12 +228,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
         aria-label="Mobile Music Navigation"
         className="md:hidden fixed bottom-0 inset-x-0 z-40 h-14 bg-[#181716] border-t border-[#C6A878]/20 grid grid-cols-5"
       >
-        {[
-          NAV_ITEMS[0],
-          NAV_ITEMS[1],
-          NAV_ITEMS[5],
-          NAV_ITEMS[6],
-        ].map((item) => {
+        {[navItems[0], navItems[1], navItems[5], navItems[6]].map((item) => {
           const Icon = item.icon
           const active = activeTab === item.id
           return (
@@ -251,7 +253,7 @@ export const MusicSidebar: React.FC<MusicSidebarProps> = ({
           }`}
         >
           <Settings className="w-4 h-4" />
-          <span>More</span>
+          <span>{t.tabSettings.split(' ')[0]}</span>
         </button>
       </nav>
     </>

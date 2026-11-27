@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { SITE_CONFIG } from '@/config/site'
+import { LanguageProvider } from '@/context'
 import { MusicTheaterHub } from '../MusicTheaterHub'
 import { musicIndexedDb, resetMusicDbConnectionForTests } from '../services/musicIndexedDb'
 
@@ -251,5 +252,48 @@ describe('Private Music Theater UI Integration', () => {
     await waitFor(() => {
       expect(screen.getByTestId('music-theater-intro')).toBeTruthy()
     })
+  })
+
+  it('renders complete Vietnamese localization and supports dynamic language toggle', async () => {
+    window.sessionStorage.setItem(SITE_CONFIG.storageKeys.musicIntroSeen, '1')
+    window.localStorage.setItem(SITE_CONFIG.storageKeys.language, 'vi')
+
+    let rendered: ReturnType<typeof render>
+    await act(async () => {
+      rendered = render(
+        <LanguageProvider>
+          <MusicTheaterHub onBackToPortfolio={vi.fn()} />
+        </LanguageProvider>
+      )
+    })
+
+    // Vietnamese Dashboard Welcome and Controls
+    expect(screen.getByText('Chào Mừng Đến Với Nhà Hát Âm Nhạc Cá Nhân')).toBeTruthy()
+    expect(screen.getByText('Phát Buổi Hòa Nhạc Mở Đầu')).toBeTruthy()
+    expect(screen.getAllByText('Nhập Nhạc Cá Nhân').length).toBeGreaterThanOrEqual(1)
+
+    // Vietnamese Sidebar Navigation Tabs
+    const sidebar = screen.getByLabelText('Private Music Theater Navigation')
+    expect(within(sidebar).getByText('Trang Chủ')).toBeTruthy()
+    expect(within(sidebar).getByText('Khám Phá')).toBeTruthy()
+    expect(within(sidebar).getByText('Tất Cả Bài Hát')).toBeTruthy()
+    expect(within(sidebar).getByText('Tuyển Tập Album')).toBeTruthy()
+    expect(within(sidebar).getByText('Nghệ Sĩ & Tác Giả')).toBeTruthy()
+    expect(within(sidebar).getByText('Danh Sách Phát')).toBeTruthy()
+    expect(within(sidebar).getByText('Nhạc Đã Nhập')).toBeTruthy()
+    expect(within(sidebar).getByText('Phát Gần Đây')).toBeTruthy()
+    expect(within(sidebar).getByText('Yêu Thích')).toBeTruthy()
+    expect(within(sidebar).getByText('Cài Đặt')).toBeTruthy()
+
+    // Header Language Toggle Button (switches VI -> EN)
+    const langBtn = screen.getByRole('button', { name: /Chuyển sang Tiếng Anh|Switch to English/i })
+    fireEvent.click(langBtn)
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome to Your Private Music Theater')).toBeTruthy()
+      expect(screen.getByText('Play Opening Recital')).toBeTruthy()
+    })
+
+    rendered!.unmount()
   })
 })

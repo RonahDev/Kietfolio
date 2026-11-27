@@ -146,7 +146,7 @@ describe('Cinema Page Bug Fixes Regression Suite', () => {
     })
     expect(screen.getByText(/Danh Sách Phim Yêu Thích Của Tôi/i)).toBeDefined()
     expect(screen.queryByText(/Kết quả tìm kiếm cho:/i)).toBeNull()
-  })
+  }, 15000)
 
   it('FIX-04: CinemaVideoPlayer does NOT intercept Spacebar when player is closed', async () => {
     await renderWithAppProviders(

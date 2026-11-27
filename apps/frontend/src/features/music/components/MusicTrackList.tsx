@@ -11,6 +11,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { formatFileSize, formatMusicTime, useMusicTheater } from '../hooks/useMusicTheater'
+import { useMusicI18n } from '../hooks/useMusicI18n'
 import type { MusicTrack } from '../types/music'
 import { EditMetadataModal, PlaylistAssignModal } from './TrackActionModal'
 
@@ -26,7 +27,7 @@ interface MusicTrackListProps {
 
 export const MusicTrackList: React.FC<MusicTrackListProps> = ({
   tracks,
-  emptyMessage = 'No works found matching your filter.',
+  emptyMessage,
   showSizeColumn = false,
   enableReorder = false,
   onReorder,
@@ -42,15 +43,22 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
     isFavorite,
     deleteImportedTrack,
   } = useMusicTheater()
+  const { language } = useMusicI18n()
 
   const [assignModalTrack, setAssignModalTrack] = useState<MusicTrack | null>(null)
   const [editModalTrack, setEditModalTrack] = useState<MusicTrack | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
 
+  const defaultEmptyMsg =
+    emptyMessage ||
+    (language === 'vi'
+      ? 'Không có tác phẩm nào phù hợp với bộ lọc.'
+      : 'No works found matching your filter.')
+
   if (tracks.length === 0) {
     return (
       <div className="rounded-2xl border border-[#C6A878]/15 bg-[#181716] p-10 text-center">
-        <p className="text-sm text-[#A49C92]">{emptyMessage}</p>
+        <p className="text-sm text-[#A49C92]">{defaultEmptyMsg}</p>
       </div>
     )
   }
@@ -153,7 +161,11 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                       {track.title}
                     </button>
                     <span className="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded bg-[#22201E] text-[#C6A878] border border-[#C6A878]/20 uppercase shrink-0">
-                      {track.sourceType === 'local' ? track.format : 'Stage'}
+                      {track.sourceType === 'local'
+                        ? track.format
+                        : language === 'vi'
+                          ? 'Sân Khấu'
+                          : 'Stage'}
                     </span>
                   </div>
                   <p className="text-xs text-[#A49C92] truncate">
@@ -179,7 +191,7 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                     className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       fav ? 'text-[#D6AD73]' : 'text-[#A49C92] hover:text-[#F1EDE6]'
                     }`}
-                    title="Favorite"
+                    title={language === 'vi' ? 'Yêu thích' : 'Favorite'}
                   >
                     <Heart className={`w-4 h-4 ${fav ? 'fill-[#D6AD73]' : ''}`} />
                   </button>
@@ -189,7 +201,7 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                     onClick={() => setAssignModalTrack(track)}
                     aria-label={`Add ${track.title} to playlists`}
                     className="p-1.5 rounded-lg text-[#A49C92] hover:text-[#C6A878] hover:bg-[#22201E] transition-colors cursor-pointer"
-                    title="Add to Playlists"
+                    title={language === 'vi' ? 'Thêm vào danh sách phát' : 'Add to Playlists'}
                   >
                     <ListPlus className="w-4 h-4" />
                   </button>
@@ -200,7 +212,7 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                       onClick={() => setEditModalTrack(track)}
                       aria-label={`Edit metadata for ${track.title}`}
                       className="p-1.5 rounded-lg text-[#A49C92] hover:text-[#C6A878] hover:bg-[#22201E] transition-colors cursor-pointer"
-                      title="Edit Metadata"
+                      title={language === 'vi' ? 'Chỉnh sửa thông tin' : 'Edit Metadata'}
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -212,7 +224,7 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                       onClick={() => onRemoveFromPlaylist(track.id)}
                       aria-label={`Remove ${track.title} from playlist`}
                       className="p-1.5 rounded-lg text-[#A49C92] hover:text-[#D6AD73] hover:bg-[#321B22] transition-colors cursor-pointer"
-                      title="Remove from Playlist"
+                      title={language === 'vi' ? 'Xóa khỏi danh sách' : 'Remove from Playlist'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -224,7 +236,7 @@ export const MusicTrackList: React.FC<MusicTrackListProps> = ({
                       onClick={() => void deleteImportedTrack(track.id)}
                       aria-label={`Delete ${track.title} from library`}
                       className="p-1.5 rounded-lg text-[#A49C92] hover:text-rose-300 hover:bg-[#321B22] transition-colors cursor-pointer"
-                      title="Delete Imported File"
+                      title={language === 'vi' ? 'Xóa tệp khỏi thư viện' : 'Delete Imported File'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
